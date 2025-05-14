@@ -1,4 +1,3 @@
-
 import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
 
@@ -11,7 +10,13 @@ export const clusters = sqliteTable('clusters', {
 	mapCenterLat: real('map_center_lat').default(46.603354).notNull(),
 	mapCenterLon: real('map_center_lon').default(1.888334).notNull(),
 	mapScale: integer('map_scale').default(5).notNull(),
-	lastUpdated: integer('last_updated', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
-	createdAt: integer('created_at').default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: integer('updated_at').default(sql`CURRENT_TIMESTAMP`).notNull()
+	lastUpdated: integer('last_updated', { mode: 'timestamp' })
+		.notNull()
+		.default(sql`CURRENT_TIMESTAMP`),
+	createdAt: integer('created_at')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	updatedAt: integer('updated_at')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull()
 });
