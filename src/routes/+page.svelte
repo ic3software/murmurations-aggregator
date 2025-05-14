@@ -1,5 +1,5 @@
 <script lang="ts">
-	const mapData = {
+	const clusterData = {
 		queryUrl:
 			'https://test-index.murmurations.network/v2/nodes?schema=organizations_schema-v1.0.0&tags=software&tags_filter=or&tags_exact=false&page=1&page_size=500',
 		shortcode:
@@ -55,9 +55,9 @@
 					<div class="font-medium text-slate-900 dark:text-slate-50">Query URL:</div>
 					<div class="break-all text-slate-700 md:col-span-3 dark:text-slate-300">
 						<a
-							href={mapData.queryUrl}
+							href={clusterData.queryUrl}
 							class="text-sm text-slate-900 hover:underline dark:text-slate-50"
-							>{mapData.queryUrl}</a
+							>{clusterData.queryUrl}</a
 						>
 					</div>
 				</div>
@@ -66,29 +66,29 @@
 					<div class="font-medium text-slate-900 dark:text-slate-50">Shortcode:</div>
 					<div class="break-all text-slate-700 md:col-span-3 dark:text-slate-300">
 						<code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-slate-800"
-							>{mapData.shortcode}</code
+							>{clusterData.shortcode}</code
 						>
 					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Map Center:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{mapData.mapCenter}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.mapCenter}</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Map Scale:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{mapData.mapScale}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.mapScale}</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Created At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{mapData.createdAt}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.createdAt}</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Updated At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{mapData.updatedAt}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.updatedAt}</div>
 				</div>
 			</div>
 
