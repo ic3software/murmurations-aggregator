@@ -7,7 +7,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "husky",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
@@ -37,6 +37,8 @@
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^2.46.1",
 		"globals": "^15.14.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.0.0",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.10",
@@ -52,5 +54,13 @@
 	"dependencies": {
 		"@libsql/client": "^0.14.0",
 		"drizzle-orm": "^0.40.1"
+	},
+	"lint-staged": {
+		"*.{ts,svelte}": [
+			"pnpm lint"
+		],
+		"*.{css,html,json}": [
+			"pnpm format"
+		]
 	}
 }
