@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
+
 	const clusterData = {
 		queryUrl:
 			'https://test-index.murmurations.network/v2/nodes?schema=organizations_schema-v1.0.0&tags=software&tags_filter=or&tags_exact=false&page=1&page_size=500',
@@ -22,11 +24,7 @@
 				Murmurations Collaborative Cluster Builder
 			</h1>
 
-			<button
-				class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-			>
-				Create Cluster
-			</button>
+			<Button href="/clusters/create">Create Cluster</Button>
 		</header>
 
 		<div class="mb-6 max-w-none text-slate-700 dark:text-slate-300">
@@ -54,7 +52,7 @@
 			<div class="mb-6 space-y-3">
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Query URL:</div>
-					<div class="break-all text-slate-700 md:col-span-3 dark:text-slate-300">
+					<div class="break-all text-slate-700 dark:text-slate-300 md:col-span-3">
 						<a
 							href={clusterData.queryUrl}
 							class="text-sm text-slate-900 hover:underline dark:text-slate-50"
@@ -65,7 +63,7 @@
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Shortcode:</div>
-					<div class="break-all text-slate-700 md:col-span-3 dark:text-slate-300">
+					<div class="break-all text-slate-700 dark:text-slate-300 md:col-span-3">
 						<code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-slate-800"
 							>{clusterData.shortcode}</code
 						>
@@ -74,52 +72,36 @@
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Map Center:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 						{clusterData.mapCenter}
 					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Map Scale:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.mapScale}</div>
+					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">{clusterData.mapScale}</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Created At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 						{clusterData.createdAt}
 					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Updated At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 						{clusterData.updatedAt}
 					</div>
 				</div>
 			</div>
 
 			<div class="flex flex-wrap gap-3">
-				<button
-					class="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-				>
-					Update Nodes
-				</button>
-				<button
-					class="rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-				>
-					Manage Nodes
-				</button>
-				<button
-					class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-				>
-					Edit Cluster
-				</button>
-				<button
-					class="rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-				>
-					Delete Cluster
-				</button>
+				<Button>Update Nodes</Button>
+				<Button>Manage Nodes</Button>
+				<Button variant="secondary">Edit Cluster</Button>
+				<Button variant="destructive">Delete Cluster</Button>
 			</div>
 		</div>
 	</div>
