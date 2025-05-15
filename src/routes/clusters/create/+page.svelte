@@ -4,11 +4,17 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 
-	// Mock data for dropdowns
 	const sourceIndexOptions = [
+		{ value: 'https://index.murmurations.network/v2/nodes', label: 'Production Index' },
 		{ value: 'https://test-index.murmurations.network/v2/nodes', label: 'Test Index' }
 	];
-	const schemaOptions = [{ value: 'An Organization', label: 'An Organization' }];
+
+	const schemaOptions = [
+		{ value: 'organizations_schema-v1.0.0', label: 'An Organization' },
+		{ value: 'people_schema-v0.1.0', label: 'A Person' },
+		{ value: 'offers_wants_prototype-v0.0.2', label: 'An Offer or Want' }
+	];
+
 	const countryOptions = [
 		{ value: 'AD', label: 'Andorra' },
 		{ value: 'AE', label: 'United Arab Emirates' },
@@ -16,7 +22,6 @@
 		{ value: 'AG', label: 'Antigua and Barbuda' }
 	];
 
-	// Form state
 	let clusterName = $state('');
 	let clusterCenterLatitude = $state('');
 	let clusterCenterLongitude = $state('');
