@@ -42,11 +42,13 @@
 		"globals": "^15.14.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.0.0",
+		"mode-watcher": "^1.0.7",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.10",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
+		"svelte-sonner": "^1.0.1",
 		"tailwind-merge": "^3.3.0",
 		"tailwind-variants": "^1.0.0",
 		"tailwindcss": "^3.4.17",
@@ -58,7 +60,6 @@
 		"wrangler": "^4.14.4"
 	},
 	"dependencies": {
-		"@libsql/client": "^0.14.0",
 		"drizzle-orm": "^0.40.1"
 	},
 	"lint-staged": {

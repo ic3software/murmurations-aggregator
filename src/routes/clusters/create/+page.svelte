@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox';
@@ -10,6 +11,11 @@
 	import { tick } from 'svelte';
 	import { cn } from '$lib/utils';
 	import type { PageProps } from './$types';
+	import type { ClusterRequest } from '$lib/types/cluster';
+	import { createCluster } from '$lib/api';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+
 	let { data }: PageProps = $props();
 
 	const sourceIndexOptions = [
@@ -26,19 +32,19 @@
 	const countryOptions = data?.countries ?? [];
 
 	let clusterName = $state('');
-	let clusterCenterLatitude = $state('');
-	let clusterCenterLongitude = $state('');
-	let clusterScale = $state('');
+	let clusterCenterLatitude = $state(0);
+	let clusterCenterLongitude = $state(0);
+	let clusterScale = $state(5);
 	let sourceIndex = $state(sourceIndexOptions[0].value);
 	let schema = $state(schemaOptions[0].value);
-	let filterName = $state('');
-	let filterLatitude = $state('');
-	let filterLongitude = $state('');
-	let filterRange = $state('');
-	let filterLocality = $state('');
-	let filterRegion = $state('');
-	let filterCountry = $state('');
-	let filterTags = $state('');
+	let name = $state('');
+	let latitude = $state(0);
+	let longitude = $state(0);
+	let range = $state('');
+	let locality = $state('');
+	let region = $state('');
+	let country = $state('');
+	let tags = $state('');
 	let allTags = $state(false);
 	let tagsExact = $state(false);
 	let primaryUrl = $state('');
@@ -46,6 +52,8 @@
 	let countrySearchOpen = $state(false);
 	let countrySearchResults = $state<{ label: string; value: string }[]>(data?.countries);
 	let triggerRef = $state<HTMLButtonElement>(null!);
+
+	let isCreatingCluster = $state(false);
 
 	const sourceIndexTriggerContent = $derived(
 		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
@@ -67,6 +75,72 @@
 		tick().then(() => {
 			triggerRef?.focus();
 		});
+	}
+
+	async function submitCluster(event: Event) {
+		event.preventDefault();
+
+		isCreatingCluster = true;
+
+		try {
+			const queryParams = buildQueryParams();
+			const pageQueries = 'page=1&page_size=500';
+			const queryString = [...queryParams, pageQueries].join('&');
+			const urlWithParams = `${sourceIndex}?${queryString}`;
+
+			console.log('urlWithParams', urlWithParams);
+
+			const clusterData: ClusterRequest = {
+				name: clusterName,
+				indexUrl: sourceIndex,
+				queryUrl: `?${queryString}`,
+				centerLat: clusterCenterLatitude,
+				centerLon: clusterCenterLongitude,
+				scale: clusterScale
+			};
+			const response = await createCluster(clusterData);
+
+			console.log('response', response);
+
+			if (response?.success) {
+				toast.success('Cluster created successfully');
+				goto('/');
+			} else {
+				toast.error('Error creating cluster');
+			}
+		} catch (error) {
+			console.error('Error creating cluster:', error);
+			toast.error('Error creating cluster');
+		} finally {
+			isCreatingCluster = false;
+		}
+	}
+
+	function buildQueryParams() {
+		const queryParams: string[] = [];
+
+		if (schema) queryParams.push(`schema=${encodeURIComponent(schema)}`);
+		if (name) queryParams.push(`name=${encodeURIComponent(name)}`);
+		if (latitude) queryParams.push(`latitude=${encodeURIComponent(latitude)}`);
+		if (longitude) queryParams.push(`longitude=${encodeURIComponent(longitude)}`);
+		if (range) queryParams.push(`range=${encodeURIComponent(range)}`);
+		if (locality) queryParams.push(`locality=${encodeURIComponent(locality)}`);
+		if (region) queryParams.push(`region=${encodeURIComponent(region)}`);
+		if (country) queryParams.push(`country=${encodeURIComponent(country)}`);
+		if (primaryUrl) queryParams.push(`primary_url=${encodeURIComponent(primaryUrl)}`);
+
+		// Tags handling
+		if (tags) {
+			queryParams.push(`tags=${encodeURIComponent(tags)}`);
+			queryParams.push(`operator=${allTags ? 'and' : 'or'}`);
+		}
+
+		// Tags exact matching
+		if (tagsExact) {
+			queryParams.push('tags_exact=true');
+		}
+
+		return queryParams;
 	}
 </script>
 
@@ -91,7 +165,7 @@
 				and directories.
 			</p>
 
-			<form class="space-y-8">
+			<form class="space-y-8" onsubmit={submitCluster}>
 				<!-- Cluster/Directory Name -->
 				<div class="space-y-2">
 					<Label for="cluster-name">Cluster/Directory Name</Label>
@@ -125,7 +199,10 @@
 							<div class="grid gap-2">
 								<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
 								<Input
-									type="text"
+									type="number"
+									min="-90"
+									max="90"
+									step="0.000001"
 									id="cluster-center-latitude"
 									bind:value={clusterCenterLatitude}
 									class="w-full"
@@ -136,7 +213,10 @@
 							<div class="grid gap-2">
 								<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
 								<Input
-									type="text"
+									type="number"
+									min="-180"
+									max="180"
+									step="0.000001"
 									id="cluster-center-longitude"
 									bind:value={clusterCenterLongitude}
 									class="w-full"
@@ -147,7 +227,10 @@
 							<div class="grid gap-2">
 								<Label for="cluster-scale">Cluster Scale</Label>
 								<Input
-									type="text"
+									type="number"
+									min="1"
+									max="18"
+									step="1"
 									id="cluster-scale"
 									bind:value={clusterScale}
 									class="w-full"
@@ -219,11 +302,11 @@
 
 								<div class="grid gap-4">
 									<div class="grid gap-2">
-										<Label for="filter-name">Name</Label>
+										<Label for="name">Name</Label>
 										<Input
 											type="text"
-											id="filter-name"
-											bind:value={filterName}
+											id="name"
+											bind:value={name}
 											class="w-full"
 											placeholder="Enter name"
 										/>
@@ -233,11 +316,14 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-latitude">Latitude</Label>
+										<Label for="latitude">Latitude</Label>
 										<Input
-											type="text"
-											id="filter-latitude"
-											bind:value={filterLatitude}
+											type="number"
+											min="-90"
+											max="90"
+											step="0.000001"
+											id="latitude"
+											bind:value={latitude}
 											class="w-full"
 											placeholder="Enter latitude"
 										/>
@@ -247,11 +333,14 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-longitude">Longitude</Label>
+										<Label for="longitude">Longitude</Label>
 										<Input
-											type="text"
-											id="filter-longitude"
-											bind:value={filterLongitude}
+											type="number"
+											min="-180"
+											max="180"
+											step="0.000001"
+											id="longitude"
+											bind:value={longitude}
 											class="w-full"
 											placeholder="Enter longitude"
 										/>
@@ -261,11 +350,11 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-range">Range (i.e. 25km, 15mi)</Label>
+										<Label for="range">Range (i.e. 25km, 15mi)</Label>
 										<Input
 											type="text"
-											id="filter-range"
-											bind:value={filterRange}
+											id="range"
+											bind:value={range}
 											class="w-full"
 											placeholder="Enter range"
 										/>
@@ -276,11 +365,11 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-locality">Locality</Label>
+										<Label for="locality">Locality</Label>
 										<Input
 											type="text"
-											id="filter-locality"
-											bind:value={filterLocality}
+											id="locality"
+											bind:value={locality}
 											class="w-full"
 											placeholder="Enter locality"
 										/>
@@ -291,11 +380,11 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-region">Region</Label>
+										<Label for="region">Region</Label>
 										<Input
 											type="text"
-											id="filter-region"
-											bind:value={filterRegion}
+											id="region"
+											bind:value={region}
 											class="w-full"
 											placeholder="Enter region"
 										/>
@@ -318,7 +407,7 @@
 															role="combobox"
 															aria-expanded={countrySearchOpen}
 														>
-															{filterCountry ? filterCountry : 'Select a country'}
+															{country ? country : 'Select a country'}
 															<ChevronsUpDown class="opacity-50" />
 														</Button>
 													{/snippet}
@@ -326,24 +415,22 @@
 												<Popover.Content class="w-[400px] p-0">
 													<Command.Root shouldFilter={false}>
 														<Command.Input
-															placeholder="Search locations..."
+															placeholder="Search countries..."
 															oninput={(e) => searchCountries(e.currentTarget.value)}
 														/>
 														<Command.List>
-															<Command.Empty>No locations found.</Command.Empty>
+															<Command.Empty>No countries found.</Command.Empty>
 															<Command.Group>
 																{#each countrySearchResults as result}
 																	<Command.Item
 																		value={result.value}
 																		onSelect={() => {
-																			filterCountry = result.value;
+																			country = result.value;
 																			closeAndFocusCountryTrigger();
 																		}}
 																	>
 																		<Check
-																			class={cn(
-																				filterCountry !== result.value && 'text-transparent'
-																			)}
+																			class={cn(country !== result.value && 'text-transparent')}
 																		/>
 																		<div>
 																			<div>{result.label}</div>
@@ -362,11 +449,11 @@
 									</div>
 
 									<div class="grid gap-2">
-										<Label for="filter-tags">Tags</Label>
+										<Label for="tags">Tags</Label>
 										<Input
 											type="text"
-											id="filter-tags"
-											bind:value={filterTags}
+											id="tags"
+											bind:value={tags}
 											class="w-full"
 											placeholder="Enter tags"
 										/>
@@ -421,7 +508,14 @@
 				</div>
 
 				<div class="flex gap-4">
-					<Button type="submit">Create</Button>
+					{#if isCreatingCluster}
+						<Button disabled>
+							<LoaderCircle class="animate-spin" />
+							Please wait
+						</Button>
+					{:else}
+						<Button type="submit">Create</Button>
+					{/if}
 					<Button variant="secondary" href="/">Cancel</Button>
 				</div>
 			</form>
