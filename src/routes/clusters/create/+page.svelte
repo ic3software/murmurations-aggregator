@@ -3,6 +3,14 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Command from '$lib/components/ui/command/index.js';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { ChevronsUpDown, Check } from '@lucide/svelte';
+	import { Label } from '$lib/components/ui/label';
+	import { tick } from 'svelte';
+	import { cn } from '$lib/utils';
+	import type { PageProps } from './$types';
+	let { data }: PageProps = $props();
 
 	const sourceIndexOptions = [
 		{ value: 'https://index.murmurations.network/v2/nodes', label: 'Production Index' },
@@ -15,12 +23,7 @@
 		{ value: 'offers_wants_prototype-v0.0.2', label: 'An Offer or Want' }
 	];
 
-	const countryOptions = [
-		{ value: 'AD', label: 'Andorra' },
-		{ value: 'AE', label: 'United Arab Emirates' },
-		{ value: 'AF', label: 'Afghanistan' },
-		{ value: 'AG', label: 'Antigua and Barbuda' }
-	];
+	const countryOptions = data?.countries ?? [];
 
 	let clusterName = $state('');
 	let clusterCenterLatitude = $state('');
@@ -40,6 +43,10 @@
 	let tagsExact = $state(false);
 	let primaryUrl = $state('');
 
+	let countrySearchOpen = $state(false);
+	let countrySearchResults = $state<{ label: string; value: string }[]>([]);
+	let triggerRef = $state<HTMLButtonElement>(null!);
+
 	const sourceIndexTriggerContent = $derived(
 		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
 			'Select a source index'
@@ -49,10 +56,23 @@
 		schemaOptions.find((option) => option.value === schema)?.label ?? 'Select a schema'
 	);
 
-	const countryTriggerContent = $derived(
-		countryOptions.find((option) => option.value === filterCountry)?.label ?? 'Select a country'
-	);
+	function searchCountries(query: string) {
+		countrySearchResults = countryOptions.filter((option) =>
+			option.label.toLowerCase().includes(query.toLowerCase())
+		);
+	}
+
+	function closeAndFocusCountryTrigger() {
+		countrySearchOpen = false;
+		tick().then(() => {
+			triggerRef?.focus();
+		});
+	}
 </script>
+
+<svelte:head>
+	<title>Create a Cluster | Murmurations Collaborative Cluster Builder</title>
+</svelte:head>
 
 <div class="min-h-screen bg-background text-foreground">
 	<div class="container mx-auto px-4 py-8">
@@ -74,9 +94,7 @@
 			<form class="space-y-8">
 				<!-- Cluster/Directory Name -->
 				<div class="space-y-2">
-					<label for="cluster-name" class="text-sm font-medium leading-none"
-						>Cluster/Directory Name</label
-					>
+					<Label for="cluster-name">Cluster/Directory Name</Label>
 					<Input
 						type="text"
 						id="cluster-name"
@@ -105,9 +123,7 @@
 
 						<div class="grid gap-4">
 							<div class="grid gap-2">
-								<label for="cluster-center-latitude" class="text-sm font-medium leading-none"
-									>Cluster Center Latitude</label
-								>
+								<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
 								<Input
 									type="text"
 									id="cluster-center-latitude"
@@ -118,9 +134,7 @@
 							</div>
 
 							<div class="grid gap-2">
-								<label for="cluster-center-longitude" class="text-sm font-medium leading-none"
-									>Cluster Center Longitude</label
-								>
+								<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
 								<Input
 									type="text"
 									id="cluster-center-longitude"
@@ -131,9 +145,7 @@
 							</div>
 
 							<div class="grid gap-2">
-								<label for="cluster-scale" class="text-sm font-medium leading-none"
-									>Cluster Scale</label
-								>
+								<Label for="cluster-scale">Cluster Scale</Label>
 								<Input
 									type="text"
 									id="cluster-scale"
@@ -157,9 +169,7 @@
 					<div class="p-0 pt-4">
 						<div class="grid gap-4">
 							<div class="grid gap-2">
-								<label for="source-index" class="text-sm font-medium leading-none"
-									>Source Index</label
-								>
+								<Label for="source-index">Source Index</Label>
 								<Select.Root type="single" name="sourceIndex" bind:value={sourceIndex}>
 									<Select.Trigger class="w-full">
 										{sourceIndexTriggerContent}
@@ -181,7 +191,7 @@
 							</div>
 
 							<div class="grid gap-2">
-								<label for="schema" class="text-sm font-medium leading-none">Schema</label>
+								<Label for="schema">Schema</Label>
 								<Select.Root type="single" name="schema" bind:value={schema}>
 									<Select.Trigger class="w-full">
 										{schemaTriggerContent}
@@ -209,7 +219,7 @@
 
 								<div class="grid gap-4">
 									<div class="grid gap-2">
-										<label for="filter-name" class="text-sm font-medium leading-none">Name</label>
+										<Label for="filter-name">Name</Label>
 										<Input
 											type="text"
 											id="filter-name"
@@ -223,9 +233,7 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-latitude" class="text-sm font-medium leading-none"
-											>Latitude</label
-										>
+										<Label for="filter-latitude">Latitude</Label>
 										<Input
 											type="text"
 											id="filter-latitude"
@@ -239,9 +247,7 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-longitude" class="text-sm font-medium leading-none"
-											>Longitude</label
-										>
+										<Label for="filter-longitude">Longitude</Label>
 										<Input
 											type="text"
 											id="filter-longitude"
@@ -255,9 +261,7 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-range" class="text-sm font-medium leading-none"
-											>Range (i.e. 25km, 15mi)</label
-										>
+										<Label for="filter-range">Range (i.e. 25km, 15mi)</Label>
 										<Input
 											type="text"
 											id="filter-range"
@@ -272,9 +276,7 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-locality" class="text-sm font-medium leading-none"
-											>Locality</label
-										>
+										<Label for="filter-locality">Locality</Label>
 										<Input
 											type="text"
 											id="filter-locality"
@@ -289,9 +291,7 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-region" class="text-sm font-medium leading-none"
-											>Region</label
-										>
+										<Label for="filter-region">Region</Label>
 										<Input
 											type="text"
 											id="filter-region"
@@ -306,31 +306,63 @@
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-country" class="text-sm font-medium leading-none"
-											>Country</label
-										>
-										<Select.Root type="single" name="filterCountry" bind:value={filterCountry}>
-											<Select.Trigger class="w-full">
-												{countryTriggerContent}
-											</Select.Trigger>
-											<Select.Content>
-												<Select.Group>
-													<Select.GroupHeading>Country</Select.GroupHeading>
-													{#each countryOptions as option (option.value)}
-														<Select.Item value={option.value} label={option.label}
-															>{option.label}</Select.Item
+										<Label for="country" class="block text-sm font-medium">Country</Label>
+										<div class="relative">
+											<Popover.Root bind:open={countrySearchOpen}>
+												<Popover.Trigger bind:ref={triggerRef}>
+													{#snippet child({ props })}
+														<Button
+															variant="outline"
+															class="w-full justify-between"
+															{...props}
+															role="combobox"
+															aria-expanded={countrySearchOpen}
 														>
-													{/each}
-												</Select.Group>
-											</Select.Content>
-										</Select.Root>
+															{filterCountry ? filterCountry : 'Select a country'}
+															<ChevronsUpDown class="opacity-50" />
+														</Button>
+													{/snippet}
+												</Popover.Trigger>
+												<Popover.Content class="w-[400px] p-0">
+													<Command.Root shouldFilter={false}>
+														<Command.Input
+															placeholder="Search locations..."
+															oninput={(e) => searchCountries(e.currentTarget.value)}
+														/>
+														<Command.List>
+															<Command.Empty>No locations found.</Command.Empty>
+															<Command.Group>
+																{#each countrySearchResults as result}
+																	<Command.Item
+																		value={result.value}
+																		onSelect={() => {
+																			filterCountry = result.value;
+																			closeAndFocusCountryTrigger();
+																		}}
+																	>
+																		<Check
+																			class={cn(
+																				filterCountry !== result.value && 'text-transparent'
+																			)}
+																		/>
+																		<div>
+																			<div>{result.label}</div>
+																		</div>
+																	</Command.Item>
+																{/each}
+															</Command.Group>
+														</Command.List>
+													</Command.Root>
+												</Popover.Content>
+											</Popover.Root>
+										</div>
 										<p class="text-sm text-muted-foreground">
 											Search for nodes which list a specific country code
 										</p>
 									</div>
 
 									<div class="grid gap-2">
-										<label for="filter-tags" class="text-sm font-medium leading-none">Tags</label>
+										<Label for="filter-tags">Tags</Label>
 										<Input
 											type="text"
 											id="filter-tags"
@@ -346,7 +378,7 @@
 
 									<div class="flex items-center space-x-2">
 										<Checkbox id="all-tags" bind:checked={allTags} class="h-4 w-4" />
-										<label for="all-tags" class="text-sm font-medium leading-none">All Tags</label>
+										<Label for="all-tags">All Tags</Label>
 									</div>
 									<p class="-mt-2 text-sm text-muted-foreground">
 										Only return nodes with all of the tags specified above
@@ -354,18 +386,14 @@
 
 									<div class="flex items-center space-x-2">
 										<Checkbox id="tags-exact" bind:checked={tagsExact} class="h-4 w-4" />
-										<label for="tags-exact" class="text-sm font-medium leading-none"
-											>Tags Exact</label
-										>
+										<Label for="tags-exact">Tags Exact</Label>
 									</div>
 									<p class="-mt-2 text-sm text-muted-foreground">
 										Only return nodes with exact matches (turns off fuzzy matching)
 									</p>
 
 									<div class="grid gap-2">
-										<label for="primary-url" class="text-sm font-medium leading-none"
-											>Primary URL</label
-										>
+										<Label for="primary-url">Primary URL</Label>
 										<Input
 											type="text"
 											id="primary-url"
@@ -382,7 +410,8 @@
 											<code
 												class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm"
 												>some-host.net/my-org</code
-											>)
+											>
+											)
 										</p>
 									</div>
 								</div>
