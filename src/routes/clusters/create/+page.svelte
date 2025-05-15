@@ -44,7 +44,7 @@
 	let primaryUrl = $state('');
 
 	let countrySearchOpen = $state(false);
-	let countrySearchResults = $state<{ label: string; value: string }[]>([]);
+	let countrySearchResults = $state<{ label: string; value: string }[]>(data?.countries);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
 	const sourceIndexTriggerContent = $derived(

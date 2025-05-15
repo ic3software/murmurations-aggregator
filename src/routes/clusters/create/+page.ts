@@ -1,9 +1,6 @@
 import type { PageLoad } from './$types';
 import { getCountries } from '$lib/api';
 
-export const ssr = false;
-export const prerender = false;
-
 export const load: PageLoad = async ({ fetch }) => {
 	const rawCountries = await getCountries(fetch);
 
