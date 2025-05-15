@@ -33,8 +33,9 @@
 			<p class="mb-2">
 				Add a shortcode into a page or post. More information about the parameters for shortcodes
 				can be found
-				<a href="https://murmurations.network" class="font-medium text-slate-900 hover:underline dark:text-slate-50"
-					>in the docs</a
+				<a
+					href="https://murmurations.network"
+					class="font-medium text-slate-900 hover:underline dark:text-slate-50">in the docs</a
 				>.
 			</p>
 			<p>
@@ -73,7 +74,9 @@
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Map Center:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.mapCenter}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+						{clusterData.mapCenter}
+					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
@@ -83,12 +86,16 @@
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Created At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.createdAt}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+						{clusterData.createdAt}
+					</div>
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 					<div class="font-medium text-slate-900 dark:text-slate-50">Updated At:</div>
-					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">{clusterData.updatedAt}</div>
+					<div class="text-slate-700 md:col-span-3 dark:text-slate-300">
+						{clusterData.updatedAt}
+					</div>
 				</div>
 			</div>
 
