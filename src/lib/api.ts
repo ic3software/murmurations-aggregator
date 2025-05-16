@@ -1,4 +1,4 @@
-import type { ClusterRequest } from './types/cluster';
+import type { Cluster, ClusterRequest } from './types/cluster';
 
 export async function getCountries(
 	customFetch: typeof fetch = fetch
@@ -19,6 +19,28 @@ export async function getCountries(
 		return data;
 	} catch (error) {
 		console.error('Error fetching countries:', error);
+		throw error;
+	}
+}
+
+export async function getClusters(customFetch: typeof fetch = fetch): Promise<Cluster[]> {
+	try {
+		const response = await customFetch('/api/clusters', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch clusters');
+		}
+
+		const result = await response.json();
+		const data: Cluster[] = result.data;
+		return data ?? [];
+	} catch (error) {
+		console.error('Error fetching clusters:', error);
 		throw error;
 	}
 }

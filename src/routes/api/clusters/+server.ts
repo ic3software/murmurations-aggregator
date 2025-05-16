@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createCluster, getClusters } from '$lib/server/models/clusters';
-import type { DBCluster } from '$lib/types/cluster';
+import type { Cluster, DBCluster } from '$lib/types/cluster';
 import { getDB } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Database } } }) => {
@@ -10,7 +10,20 @@ export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Data
 		const db = getDB(platform.env);
 		const clusterData = await getClusters(db);
 
-		return json({ data: clusterData, success: true }, { status: 200 });
+		const clusters: Cluster[] = clusterData.map((cluster) => ({
+			clusterId: cluster.clusterId,
+			name: cluster.name,
+			indexUrl: cluster.indexUrl,
+			queryUrl: cluster.queryUrl,
+			centerLat: cluster.centerLat,
+			centerLon: cluster.centerLon,
+			scale: cluster.scale,
+			lastUpdated: cluster.lastUpdated.getTime(),
+			createdAt: cluster.createdAt,
+			updatedAt: cluster.updatedAt
+		}));
+
+		return json({ data: clusters, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing GET request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
