@@ -2,10 +2,23 @@
 	import { Button } from '$lib/components/ui/button';
 	import type { PageProps } from './$types';
 	import { formatDate } from '$lib/date';
+	import { deleteCluster } from '$lib/api';
+	import { toast } from 'svelte-sonner';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
 	let { data }: PageProps = $props();
 
-	const clusters = data?.clusters ?? [];
+	let clusters = $state(data?.clusters ?? []);
+
+	async function handleDeleteCluster(clusterId: string) {
+		try {
+			await deleteCluster(clusterId);
+			clusters = clusters.filter((cluster) => cluster.clusterId !== clusterId);
+			toast.success('Cluster deleted successfully');
+		} catch (error) {
+			toast.error(`Failed to delete cluster: ${error}`);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -102,7 +115,27 @@
 						<Button>Update Nodes</Button>
 						<Button>Manage Nodes</Button>
 						<Button variant="secondary">Edit Cluster</Button>
-						<Button variant="destructive">Delete Cluster</Button>
+						<AlertDialog.Root>
+							<AlertDialog.Trigger>
+								<Button variant="destructive" aria-label="Delete Cluster">Delete Cluster</Button>
+							</AlertDialog.Trigger>
+							<AlertDialog.Content>
+								<AlertDialog.Header>
+									<AlertDialog.Title>Delete Cluster</AlertDialog.Title>
+								</AlertDialog.Header>
+								<AlertDialog.Description>
+									<p>
+										Are you sure you want to delete the cluster: {cluster.name}?
+									</p>
+								</AlertDialog.Description>
+								<AlertDialog.Footer>
+									<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+									<AlertDialog.Action onclick={() => handleDeleteCluster(cluster.clusterId)}>
+										Continue
+									</AlertDialog.Action>
+								</AlertDialog.Footer>
+							</AlertDialog.Content>
+						</AlertDialog.Root>
 					</div>
 				</div>
 			{/each}

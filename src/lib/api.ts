@@ -45,9 +45,9 @@ export async function getClusters(customFetch: typeof fetch = fetch): Promise<Cl
 	}
 }
 
-export async function createCluster(cluster: ClusterRequest) {
+export async function createCluster(cluster: ClusterRequest, customFetch: typeof fetch = fetch) {
 	try {
-		const response = await fetch(`/api/clusters`, {
+		const response = await customFetch(`/api/clusters`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -62,6 +62,26 @@ export async function createCluster(cluster: ClusterRequest) {
 		return response.json();
 	} catch (error) {
 		console.error('Error creating cluster:', error);
+		throw error;
+	}
+}
+
+export async function deleteCluster(clusterId: string, customFetch: typeof fetch = fetch) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to delete cluster');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error deleting cluster:', error);
 		throw error;
 	}
 }
