@@ -100,8 +100,6 @@
 			};
 			const response = await createCluster(clusterData);
 
-			console.log('response', response);
-
 			if (response?.success) {
 				toast.success('Cluster created successfully');
 				goto('/');
