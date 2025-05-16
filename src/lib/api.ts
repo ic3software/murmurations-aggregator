@@ -1,4 +1,4 @@
-import type { Cluster, ClusterRequest, EditableClusterFields } from './types/cluster';
+import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from './types/cluster';
 
 export async function getCountries(
 	customFetch: typeof fetch = fetch
@@ -67,7 +67,10 @@ export async function getCluster(clusterId: string, customFetch: typeof fetch = 
 	}
 }
 
-export async function createCluster(cluster: ClusterRequest, customFetch: typeof fetch = fetch) {
+export async function createCluster(
+	cluster: ClusterCreateInput,
+	customFetch: typeof fetch = fetch
+) {
 	try {
 		const response = await customFetch(`/api/clusters`, {
 			method: 'POST',
@@ -90,7 +93,7 @@ export async function createCluster(cluster: ClusterRequest, customFetch: typeof
 
 export async function updateCluster(
 	clusterId: string,
-	cluster: EditableClusterFields,
+	cluster: ClusterUpdateInput,
 	customFetch: typeof fetch = fetch
 ) {
 	try {

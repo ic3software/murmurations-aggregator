@@ -1,21 +1,16 @@
-export interface EditableClusterFields {
-	name: string;
-	centerLat: number;
-	centerLon: number;
-	scale: number;
-}
+import { clusters } from '$lib/server/db/schema';
 
-export interface ClusterRequest extends EditableClusterFields {
-	indexUrl: string;
-	queryUrl: string;
-}
+export type Cluster = typeof clusters.$inferSelect;
 
-export interface DBCluster extends ClusterRequest {
-	clusterId: string;
-}
+type ClusterInsert = typeof clusters.$inferInsert;
 
-export interface Cluster extends DBCluster {
-	lastUpdated: number;
-	createdAt: number;
-	updatedAt: number;
-}
+export type ClusterDbCreateInput = Omit<ClusterInsert, 'id'>;
+
+export type ClusterCreateInput = Omit<
+	ClusterInsert,
+	'id' | 'clusterId' | 'createdAt' | 'updatedAt' | 'lastUpdated'
+>;
+
+export type ClusterUpdateInput = Pick<Cluster, 'name' | 'centerLat' | 'centerLon' | 'scale'>;
+
+export type ClusterWithoutId = Omit<Cluster, 'id'>;

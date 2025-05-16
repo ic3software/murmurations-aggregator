@@ -3,7 +3,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
-import type { EditableClusterFields } from '$lib/types/cluster';
+import type { ClusterUpdateInput } from '$lib/types/cluster';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
@@ -23,8 +23,8 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
-		// Convert the cluster to an EditableClusterFields object
-		const editableCluster: EditableClusterFields = {
+		// Convert the cluster to an ClusterUpdateInput object
+		const editableCluster: ClusterUpdateInput = {
 			name: cluster.name,
 			centerLat: cluster.centerLat,
 			centerLon: cluster.centerLon,
@@ -59,7 +59,7 @@ export const PUT: RequestHandler = async ({
 
 		const { name, centerLat, centerLon, scale } = await request.json();
 
-		const updatedCluster: EditableClusterFields = {
+		const updatedCluster: ClusterUpdateInput = {
 			name,
 			centerLat,
 			centerLon,

@@ -11,7 +11,7 @@
 	import { tick } from 'svelte';
 	import { cn } from '$lib/utils';
 	import type { PageProps } from './$types';
-	import type { ClusterRequest } from '$lib/types/cluster';
+	import type { ClusterCreateInput } from '$lib/types/cluster';
 	import { createCluster } from '$lib/api';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
@@ -90,7 +90,7 @@
 
 			console.log('urlWithParams', urlWithParams);
 
-			const clusterData: ClusterRequest = {
+			const clusterData: ClusterCreateInput = {
 				name: clusterName,
 				indexUrl: sourceIndex,
 				queryUrl: `?${queryString}`,
@@ -178,7 +178,7 @@
 								<Input
 									type="text"
 									id="cluster-name"
-									bind:value={name}
+									bind:value={clusterName}
 									class="w-full"
 									placeholder="Enter cluster name"
 								/>
