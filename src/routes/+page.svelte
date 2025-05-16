@@ -114,7 +114,9 @@
 					<div class="flex flex-wrap gap-3">
 						<Button>Update Nodes</Button>
 						<Button>Manage Nodes</Button>
-						<Button variant="secondary">Edit Cluster</Button>
+						<Button variant="secondary" href={`/clusters/${cluster.clusterId}/edit`}
+							>Edit Cluster</Button
+						>
 						<AlertDialog.Root>
 							<AlertDialog.Trigger>
 								<Button variant="destructive" aria-label="Delete Cluster">Delete Cluster</Button>

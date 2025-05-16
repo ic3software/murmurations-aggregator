@@ -166,36 +166,35 @@
 			</p>
 
 			<form class="space-y-8" onsubmit={submitCluster}>
-				<!-- Cluster/Directory Name -->
-				<div class="space-y-2">
-					<Label for="cluster-name">Cluster/Directory Name</Label>
-					<Input
-						type="text"
-						id="cluster-name"
-						bind:value={clusterName}
-						class="w-full"
-						placeholder="Enter cluster or directory name"
-					/>
-					<p class="text-sm text-muted-foreground">
-						A familiar name to make it easy for you to identify
-					</p>
-				</div>
-
 				<!-- Cluster Settings -->
 				<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
 					<div class="flex flex-col space-y-1.5 p-0">
 						<h3 class="text-2xl font-semibold leading-none tracking-tight">Cluster Settings</h3>
 					</div>
 					<div class="p-0 pt-4">
-						<p class="mb-4 leading-7">
-							Use <a
-								href="https://latlong.net"
-								target="_blank"
-								class="font-medium text-primary underline underline-offset-4">LatLong.net</a
-							> to pick a location, enter coordinates with decimals (e.g., 48.86124)
-						</p>
-
 						<div class="grid gap-4">
+							<div class="grid gap-2">
+								<Label for="cluster-name">Cluster Name</Label>
+								<Input
+									type="text"
+									id="cluster-name"
+									bind:value={name}
+									class="w-full"
+									placeholder="Enter cluster name"
+								/>
+								<p class="text-sm text-muted-foreground">
+									A familiar name to make it easy for you to identify
+								</p>
+							</div>
+
+							<p class="leading-7">
+								Use <a
+									href="https://latlong.net"
+									target="_blank"
+									class="font-medium text-primary underline underline-offset-4">LatLong.net</a
+								> to pick a location, enter coordinates with decimals (e.g., 48.86124)
+							</p>
+
 							<div class="grid gap-2">
 								<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
 								<Input

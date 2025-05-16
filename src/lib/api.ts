@@ -1,4 +1,4 @@
-import type { Cluster, ClusterRequest } from './types/cluster';
+import type { Cluster, ClusterRequest, EditableClusterFields } from './types/cluster';
 
 export async function getCountries(
 	customFetch: typeof fetch = fetch
@@ -45,6 +45,28 @@ export async function getClusters(customFetch: typeof fetch = fetch): Promise<Cl
 	}
 }
 
+export async function getCluster(clusterId: string, customFetch: typeof fetch = fetch) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch cluster');
+		}
+
+		const result = await response.json();
+		const data: Cluster = result.data;
+		return data;
+	} catch (error) {
+		console.error('Error fetching cluster:', error);
+		throw error;
+	}
+}
+
 export async function createCluster(cluster: ClusterRequest, customFetch: typeof fetch = fetch) {
 	try {
 		const response = await customFetch(`/api/clusters`, {
@@ -62,6 +84,31 @@ export async function createCluster(cluster: ClusterRequest, customFetch: typeof
 		return response.json();
 	} catch (error) {
 		console.error('Error creating cluster:', error);
+		throw error;
+	}
+}
+
+export async function updateCluster(
+	clusterId: string,
+	cluster: EditableClusterFields,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(cluster)
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to update cluster');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error updating cluster:', error);
 		throw error;
 	}
 }
