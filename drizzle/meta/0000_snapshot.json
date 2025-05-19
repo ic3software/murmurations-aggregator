@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a3d88f7f-b841-4fef-a65b-b0a5a7b16f7e",
+  "id": "e8ebe5ad-cb79-432f-9bb1-ecb53fdce803",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clusters": {
@@ -11,6 +11,13 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cluster_id": {
+          "name": "cluster_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -35,31 +42,24 @@
           "notNull": true,
           "autoincrement": false
         },
-        "tag_slug": {
-          "name": "tag_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "map_center_lat": {
-          "name": "map_center_lat",
+        "center_lat": {
+          "name": "center_lat",
           "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": 46.603354
         },
-        "map_center_lon": {
-          "name": "map_center_lon",
+        "center_lon": {
+          "name": "center_lon",
           "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": 1.888334
         },
-        "map_scale": {
-          "name": "map_scale",
+        "scale": {
+          "name": "scale",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -91,15 +91,7 @@
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "clusters_tag_slug_unique": {
-          "name": "clusters_tag_slug_unique",
-          "columns": [
-            "tag_slug"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
