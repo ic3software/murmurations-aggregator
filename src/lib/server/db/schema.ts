@@ -20,3 +20,24 @@ export const clusters = sqliteTable('clusters', {
 		.default(sql`CURRENT_TIMESTAMP`)
 		.notNull()
 });
+
+export const nodes = sqliteTable('nodes', {
+	id: integer('id').primaryKey().notNull(),
+	clusterId: integer('cluster_id').notNull(),
+	postId: integer('post_id'),
+	profileUrl: text('profile_url').notNull(),
+	data: text('data').notNull(),
+	lastUpdated: integer('last_updated', { mode: 'timestamp' })
+		.notNull()
+		.default(sql`CURRENT_TIMESTAMP`),
+	status: text('status').notNull().default('ignore'),
+	isAvailable: integer('is_available').notNull().default(0),
+	unavailableMessage: text('unavailable_message').default(''),
+	hasAuthority: integer('has_authority').notNull().default(1),
+	createdAt: integer('created_at')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull(),
+	updatedAt: integer('updated_at')
+		.default(sql`CURRENT_TIMESTAMP`)
+		.notNull()
+});

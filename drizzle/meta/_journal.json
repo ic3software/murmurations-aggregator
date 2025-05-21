@@ -8,6 +8,13 @@
       "when": 1747337539177,
       "tag": "0000_clumsy_blur",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1747807547038,
+      "tag": "0001_numerous_shaman",
+      "breakpoints": true
     }
   ]
 }
