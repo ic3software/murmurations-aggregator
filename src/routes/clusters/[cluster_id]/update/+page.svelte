@@ -13,6 +13,10 @@
 		updateClusterTimestamp
 	} from '$lib/api';
 	import { processProfile, checkProfileAuthority } from '$lib/profile-utils';
+	import { Button } from '$lib/components/ui/button';
+	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 
 	let { data }: PageProps = $props();
 
@@ -27,6 +31,18 @@
 	let deletedProfiles = $state<NodeInput[]>([]);
 	let unauthorizedProfiles = $state<NodeInput[]>([]);
 	let profileList = $state<NodeInput[]>([]);
+
+	let selectedAction = $state('');
+
+	const actions = [
+		{ value: 'publish', label: 'Publish' },
+		{ value: 'dismiss', label: 'Dismiss' },
+		{ value: 'ignore', label: 'Ignore' }
+	];
+
+	const triggerContent = $derived(
+		actions.find((a) => a.value === selectedAction)?.label ?? 'Select action'
+	);
 
 	/**
 	 * Retrieve data from the index service with timestamp, which means get updated profiles only.
@@ -250,6 +266,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Update Nodes | Murmurations Collaborative Cluster Builder</title>
+</svelte:head>
+
 <div>
 	{#if isLoading}
 		<p>
@@ -263,9 +283,73 @@
 		</p>
 	{/if}
 	<progress value={loadingProgress} max="100"></progress>
-	<ul>
-		{#each profileList as profile}
-			<li>{profile.profileUrl}</li>
-		{/each}
-	</ul>
+
+	{#if !isLoading}
+		<h2>Deleted Profiles</h2>
+		<Table.Root>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head>ID</Table.Head>
+					<Table.Head>Profile URL</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each deletedProfiles as profile}
+					<Table.Row>
+						<Table.Cell>{profile.id}</Table.Cell>
+						<Table.Cell>{profile.profileUrl}</Table.Cell>
+					</Table.Row>
+				{/each}
+			</Table.Body>
+		</Table.Root>
+
+		<h2>Unauthorized Profiles</h2>
+		<Table.Root>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head>ID</Table.Head>
+					<Table.Head>Profile URL</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each unauthorizedProfiles as profile}
+					<Table.Row>
+						<Table.Cell>{profile.id}</Table.Cell>
+						<Table.Cell>{profile.profileUrl}</Table.Cell>
+					</Table.Row>
+				{/each}
+			</Table.Body>
+		</Table.Root>
+
+		<h2>Profile List</h2>
+		<ul>
+			{#each profileList as profile}
+				<li>{profile.profileUrl}</li>
+			{/each}
+		</ul>
+
+		<div class="mt-6 flex items-center gap-4">
+			<div>
+				<Select.Root type="single" name="action" bind:value={selectedAction}>
+					<Select.Trigger class="w-32">
+						{triggerContent}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Group>
+							<Label>Actions</Label>
+							{#each actions as action (action.value)}
+								<Select.Item value={action.value} label={action.label}>
+									{action.label}
+								</Select.Item>
+							{/each}
+						</Select.Group>
+					</Select.Content>
+				</Select.Root>
+			</div>
+
+			<Button variant="default" onclick={() => console.log('Submit action:', selectedAction)}>
+				Submit
+			</Button>
+		</div>
+	{/if}
 </div>

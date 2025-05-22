@@ -113,7 +113,7 @@
 					</div>
 
 					<div class="flex flex-wrap gap-3">
-						<Button>Update Nodes</Button>
+						<Button href={`/clusters/${cluster.clusterId}/update`}>Update Nodes</Button>
 						<Button href={`/clusters/${cluster.clusterId}/select`}>Manage Nodes</Button>
 						<Button variant="secondary" href={`/clusters/${cluster.clusterId}/edit`}
 							>Edit Cluster</Button
