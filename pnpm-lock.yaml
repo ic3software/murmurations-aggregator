@@ -22,8 +22,8 @@ importers:
         specifier: ^9.18.0
         version: 9.26.0
       '@lucide/svelte':
-        specifier: ^0.510.0
-        version: 0.510.0(svelte@5.28.2)
+        specifier: ^0.482.0
+        version: 0.482.0(svelte@5.28.2)
       '@playwright/test':
         specifier: ^1.49.1
         version: 1.52.0
@@ -888,8 +888,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@lucide/svelte@0.510.0':
-    resolution: {integrity: sha512-1zj0aj9K+eBK0sMtDQh1HfL2Xv7EY+SemBWFMMmoVN4mZ9Swc3e5cGs20knwdgt46kZnlEI/a29tX//zpl64LA==}
+  '@lucide/svelte@0.482.0':
+    resolution: {integrity: sha512-n2ycHU9cNcleRDwwpEHBJ6pYzVhHIaL3a+9dQa8kns9hB2g05bY+v2p2KP8v0pZwtNhYTHk/F2o2uZ1bVtQGhw==}
     peerDependencies:
       svelte: ^5
 
@@ -3580,7 +3580,7 @@ snapshots:
   '@libsql/win32-x64-msvc@0.4.7':
     optional: true
 
-  '@lucide/svelte@0.510.0(svelte@5.28.2)':
+  '@lucide/svelte@0.482.0(svelte@5.28.2)':
     dependencies:
       svelte: 5.28.2
 

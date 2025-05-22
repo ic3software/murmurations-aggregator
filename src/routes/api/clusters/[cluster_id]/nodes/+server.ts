@@ -3,7 +3,36 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { getDB } from '$lib/server/db';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { NodeDbCreateInput } from '$lib/types/node';
-import { createNode } from '$lib/server/models/nodes';
+import { createNode, getNodes } from '$lib/server/models/nodes';
+
+export const GET: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
+	params
+}) => {
+	try {
+		const db = getDB(platform.env);
+		const clusterId = params?.cluster_id;
+
+		// Validate clusterId
+		if (!clusterId) {
+			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		}
+
+		const nodes = await getNodes(db, clusterId);
+
+		if (!nodes || nodes.length === 0) {
+			return json(
+				{ error: 'No nodes found for the given cluster_id', success: false },
+				{ status: 404 }
+			);
+		}
+
+		return json({ data: nodes, success: true }, { status: 200 });
+	} catch (error) {
+		console.error('Error processing GET request:', error);
+		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
+	}
+};
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },

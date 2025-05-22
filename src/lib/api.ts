@@ -161,3 +161,23 @@ export async function createNode(
 		throw error;
 	}
 }
+
+export async function getNodes(clusterId: string, customFetch: typeof fetch = fetch) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/nodes`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch nodes');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error fetching nodes:', error);
+		throw error;
+	}
+}

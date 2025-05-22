@@ -4,6 +4,10 @@ import type { D1Result } from '@cloudflare/workers-types';
 import type { NodeDbCreateInput } from '$lib/types/node';
 import { eq } from 'drizzle-orm';
 
+export async function getNodes(db: DrizzleD1Database, clusterId: string) {
+	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterId)).all();
+}
+
 export async function createNode(
 	db: DrizzleD1Database,
 	node: NodeDbCreateInput
