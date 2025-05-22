@@ -4,6 +4,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
 import type { ClusterUpdateInput } from '$lib/types/cluster';
+import { deleteNodes } from '$lib/server/models/nodes';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
@@ -91,11 +92,15 @@ export const DELETE: RequestHandler = async ({
 			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
 		}
 
+		// Delete the cluster
 		const result = await deleteCluster(db, clusterId);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
+
+		// Delete all nodes in the cluster
+		await deleteNodes(db, clusterId);
 
 		return json({ success: true }, { status: 200 });
 	} catch (error) {

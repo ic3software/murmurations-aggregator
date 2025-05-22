@@ -15,6 +15,11 @@
 	import { createCluster } from '$lib/api';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import { fetchProfileData, validateProfileData } from '$lib/profile-utils';
+	import { createNode } from '$lib/api';
+	import type { NodeCreateInput } from '$lib/types/node';
+	import { Progress } from '$lib/components/ui/progress';
+	import type { ProfileData } from '$lib/types/profile';
 
 	let { data }: PageProps = $props();
 
@@ -55,6 +60,9 @@
 
 	let isCreatingCluster = $state(false);
 
+	let loadingNodes = $state(false);
+	let loadingProgress = $state(0);
+
 	const sourceIndexTriggerContent = $derived(
 		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
 			'Select a source index'
@@ -80,15 +88,15 @@
 	async function submitCluster(event: Event) {
 		event.preventDefault();
 
+		// Scroll to the top of the page
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+
 		isCreatingCluster = true;
 
 		try {
 			const queryParams = buildQueryParams();
 			const pageQueries = 'page=1&page_size=500';
 			const queryString = [...queryParams, pageQueries].join('&');
-			const urlWithParams = `${sourceIndex}?${queryString}`;
-
-			console.log('urlWithParams', urlWithParams);
 
 			const clusterData: ClusterCreateInput = {
 				name: clusterName,
@@ -100,17 +108,49 @@
 			};
 			const response = await createCluster(clusterData);
 
-			if (response?.success) {
-				toast.success('Cluster created successfully');
-				goto('/');
-			} else {
-				toast.error('Error creating cluster');
+			if (!response?.success) throw new Error('Create cluster failed');
+			const clusterId = response.data.clusterId;
+			toast.success('Cluster created successfully');
+
+			loadingNodes = true;
+			const rawNodes = await fetchNodes(clusterData.indexUrl, clusterData.queryUrl);
+			if (rawNodes.length > 500) {
+				alert('Too many nodes. Please narrow your search.');
+				return;
 			}
+
+			const step = 100 / rawNodes.length;
+			for (let i = 0; i < rawNodes.length; i++) {
+				const {
+					profile_data,
+					index_data,
+					status,
+					is_available,
+					unavailable_message,
+					has_authority
+				} = await processProfile(rawNodes[i]);
+				const nodeData: NodeCreateInput = {
+					profileUrl: index_data?.profile_url,
+					data: profile_data,
+					status: status,
+					lastUpdated: index_data?.last_updated,
+					isAvailable: is_available ? 1 : 0,
+					unavailableMessage: unavailable_message,
+					hasAuthority: has_authority ? 1 : 0
+				};
+				await createNode(clusterId, nodeData);
+				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
+			}
+
+			toast.success(`Nodes created successfully. Processed ${rawNodes.length} nodes.`);
+
+			await goto(`/clusters/${clusterId}/select`);
 		} catch (error) {
 			console.error('Error creating cluster:', error);
-			toast.error('Error creating cluster');
+			toast.error('An error occurred while creating the cluster. Please try again.');
 		} finally {
 			isCreatingCluster = false;
+			loadingNodes = false;
 		}
 	}
 
@@ -130,7 +170,7 @@
 		// Tags handling
 		if (tags) {
 			queryParams.push(`tags=${encodeURIComponent(tags)}`);
-			queryParams.push(`operator=${allTags ? 'and' : 'or'}`);
+			queryParams.push(`tags_filter=${allTags ? 'and' : 'or'}`);
 		}
 
 		// Tags exact matching
@@ -139,6 +179,40 @@
 		}
 
 		return queryParams;
+	}
+
+	async function fetchNodes(indexUrl: string, queryUrl: string) {
+		const fullUrl = `${indexUrl}${queryUrl}`;
+		console.log('Fetching nodes from:', fullUrl);
+		const response = await fetch(fullUrl);
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch nodes');
+		}
+
+		const data = await response.json();
+
+		return data?.data ?? [];
+	}
+
+	async function processProfile(profile: ProfileData) {
+		const { profileData, fetchProfileError } = await fetchProfileData(
+			profile.profile_url as string
+		);
+		const isValid = profileData && (await validateProfileData(profileData, sourceIndex));
+
+		return {
+			profile_data: profileData,
+			index_data: profile,
+			is_available: !!profileData && isValid,
+			status: !profileData || !isValid ? 'ignore' : 'new',
+			unavailable_message: !profileData
+				? fetchProfileError
+				: !isValid
+					? 'Invalid Profile Data'
+					: '',
+			has_authority: true
+		};
 	}
 </script>
 
@@ -153,6 +227,15 @@
 				Murmurations Collaborative Cluster Builder
 			</h1>
 		</header>
+
+		{#if loadingNodes}
+			<div class="my-6">
+				<p class="mb-2 text-sm text-muted-foreground">
+					Importing nodes, please wait... {loadingProgress}%
+				</p>
+				<Progress value={loadingProgress} max={100} class="w-full" />
+			</div>
+		{/if}
 
 		<div class="mx-auto max-w-none">
 			<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">

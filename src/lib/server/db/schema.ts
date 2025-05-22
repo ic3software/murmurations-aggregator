@@ -23,8 +23,7 @@ export const clusters = sqliteTable('clusters', {
 
 export const nodes = sqliteTable('nodes', {
 	id: integer('id').primaryKey().notNull(),
-	clusterId: integer('cluster_id').notNull(),
-	postId: integer('post_id'),
+	clusterUuid: text('cluster_uuid').notNull(),
 	profileUrl: text('profile_url').notNull(),
 	data: text('data').notNull(),
 	lastUpdated: integer('last_updated', { mode: 'timestamp' })

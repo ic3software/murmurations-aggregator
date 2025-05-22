@@ -1,4 +1,5 @@
 import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from './types/cluster';
+import type { NodeCreateInput } from './types/node';
 
 export async function getCountries(
 	customFetch: typeof fetch = fetch
@@ -132,6 +133,31 @@ export async function deleteCluster(clusterId: string, customFetch: typeof fetch
 		return response.json();
 	} catch (error) {
 		console.error('Error deleting cluster:', error);
+		throw error;
+	}
+}
+
+export async function createNode(
+	clusterId: string,
+	node: NodeCreateInput,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/nodes`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(node)
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to post node');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error posting node:', error);
 		throw error;
 	}
 }

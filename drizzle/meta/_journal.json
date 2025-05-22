@@ -15,6 +15,13 @@
       "when": 1747807547038,
       "tag": "0001_numerous_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1747884931087,
+      "tag": "0002_blue_oracle",
+      "breakpoints": true
     }
   ]
 }
