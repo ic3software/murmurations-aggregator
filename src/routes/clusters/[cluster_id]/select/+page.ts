@@ -11,6 +11,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	}
 
 	return {
+		clusterId,
 		nodes: nodesData?.data
 	};
 };

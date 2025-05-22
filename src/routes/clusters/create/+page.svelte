@@ -129,6 +129,7 @@
 					unavailable_message,
 					has_authority
 				} = await processProfile(rawNodes[i]);
+
 				const nodeData: NodeCreateInput = {
 					profileUrl: index_data?.profile_url as string,
 					data: profile_data,
@@ -183,7 +184,6 @@
 
 	async function fetchNodes(indexUrl: string, queryUrl: string) {
 		const fullUrl = `${indexUrl}${queryUrl}`;
-		console.log('Fetching nodes from:', fullUrl);
 		const response = await fetch(fullUrl);
 
 		if (!response.ok) {

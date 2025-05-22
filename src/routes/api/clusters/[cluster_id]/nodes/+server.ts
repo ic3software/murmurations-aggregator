@@ -43,7 +43,8 @@ export const POST: RequestHandler = async ({
 		const db = getDB(platform.env);
 		const clusterId = params?.cluster_id;
 		const body = await request.json();
-		const { profileUrl, data, lastUpdated, status } = body;
+		const { profileUrl, data, lastUpdated, status, isAvailable, unavailableMessage, hasAuthority } =
+			body;
 
 		// Validate data
 		if (!clusterId) {
@@ -68,7 +69,10 @@ export const POST: RequestHandler = async ({
 			profileUrl,
 			data: JSON.stringify(data),
 			lastUpdated: new Date(lastUpdated * 1000),
-			status: status ?? 'new'
+			status: status ?? 'new',
+			isAvailable: isAvailable ?? 0,
+			unavailableMessage: unavailableMessage ?? '',
+			hasAuthority: hasAuthority ?? 0
 		};
 
 		const result = await createNode(db, node);

@@ -181,3 +181,29 @@ export async function getNodes(clusterId: string, customFetch: typeof fetch = fe
 		throw error;
 	}
 }
+
+export async function updateNodeStatus(
+	clusterId: string,
+	nodeId: number,
+	status: string,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/nodes/${nodeId}/status`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ status })
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to update node status');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error updating node status:', error);
+		throw error;
+	}
+}
