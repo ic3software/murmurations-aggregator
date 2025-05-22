@@ -130,10 +130,10 @@
 					has_authority
 				} = await processProfile(rawNodes[i]);
 				const nodeData: NodeCreateInput = {
-					profileUrl: index_data?.profile_url,
+					profileUrl: index_data?.profile_url as string,
 					data: profile_data,
 					status: status,
-					lastUpdated: index_data?.last_updated,
+					lastUpdated: index_data?.last_updated as Date,
 					isAvailable: is_available ? 1 : 0,
 					unavailableMessage: unavailable_message,
 					hasAuthority: has_authority ? 1 : 0

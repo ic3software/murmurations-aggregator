@@ -5,6 +5,7 @@
 	import { deleteCluster } from '$lib/api';
 	import { toast } from 'svelte-sonner';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { buttonVariants } from '$lib/components/ui/button';
 
 	let { data }: PageProps = $props();
 
@@ -118,8 +119,8 @@
 							>Edit Cluster</Button
 						>
 						<AlertDialog.Root>
-							<AlertDialog.Trigger>
-								<Button variant="destructive" aria-label="Delete Cluster">Delete Cluster</Button>
+							<AlertDialog.Trigger class={buttonVariants({ variant: 'destructive' })}>
+								Delete Cluster
 							</AlertDialog.Trigger>
 							<AlertDialog.Content>
 								<AlertDialog.Header>
