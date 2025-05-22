@@ -27,3 +27,15 @@ export async function updateCluster(
 export async function deleteCluster(db: DrizzleD1Database, clusterId: string): Promise<D1Result> {
 	return await db.delete(clusters).where(eq(clusters.clusterId, clusterId)).run();
 }
+
+export async function updateClusterTimestamp(
+	db: DrizzleD1Database,
+	clusterId: string,
+	lastUpdated: Date
+) {
+	return await db
+		.update(clusters)
+		.set({ lastUpdated })
+		.where(eq(clusters.clusterId, clusterId))
+		.run();
+}

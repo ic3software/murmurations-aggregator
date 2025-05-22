@@ -77,10 +77,6 @@ export const POST: RequestHandler = async ({
 
 		const result = await createNode(db, node);
 
-		if (!result) {
-			return json({ error: 'Failed to create node', success: false }, { status: 500 });
-		}
-
 		return json({ data: result, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing POST request:', error);

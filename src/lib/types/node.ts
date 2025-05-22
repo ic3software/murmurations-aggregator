@@ -14,9 +14,18 @@ export type NodeCreateInput = Omit<
 	data: ProfileData;
 };
 
-export type NodeUpdateInput = Pick<
+export type NodeUpdateInput = Omit<
+	NodeInsert,
+	'id' | 'createdAt' | 'updatedAt' | 'clusterUuid' | 'data' | 'profileUrl'
+> & {
+	data: ProfileData;
+};
+
+export type NodeDbUpdateInput = Pick<
 	Node,
-	'profileUrl' | 'status' | 'isAvailable' | 'unavailableMessage' | 'hasAuthority'
+	'data' | 'status' | 'lastUpdated' | 'isAvailable' | 'unavailableMessage' | 'hasAuthority'
 >;
 
-export type NodeWithoutId = Omit<Node, 'id'>;
+export type NodeInput = Omit<Node, 'createdAt' | 'updatedAt' | 'clusterUuid' | 'data'> & {
+	data: ProfileData;
+};

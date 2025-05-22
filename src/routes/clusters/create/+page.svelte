@@ -15,11 +15,10 @@
 	import { createCluster } from '$lib/api';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import { fetchProfileData, validateProfileData } from '$lib/profile-utils';
 	import { createNode } from '$lib/api';
 	import type { NodeCreateInput } from '$lib/types/node';
 	import { Progress } from '$lib/components/ui/progress';
-	import type { ProfileData } from '$lib/types/profile';
+	import { fetchProfiles, processProfile } from '$lib/profile-utils';
 
 	let { data }: PageProps = $props();
 
@@ -113,7 +112,7 @@
 			toast.success('Cluster created successfully');
 
 			loadingNodes = true;
-			const rawNodes = await fetchNodes(clusterData.indexUrl, clusterData.queryUrl);
+			const rawNodes = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
 			if (rawNodes.length > 500) {
 				alert('Too many nodes. Please narrow your search.');
 				return;
@@ -121,23 +120,19 @@
 
 			const step = 100 / rawNodes.length;
 			for (let i = 0; i < rawNodes.length; i++) {
-				const {
-					profile_data,
-					index_data,
-					status,
-					is_available,
-					unavailable_message,
-					has_authority
-				} = await processProfile(rawNodes[i]);
+				const { profile_data, status, is_available, unavailable_message } = await processProfile(
+					rawNodes[i],
+					sourceIndex
+				);
 
 				const nodeData: NodeCreateInput = {
-					profileUrl: index_data?.profile_url as string,
+					profileUrl: rawNodes[i].profile_url as string,
 					data: profile_data,
 					status: status,
-					lastUpdated: index_data?.last_updated as Date,
+					lastUpdated: rawNodes[i].last_updated as Date,
 					isAvailable: is_available ? 1 : 0,
 					unavailableMessage: unavailable_message,
-					hasAuthority: has_authority ? 1 : 0
+					hasAuthority: 1
 				};
 				await createNode(clusterId, nodeData);
 				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
@@ -180,39 +175,6 @@
 		}
 
 		return queryParams;
-	}
-
-	async function fetchNodes(indexUrl: string, queryUrl: string) {
-		const fullUrl = `${indexUrl}${queryUrl}`;
-		const response = await fetch(fullUrl);
-
-		if (!response.ok) {
-			throw new Error('Failed to fetch nodes');
-		}
-
-		const data = await response.json();
-
-		return data?.data ?? [];
-	}
-
-	async function processProfile(profile: ProfileData) {
-		const { profileData, fetchProfileError } = await fetchProfileData(
-			profile.profile_url as string
-		);
-		const isValid = profileData && (await validateProfileData(profileData, sourceIndex));
-
-		return {
-			profile_data: profileData,
-			index_data: profile,
-			is_available: !!profileData && isValid,
-			status: !profileData || !isValid ? 'ignore' : 'new',
-			unavailable_message: !profileData
-				? fetchProfileError
-				: !isValid
-					? 'Invalid Profile Data'
-					: '',
-			has_authority: true
-		};
 	}
 </script>
 

@@ -1,5 +1,5 @@
 import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from './types/cluster';
-import type { NodeCreateInput } from './types/node';
+import type { NodeCreateInput, NodeUpdateInput } from './types/node';
 
 export async function getCountries(
 	customFetch: typeof fetch = fetch
@@ -162,6 +162,32 @@ export async function createNode(
 	}
 }
 
+export async function updateNode(
+	clusterId: string,
+	nodeId: number,
+	node: NodeUpdateInput,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/nodes/${nodeId}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(node)
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to update node');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error updating node:', error);
+		throw error;
+	}
+}
+
 export async function getNodes(clusterId: string, customFetch: typeof fetch = fetch) {
 	try {
 		const response = await customFetch(`/api/clusters/${clusterId}/nodes`, {
@@ -204,6 +230,75 @@ export async function updateNodeStatus(
 		return response.json();
 	} catch (error) {
 		console.error('Error updating node status:', error);
+		throw error;
+	}
+}
+
+export async function deleteNode(
+	clusterId: string,
+	nodeId: number,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/nodes/${nodeId}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to delete node');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error deleting node:', error);
+		throw error;
+	}
+}
+
+export async function getAuthorityMap(clusterId: string, customFetch: typeof fetch = fetch) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/authority-map`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch authority map');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error fetching authority map:', error);
+		throw error;
+	}
+}
+
+export async function updateClusterTimestamp(
+	clusterId: string,
+	lastUpdated: Date,
+	customFetch: typeof fetch = fetch
+) {
+	try {
+		const response = await customFetch(`/api/clusters/${clusterId}/update-timestamp`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ lastUpdated })
+		});
+
+		if (!response.ok) {
+			throw new Error('Failed to update cluster timestamp');
+		}
+
+		return response.json();
+	} catch (error) {
+		console.error('Error updating cluster timestamp:', error);
 		throw error;
 	}
 }

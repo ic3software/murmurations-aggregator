@@ -187,7 +187,7 @@
 					Please wait
 				</Button>
 			{:else}
-				<Button variant="destructive" onclick={handleSubmit}>Submit</Button>
+				<Button variant="default" onclick={handleSubmit}>Submit</Button>
 			{/if}
 			<Button variant="outline" href="/">Cancel</Button>
 		</div>
