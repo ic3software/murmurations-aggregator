@@ -105,18 +105,25 @@
 				centerLon: clusterCenterLongitude,
 				scale: clusterScale
 			};
+
+			const rawNodes = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
+			if (rawNodes.length === 0) {
+				toast.error('No nodes found. Please update your cluster settings.');
+				return;
+			}
+
+			if (rawNodes.length > 500) {
+				toast.error('Too many nodes. Please narrow your search.');
+				return;
+			}
+
 			const response = await createCluster(clusterData);
 
 			if (!response?.success) throw new Error('Create cluster failed');
-			const clusterId = response.data.clusterId;
+			const clusterId = response?.data?.clusterId;
 			toast.success('Cluster created successfully');
 
 			loadingNodes = true;
-			const rawNodes = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
-			if (rawNodes.length > 500) {
-				alert('Too many nodes. Please narrow your search.');
-				return;
-			}
 
 			const step = 100 / rawNodes.length;
 			for (let i = 0; i < rawNodes.length; i++) {

@@ -14,8 +14,12 @@ export async function fetchProfileData(profileUrl: string) {
 			}
 		} catch (err) {
 			console.error('Error fetching profile data:', err);
-			if (err instanceof Error && err.message === 'Failed to fetch') {
-				fetchProfileError = 'CORS';
+			if (err instanceof Error) {
+				if (err.message === 'Failed to fetch') {
+					fetchProfileError = 'CORS';
+				} else {
+					fetchProfileError = err.message;
+				}
 			} else {
 				fetchProfileError = 'UNKNOWN';
 			}
@@ -57,13 +61,23 @@ export async function fetchProfiles(indexUrl: string, queryUrl: string) {
 
 export async function processProfile(profile: ProfileData, sourceIndex: string) {
 	const { profileData, fetchProfileError } = await fetchProfileData(profile.profile_url as string);
-	const isValid = profileData && (await validateProfileData(profileData, sourceIndex));
+	let isValid = false;
+	let unavailableMessage = '';
+
+	if (fetchProfileError) {
+		unavailableMessage = fetchProfileError;
+	} else if (profileData) {
+		isValid = await validateProfileData(profileData, sourceIndex);
+		if (!isValid) {
+			unavailableMessage = 'Invalid Profile Data';
+		}
+	}
 
 	return {
 		profile_data: profileData,
 		is_available: !!profileData && isValid,
 		status: !profileData || !isValid ? 'ignore' : 'new',
-		unavailable_message: !profileData ? fetchProfileError : !isValid ? 'Invalid Profile Data' : ''
+		unavailable_message: unavailableMessage
 	};
 }
 
