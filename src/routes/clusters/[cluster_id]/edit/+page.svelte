@@ -7,6 +7,7 @@
 	import { updateCluster } from '$lib/api';
 	import type { PageProps } from './$types';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
 
@@ -45,6 +46,13 @@
 			isUpdatingCluster = false;
 		}
 	}
+
+	onMount(() => {
+		if (data?.cluster === null) {
+			toast.error('Cluster not found. Please try again.');
+			goto('/');
+		}
+	});
 </script>
 
 <svelte:head>

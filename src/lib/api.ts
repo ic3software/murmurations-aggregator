@@ -15,6 +15,9 @@ async function request<TBody, TResponse>(
 		});
 
 		if (!response.ok) {
+			if (response.status === 404) {
+				return { data: null as unknown as TResponse, success: false };
+			}
 			throw new Error(`Request failed: ${response.status} ${response.statusText}`);
 		}
 
@@ -44,12 +47,7 @@ export const getClusters = async (customFetch?: typeof fetch) => {
 };
 
 export const getCluster = (id: string, customFetch?: typeof fetch) =>
-	request<Record<string, Cluster>, Record<string, Cluster>>(
-		`/api/clusters/${id}`,
-		'GET',
-		undefined,
-		customFetch
-	).then((res) => res.data);
+	request<Record<string, Cluster>, Cluster>(`/api/clusters/${id}`, 'GET', undefined, customFetch);
 
 export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
 	request<ClusterCreateInput, Cluster>('/api/clusters', 'POST', input, customFetch);

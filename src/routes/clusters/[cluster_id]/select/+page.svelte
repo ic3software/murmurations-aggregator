@@ -11,6 +11,7 @@
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { Progress } from '$lib/components/ui/progress';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
 
@@ -80,6 +81,13 @@
 			isSubmitting = false;
 		}
 	}
+
+	onMount(() => {
+		if (data?.nodes === null) {
+			toast.error('Cluster not found. Please try again.');
+			goto('/');
+		}
+	});
 </script>
 
 <svelte:head>
