@@ -31,7 +31,7 @@
 				scale: clusterScale
 			};
 
-			const response = await updateCluster(data.cluster.clusterId, updatedCluster);
+			const response = await updateCluster(data?.cluster?.clusterId ?? '', updatedCluster);
 
 			if (response?.success) {
 				toast.success('Cluster updated successfully');
