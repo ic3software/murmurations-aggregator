@@ -115,7 +115,16 @@
 				);
 				if (existingNode) {
 					await deleteNode(clusterId, existingNode.id);
-					deletedProfiles.push(existingNode);
+					deletedProfiles.push({
+						id: existingNode.id,
+						profileUrl: existingNode.profileUrl,
+						data: JSON.parse(existingNode.data),
+						status: existingNode.status,
+						isAvailable: existingNode.isAvailable,
+						unavailableMessage: existingNode.unavailableMessage,
+						hasAuthority: existingNode.hasAuthority,
+						lastUpdated: existingNode.lastUpdated
+					});
 				}
 				continue;
 			}
@@ -125,7 +134,10 @@
 				(node: Node) => node.profileUrl === profile.profile_url
 			);
 			const shouldCreate = !existingNode;
-			const existingTimestamp = new Date(existingNode?.lastUpdated);
+			let existingTimestamp = new Date();
+			if (existingNode) {
+				existingTimestamp = new Date(existingNode.lastUpdated);
+			}
 			const profileTimestamp = new Date(profile.last_updated * 1000);
 			const shouldUpdate = existingTimestamp.getTime() !== profileTimestamp.getTime();
 
@@ -136,7 +148,7 @@
 				);
 
 				if (shouldCreate) {
-					const { id } = await createNode(clusterId, {
+					const { data: node } = await createNode(clusterId, {
 						profileUrl: profile.profile_url,
 						data: profile_data,
 						status: status,
@@ -146,7 +158,7 @@
 						hasAuthority: 1
 					});
 					profileList.push({
-						id,
+						id: node.id,
 						profileUrl: profile.profile_url,
 						data: profile_data,
 						status: status,
@@ -189,7 +201,7 @@
 			loadingProgress = Math.min(66, Math.round(currentProgress));
 
 			const { profile_data, is_available, unavailable_message } = await processProfile(
-				profile.data,
+				JSON.parse(profile.data),
 				indexUrl
 			);
 
@@ -233,7 +245,7 @@
 			}
 
 			const profileObject: NodeUpdateInput = {
-				data: profile.data,
+				data: JSON.parse(profile.data),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
 				unavailableMessage: profile.unavailableMessage,
@@ -250,7 +262,7 @@
 					unauthorizedProfiles.push({
 						id: profile.id,
 						profileUrl: profile.profileUrl,
-						data: profile.data,
+						data: JSON.parse(profile.data),
 						status: profile.status,
 						isAvailable: profile.isAvailable,
 						unavailableMessage: profile.unavailableMessage,

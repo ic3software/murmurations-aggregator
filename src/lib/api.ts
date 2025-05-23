@@ -109,7 +109,7 @@ export const deleteNode = (clusterId: string, nodeId: number, customFetch?: type
 	);
 
 export const getAuthorityMap = (clusterId: string, customFetch?: typeof fetch) =>
-	request<Record<string, Node[]>, Record<string, Node[]>>(
+	request<Record<string, Node[]>, string[]>(
 		`/api/clusters/${clusterId}/authority-map`,
 		'GET',
 		undefined,
