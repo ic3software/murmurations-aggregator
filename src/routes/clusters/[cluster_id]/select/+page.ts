@@ -4,14 +4,10 @@ import { getNodes } from '$lib/api';
 export const load: PageLoad = async ({ fetch, params }) => {
 	const clusterId = params.cluster_id;
 
-	const nodesData = await getNodes(clusterId, fetch);
-
-	if (!nodesData.success) {
-		throw new Error(nodesData.error || 'Failed to load nodes');
-	}
+	const { data: nodes } = await getNodes(clusterId, fetch);
 
 	return {
 		clusterId,
-		nodes: nodesData?.data
+		nodes
 	};
 };

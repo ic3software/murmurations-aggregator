@@ -1,5 +1,5 @@
-import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from './types/cluster';
-import type { NodeCreateInput, NodeUpdateInput } from './types/node';
+import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from '$lib/types/cluster';
+import type { Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
 
 async function request<TBody, TResponse>(
 	url: string,
@@ -82,7 +82,7 @@ export const updateNode = (
 	);
 
 export const getNodes = (clusterId: string, customFetch?: typeof fetch) =>
-	request<Record<string, Node[]>, Record<string, Node[]>>(
+	request<Record<string, Node[]>, Node[]>(
 		`/api/clusters/${clusterId}/nodes`,
 		'GET',
 		undefined,

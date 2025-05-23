@@ -14,7 +14,7 @@
 
 	let { data }: PageProps = $props();
 
-	let nodes: Node[] = $state(data.nodes);
+	let nodes: Node[] = $state(data?.nodes ?? []);
 	let selectedIds: number[] = $state([]);
 	let isSubmitting = $state(false);
 	let loadingProgress = $state(0);
@@ -30,6 +30,8 @@
 	const triggerContent = $derived(
 		actions.find((a) => a.value === selectedAction)?.label ?? 'Select action'
 	);
+
+	const showUnavailableColumn = $derived(nodes.some((n) => !n.isAvailable && n.unavailableMessage));
 
 	function toggleSelectAll() {
 		const selectable = nodes.filter((n) => n.isAvailable && n.hasAuthority);
@@ -127,6 +129,9 @@
 							<Table.Head>Profile URL</Table.Head>
 							<Table.Head>Status</Table.Head>
 							<Table.Head>Availability</Table.Head>
+							{#if showUnavailableColumn}
+								<Table.Head>Unavailable Message</Table.Head>
+							{/if}
 						</Table.Row>
 					</Table.Header>
 
@@ -155,6 +160,13 @@
 								<Table.Cell class="capitalize">
 									{node.isAvailable ? 'Available' : 'Unavailable'}
 								</Table.Cell>
+								{#if showUnavailableColumn}
+									<Table.Cell class="text-red-600">
+										{#if !node.isAvailable && node.unavailableMessage}
+											{node.unavailableMessage}
+										{/if}
+									</Table.Cell>
+								{/if}
 							</Table.Row>
 						{/each}
 					</Table.Body>
