@@ -17,6 +17,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { Progress } from '$lib/components/ui/progress';
 
 	let { data }: PageProps = $props();
 
@@ -124,7 +125,9 @@
 				(node: Node) => node.profileUrl === profile.profile_url
 			);
 			const shouldCreate = !existingNode;
-			const shouldUpdate = existingNode?.lastUpdated !== profile.last_updated.toString();
+			const existingTimestamp = new Date(existingNode?.lastUpdated);
+			const profileTimestamp = new Date(profile.last_updated * 1000);
+			const shouldUpdate = existingTimestamp.getTime() !== profileTimestamp.getTime();
 
 			if (shouldCreate || shouldUpdate) {
 				const { profile_data, status, is_available, unavailable_message } = await processProfile(
@@ -209,7 +212,7 @@
 	// 2.1 AP to NAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to NAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to NAP, we don't want to move them to the unauthorized list.
 	// - 2.2 If a profile shifts from NAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
 	async function checkAuthorityProfiles() {
-		const authorityMap = await getAuthorityMap(clusterId);
+		const { data: authorityMap } = await getAuthorityMap(clusterId);
 
 		const progressStep = 33 / existingNodes.length;
 		let currentProgress = 66;
@@ -220,8 +223,8 @@
 			const originalAuthority = profile.hasAuthority ? 1 : 0;
 
 			const hasAuthority = checkProfileAuthority(
-				authorityMap,
-				profile.data.primary_url,
+				authorityMap ?? [],
+				JSON.parse(profile.data)?.primary_url,
 				profile.profileUrl
 			);
 
@@ -270,86 +273,111 @@
 	<title>Update Nodes | Murmurations Collaborative Cluster Builder</title>
 </svelte:head>
 
-<div>
-	{#if isLoading}
-		<p>
-			{#if loadingProgress < 33}
-				Checking for new and updated profiles...
-			{:else if loadingProgress < 66}
-				Rechecking unavailable profiles...
-			{:else}
-				Validating domain authority...
-			{/if}
-		</p>
-	{/if}
-	<progress value={loadingProgress} max="100"></progress>
+<div class="min-h-screen bg-background text-foreground">
+	<div class="container mx-auto px-4 py-8">
+		<header class="mb-8">
+			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">Update Nodes</h1>
+		</header>
 
-	{#if !isLoading}
-		<h2>Deleted Profiles</h2>
-		<Table.Root>
-			<Table.Header>
-				<Table.Row>
-					<Table.Head>ID</Table.Head>
-					<Table.Head>Profile URL</Table.Head>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{#each deletedProfiles as profile}
-					<Table.Row>
-						<Table.Cell>{profile.id}</Table.Cell>
-						<Table.Cell>{profile.profileUrl}</Table.Cell>
-					</Table.Row>
-				{/each}
-			</Table.Body>
-		</Table.Root>
-
-		<h2>Unauthorized Profiles</h2>
-		<Table.Root>
-			<Table.Header>
-				<Table.Row>
-					<Table.Head>ID</Table.Head>
-					<Table.Head>Profile URL</Table.Head>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{#each unauthorizedProfiles as profile}
-					<Table.Row>
-						<Table.Cell>{profile.id}</Table.Cell>
-						<Table.Cell>{profile.profileUrl}</Table.Cell>
-					</Table.Row>
-				{/each}
-			</Table.Body>
-		</Table.Root>
-
-		<h2>Profile List</h2>
-		<ul>
-			{#each profileList as profile}
-				<li>{profile.profileUrl}</li>
-			{/each}
-		</ul>
-
-		<div class="mt-6 flex items-center gap-4">
-			<div>
-				<Select.Root type="single" name="action" bind:value={selectedAction}>
-					<Select.Trigger class="w-32">
-						{triggerContent}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							<Label>Actions</Label>
-							{#each actions as action (action.value)}
-								<Select.Item value={action.value} label={action.label}>
-									{action.label}
-								</Select.Item>
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
+		{#if isLoading}
+			<div class="my-6">
+				<p class="mb-2 text-sm text-muted-foreground">
+					{#if loadingProgress < 33}
+						Checking for new and updated profiles...
+					{:else if loadingProgress < 66}
+						Rechecking unavailable profiles...
+					{:else}
+						Validating domain authority...
+					{/if}
+				</p>
+				<Progress value={loadingProgress} max={100} class="w-full" />
 			</div>
+		{/if}
 
-			<Button variant="default" onclick={() => console.log('Submit action:', selectedAction)}>
-				Submit
-			</Button>
-		</div>
-	{/if}
+		{#if !isLoading}
+			{#if deletedProfiles.length > 0}
+				<div class="mx-auto max-w-none">
+					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
+						Deleted Profiles
+					</h2>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>ID</Table.Head>
+								<Table.Head>Profile URL</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each deletedProfiles as profile}
+								<Table.Row>
+									<Table.Cell>{profile.id}</Table.Cell>
+									<Table.Cell>{profile.profileUrl}</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+			{/if}
+
+			{#if unauthorizedProfiles.length > 0}
+				<div class="mx-auto max-w-none">
+					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
+						Unauthorized Profiles
+					</h2>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>ID</Table.Head>
+								<Table.Head>Profile URL</Table.Head>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each unauthorizedProfiles as profile}
+								<Table.Row>
+									<Table.Cell>{profile.id}</Table.Cell>
+									<Table.Cell>{profile.profileUrl}</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+			{/if}
+
+			{#if profileList.length > 0}
+				<div class="mx-auto max-w-none">
+					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">Profile List</h2>
+					<ul class="list-disc pl-5">
+						{#each profileList as profile}
+							<li>{profile.profileUrl}</li>
+						{/each}
+					</ul>
+				</div>
+			{/if}
+
+			<div class="mt-6 flex items-center gap-4">
+				<div>
+					<Select.Root type="single" name="action" bind:value={selectedAction}>
+						<Select.Trigger class="w-32">
+							{triggerContent}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Label>Actions</Label>
+								{#each actions as action (action.value)}
+									<Select.Item value={action.value} label={action.label}>
+										{action.label}
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
+				</div>
+
+				<Button variant="default" onclick={() => console.log('Submit action:', selectedAction)}>
+					Submit
+				</Button>
+				<Button variant="secondary" onclick={() => goto('/')}>Cancel</Button>
+			</div>
+		{/if}
+	</div>
 </div>

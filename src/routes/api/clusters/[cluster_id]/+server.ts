@@ -3,7 +3,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
-import type { ClusterUpdateInput } from '$lib/types/cluster';
+import type { Cluster, ClusterUpdateInput } from '$lib/types/cluster';
 import { deleteNodes } from '$lib/server/models/nodes';
 
 export const GET: RequestHandler = async ({
@@ -25,11 +25,18 @@ export const GET: RequestHandler = async ({
 		}
 
 		// Convert the cluster to an ClusterUpdateInput object
-		const editableCluster: ClusterUpdateInput = {
+		const editableCluster: Cluster = {
+			id: cluster.id,
+			clusterId: cluster.clusterId,
 			name: cluster.name,
 			centerLat: cluster.centerLat,
 			centerLon: cluster.centerLon,
-			scale: cluster.scale
+			scale: cluster.scale,
+			indexUrl: cluster.indexUrl,
+			queryUrl: cluster.queryUrl,
+			lastUpdated: cluster.lastUpdated,
+			createdAt: cluster.createdAt,
+			updatedAt: cluster.updatedAt
 		};
 
 		return json({ data: editableCluster, success: true }, { status: 200 });

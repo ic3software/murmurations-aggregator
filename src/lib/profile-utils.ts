@@ -72,9 +72,13 @@ export function checkProfileAuthority(
 	originPrimaryUrl: string,
 	originProfileUrl: string
 ) {
+	if (!originPrimaryUrl || !originProfileUrl) {
+		return 1;
+	}
+
 	try {
 		if (originPrimaryUrl === 'https://') {
-			console.log('Invalid URL');
+			console.log('Authority: Invalid URL');
 			return 1;
 		}
 
@@ -82,7 +86,7 @@ export function checkProfileAuthority(
 		const profileUrl = new URL(addDefaultScheme(originProfileUrl));
 
 		if (!primaryUrl.protocol.startsWith('http') || !profileUrl.protocol.startsWith('http')) {
-			console.log('Invalid protocol');
+			console.log('Authority: Invalid protocol');
 			return 1;
 		}
 
@@ -92,8 +96,8 @@ export function checkProfileAuthority(
 		}
 
 		return 1;
-	} catch (e) {
-		console.log(e);
+	} catch (error) {
+		console.log('Error checking profile authority:', error);
 		return 1;
 	}
 }

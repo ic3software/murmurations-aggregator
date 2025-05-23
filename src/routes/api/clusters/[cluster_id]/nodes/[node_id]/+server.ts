@@ -28,7 +28,7 @@ export const PUT: RequestHandler = async ({
 			await request.json();
 
 		const node: NodeDbUpdateInput = {
-			data,
+			data: JSON.stringify(data),
 			status,
 			lastUpdated,
 			isAvailable,
