@@ -1,17 +1,14 @@
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { nodes } from '$lib/server/db/schema';
 import type { D1Result } from '@cloudflare/workers-types';
-import type { NodeDbCreateInput, NodeDbUpdateInput } from '$lib/types/node';
+import type { NodeInsert, NodeDbUpdateInput } from '$lib/types/node';
 import { and, eq } from 'drizzle-orm';
 
 export async function getNodes(db: DrizzleD1Database, clusterId: string) {
 	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterId)).all();
 }
 
-export async function createNode(
-	db: DrizzleD1Database,
-	node: NodeDbCreateInput
-): Promise<{ id: number }> {
+export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promise<{ id: number }> {
 	const result = await db.insert(nodes).values(node).returning({ id: nodes.id }).get();
 	return { id: result.id };
 }
@@ -39,6 +36,7 @@ export async function updateNode(
 		.update(nodes)
 		.set(node)
 		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.id, nodeId)))
+		.returning()
 		.run();
 }
 

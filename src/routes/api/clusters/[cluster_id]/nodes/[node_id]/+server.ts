@@ -33,17 +33,14 @@ export const PUT: RequestHandler = async ({
 			lastUpdated,
 			isAvailable,
 			unavailableMessage,
-			hasAuthority
+			hasAuthority,
+			updatedAt: new Date().getTime() / 1000
 		};
 
 		// Update node
 		const result = await updateNode(db, clusterId, parseInt(nodeId), node);
 
-		if (result?.meta?.changes === 0) {
-			return json({ error: 'Failed to update node', success: false }, { status: 500 });
-		}
-
-		return json({ data: null, success: true }, { status: 200 });
+		return json({ data: result, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing PATCH request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

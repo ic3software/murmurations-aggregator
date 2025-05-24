@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
-	import type { Node, NodeInput, NodeUpdateInput } from '$lib/types/node';
+	import type { Node, NodeUpdateInput } from '$lib/types/node';
 	import { fetchProfiles } from '$lib/profile-utils';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
@@ -29,9 +29,9 @@
 	let isLoading = $state(false);
 	let loadingProgress = $state(0);
 
-	let deletedProfiles = $state<NodeInput[]>([]);
-	let unauthorizedProfiles = $state<NodeInput[]>([]);
-	let profileList = $state<NodeInput[]>([]);
+	let deletedProfiles = $state<Node[]>([]);
+	let unauthorizedProfiles = $state<Node[]>([]);
+	let profileList = $state<Node[]>([]);
 
 	let selectedAction = $state('');
 
@@ -115,16 +115,7 @@
 				);
 				if (existingNode) {
 					await deleteNode(clusterId, existingNode.id);
-					deletedProfiles.push({
-						id: existingNode.id,
-						profileUrl: existingNode.profileUrl,
-						data: JSON.parse(existingNode.data),
-						status: existingNode.status,
-						isAvailable: existingNode.isAvailable,
-						unavailableMessage: existingNode.unavailableMessage,
-						hasAuthority: existingNode.hasAuthority,
-						lastUpdated: existingNode.lastUpdated
-					});
+					deletedProfiles.push({ ...existingNode });
 				}
 				continue;
 			}
@@ -157,34 +148,16 @@
 						unavailableMessage: unavailable_message,
 						hasAuthority: 1
 					});
-					profileList.push({
-						id: node.id,
-						profileUrl: profile.profile_url,
-						data: profile_data,
-						status: status,
-						lastUpdated: profile.last_updated,
-						isAvailable: is_available ? 1 : 0,
-						unavailableMessage: unavailable_message,
-						hasAuthority: 1
-					});
+					profileList.push({ ...node });
 				} else {
-					await updateNode(clusterId, existingNode.id, {
+					const { data: updatedNode } = await updateNode(clusterId, existingNode.id, {
 						data: profile_data,
 						status: status,
 						isAvailable: is_available ? 1 : 0,
 						unavailableMessage: unavailable_message
 					});
 
-					profileList.push({
-						id: existingNode.id,
-						profileUrl: existingNode.profileUrl,
-						data: profile_data,
-						status,
-						isAvailable: is_available ? 1 : 0,
-						lastUpdated: profile.last_updated,
-						unavailableMessage: unavailable_message,
-						hasAuthority: 1
-					});
+					profileList.push({ ...updatedNode });
 				}
 			}
 		}
@@ -205,14 +178,14 @@
 				indexUrl
 			);
 
-			const profileObject: NodeUpdateInput = {
+			const profileUpdatedData: NodeUpdateInput = {
 				data: profile_data,
 				status: profile.status,
 				isAvailable: is_available ? 1 : 0,
 				unavailableMessage: unavailable_message
 			};
 
-			await updateNode(clusterId, profile.id, profileObject);
+			await updateNode(clusterId, profile.id, profileUpdatedData);
 		}
 	}
 
@@ -244,7 +217,7 @@
 				continue;
 			}
 
-			const profileObject: NodeUpdateInput = {
+			const profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
@@ -255,24 +228,15 @@
 			// From AP to NAP
 			if (originalAuthority === 1 && hasAuthority === 0) {
 				// If a profile has no domain authority, mark it as ignored
-				profileObject.status = 'ignore';
+				profileUpdatedData.status = 'ignore';
 
 				// If a profile is not in ignore state, and isAvailable is true, add it to the unauthorizedProfiles
 				if (profile.status !== 'ignore' && profile.isAvailable === 1) {
-					unauthorizedProfiles.push({
-						id: profile.id,
-						profileUrl: profile.profileUrl,
-						data: JSON.parse(profile.data),
-						status: profile.status,
-						isAvailable: profile.isAvailable,
-						unavailableMessage: profile.unavailableMessage,
-						hasAuthority: 0,
-						lastUpdated: profile.lastUpdated
-					});
+					unauthorizedProfiles.push({ ...profile });
 				}
 			}
 
-			await updateNode(clusterId, profile.id, profileObject);
+			await updateNode(clusterId, profile.id, profileUpdatedData);
 		}
 	}
 

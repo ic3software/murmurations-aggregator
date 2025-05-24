@@ -10,18 +10,7 @@ export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Data
 		const db = getDB(platform.env);
 		const clusterData = await getClusters(db);
 
-		const clusters: ClusterPublic[] = clusterData.map((cluster) => ({
-			clusterId: cluster.clusterId,
-			name: cluster.name,
-			indexUrl: cluster.indexUrl,
-			queryUrl: cluster.queryUrl,
-			centerLat: cluster.centerLat,
-			centerLon: cluster.centerLon,
-			scale: cluster.scale,
-			lastUpdated: cluster.lastUpdated,
-			createdAt: cluster.createdAt,
-			updatedAt: cluster.updatedAt
-		}));
+		const clusters: ClusterPublic[] = clusterData as ClusterPublic[];
 
 		return json({ data: clusters, success: true }, { status: 200 });
 	} catch (error) {
@@ -48,9 +37,9 @@ export const POST: RequestHandler = async ({
 			name,
 			indexUrl,
 			queryUrl,
-			centerLat: centerLat || 46.603354,
-			centerLon: centerLon || 1.888334,
-			scale: scale || 5
+			centerLat,
+			centerLon,
+			scale
 		};
 
 		await createCluster(db, cluster);

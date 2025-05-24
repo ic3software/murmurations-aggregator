@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import { getDB } from '$lib/server/db';
 import type { D1Database } from '@cloudflare/workers-types';
-import type { NodeDbCreateInput } from '$lib/types/node';
+import type { NodeInsert } from '$lib/types/node';
 import { createNode, getNodes } from '$lib/server/models/nodes';
 
 export const GET: RequestHandler = async ({
@@ -51,7 +51,15 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
 		}
 
-		if (!data || !profileUrl || !lastUpdated) {
+		if (
+			!data ||
+			!profileUrl ||
+			!lastUpdated ||
+			!status ||
+			!isAvailable ||
+			!unavailableMessage ||
+			!hasAuthority
+		) {
 			return json({ error: 'Invalid data provided', success: false }, { status: 400 });
 		}
 
@@ -64,15 +72,15 @@ export const POST: RequestHandler = async ({
 		}
 
 		// Insert data
-		const node: NodeDbCreateInput = {
+		const node: NodeInsert = {
 			clusterUuid: clusterId,
 			profileUrl,
 			data: JSON.stringify(data),
 			lastUpdated: new Date(lastUpdated * 1000),
-			status: status ?? 'new',
-			isAvailable: isAvailable ?? 0,
-			unavailableMessage: unavailableMessage ?? '',
-			hasAuthority: hasAuthority ?? 0
+			status,
+			isAvailable,
+			unavailableMessage,
+			hasAuthority
 		};
 
 		const result = await createNode(db, node);
