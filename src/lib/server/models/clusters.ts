@@ -1,6 +1,6 @@
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { clusters } from '$lib/server/db/schema';
-import type { ClusterDbCreateInput, ClusterUpdateInput } from '$lib/types/cluster';
+import type { ClusterInsert, ClusterUpdateInput } from '$lib/types/cluster';
 import { eq } from 'drizzle-orm';
 import type { D1Result } from '@cloudflare/workers-types';
 
@@ -12,7 +12,7 @@ export async function getCluster(db: DrizzleD1Database, clusterId: string) {
 	return await db.select().from(clusters).where(eq(clusters.clusterId, clusterId)).get();
 }
 
-export async function createCluster(db: DrizzleD1Database, cluster: ClusterDbCreateInput) {
+export async function createCluster(db: DrizzleD1Database, cluster: ClusterInsert) {
 	return await db.insert(clusters).values(cluster).run();
 }
 

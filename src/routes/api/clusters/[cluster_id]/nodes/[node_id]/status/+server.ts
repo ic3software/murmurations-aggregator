@@ -35,7 +35,7 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Failed to update node status', success: false }, { status: 500 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing PUT request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

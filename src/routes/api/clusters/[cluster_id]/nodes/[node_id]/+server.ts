@@ -43,7 +43,7 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Failed to update node', success: false }, { status: 500 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing PATCH request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
@@ -75,7 +75,7 @@ export const DELETE: RequestHandler = async ({
 			return json({ error: 'Failed to delete node', success: false }, { status: 500 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing DELETE request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

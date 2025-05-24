@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createCluster, getClusters } from '$lib/server/models/clusters';
-import type { ClusterWithoutId, ClusterDbCreateInput } from '$lib/types/cluster';
+import type { ClusterPublic, ClusterInsert } from '$lib/types/cluster';
 import { getDB } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Database } } }) => {
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Data
 		const db = getDB(platform.env);
 		const clusterData = await getClusters(db);
 
-		const clusters: ClusterWithoutId[] = clusterData.map((cluster) => ({
+		const clusters: ClusterPublic[] = clusterData.map((cluster) => ({
 			clusterId: cluster.clusterId,
 			name: cluster.name,
 			indexUrl: cluster.indexUrl,
@@ -43,7 +43,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const cluster: ClusterDbCreateInput = {
+		const cluster: ClusterInsert = {
 			clusterId: crypto.randomUUID(),
 			name,
 			indexUrl,

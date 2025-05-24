@@ -31,7 +31,7 @@ export const PATCH: RequestHandler = async ({
 			return json({ error: 'Failed to update cluster timestamp', success: false }, { status: 500 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error updating cluster timestamp:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

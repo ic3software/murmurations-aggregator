@@ -1,4 +1,9 @@
-import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from '$lib/types/cluster';
+import type {
+	Cluster,
+	ClusterCreateInput,
+	ClusterPublic,
+	ClusterUpdateInput
+} from '$lib/types/cluster';
 import type { Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
 
 async function request<TBody, TResponse>(
@@ -6,22 +11,21 @@ async function request<TBody, TResponse>(
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
 	body?: TBody,
 	customFetch: typeof fetch = fetch
-): Promise<{ data: TResponse; success: boolean }> {
+): Promise<{ data: TResponse; success: boolean; message?: string }> {
 	try {
 		const response = await customFetch(url, {
 			method,
-			body: body ? JSON.stringify(body) : undefined,
+			body: body !== undefined ? JSON.stringify(body) : undefined,
 			headers: { 'Content-Type': 'application/json' }
 		});
 
+		const json = await response.json();
+
 		if (!response.ok) {
-			if (response.status === 404) {
-				return { data: null as unknown as TResponse, success: false };
-			}
-			throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+			return { data: null as unknown as TResponse, success: false, message: json?.message };
 		}
 
-		return await response.json();
+		return json;
 	} catch (error) {
 		console.error(`Error on request to ${url}:`, error);
 		throw error;
@@ -47,21 +51,16 @@ export const getClusters = async (customFetch?: typeof fetch) => {
 };
 
 export const getCluster = (id: string, customFetch?: typeof fetch) =>
-	request<Record<string, Cluster>, Cluster>(`/api/clusters/${id}`, 'GET', undefined, customFetch);
+	request<undefined, ClusterPublic>(`/api/clusters/${id}`, 'GET', undefined, customFetch);
 
 export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
-	request<ClusterCreateInput, Cluster>('/api/clusters', 'POST', input, customFetch);
+	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch);
 
 export const updateCluster = (id: string, input: ClusterUpdateInput, customFetch?: typeof fetch) =>
-	request<ClusterUpdateInput, Cluster>(`/api/clusters/${id}`, 'PUT', input, customFetch);
+	request<ClusterUpdateInput, ClusterPublic>(`/api/clusters/${id}`, 'PUT', input, customFetch);
 
 export const deleteCluster = (id: string, customFetch?: typeof fetch) =>
-	request<Record<string, Cluster>, Record<string, Cluster>>(
-		`/api/clusters/${id}`,
-		'DELETE',
-		undefined,
-		customFetch
-	);
+	request<undefined, undefined>(`/api/clusters/${id}`, 'DELETE', undefined, customFetch);
 
 export const createNode = (clusterId: string, input: NodeCreateInput, customFetch?: typeof fetch) =>
 	request<NodeCreateInput, Node>(`/api/clusters/${clusterId}/nodes`, 'POST', input, customFetch);
@@ -80,12 +79,7 @@ export const updateNode = (
 	);
 
 export const getNodes = (clusterId: string, customFetch?: typeof fetch) =>
-	request<Record<string, Node[]>, Node[]>(
-		`/api/clusters/${clusterId}/nodes`,
-		'GET',
-		undefined,
-		customFetch
-	);
+	request<undefined, Node[]>(`/api/clusters/${clusterId}/nodes`, 'GET', undefined, customFetch);
 
 export const updateNodeStatus = (
 	clusterId: string,
@@ -101,7 +95,7 @@ export const updateNodeStatus = (
 	);
 
 export const deleteNode = (clusterId: string, nodeId: number, customFetch?: typeof fetch) =>
-	request<Record<string, Node>, Record<string, Node>>(
+	request<undefined, undefined>(
 		`/api/clusters/${clusterId}/nodes/${nodeId}`,
 		'DELETE',
 		undefined,
@@ -109,7 +103,7 @@ export const deleteNode = (clusterId: string, nodeId: number, customFetch?: type
 	);
 
 export const getAuthorityMap = (clusterId: string, customFetch?: typeof fetch) =>
-	request<Record<string, Node[]>, string[]>(
+	request<undefined, string[]>(
 		`/api/clusters/${clusterId}/authority-map`,
 		'GET',
 		undefined,
@@ -121,7 +115,7 @@ export const updateClusterTimestamp = (
 	lastUpdated: Date,
 	customFetch?: typeof fetch
 ) =>
-	request<{ lastUpdated: Date }, Node>(
+	request<{ lastUpdated: Date }, undefined>(
 		`/api/clusters/${clusterId}/update-timestamp`,
 		'PATCH',
 		{ lastUpdated },
