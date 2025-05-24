@@ -51,15 +51,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
 		}
 
-		if (
-			!data ||
-			!profileUrl ||
-			!lastUpdated ||
-			!status ||
-			!isAvailable ||
-			!unavailableMessage ||
-			!hasAuthority
-		) {
+		if (!data || !profileUrl || !lastUpdated) {
 			return json({ error: 'Invalid data provided', success: false }, { status: 400 });
 		}
 

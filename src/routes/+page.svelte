@@ -4,7 +4,7 @@
 	import { formatDate } from '$lib/date';
 	import { deleteCluster } from '$lib/api';
 	import { toast } from 'svelte-sonner';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { buttonVariants } from '$lib/components/ui/button';
 
 	let { data }: PageProps = $props();

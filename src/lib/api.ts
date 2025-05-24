@@ -41,7 +41,7 @@ export const getCountries = (customFetch?: typeof fetch) =>
 	);
 
 export const getClusters = async (customFetch?: typeof fetch) => {
-	const result = await request<Record<string, Cluster[]>, Record<string, Cluster[]>>(
+	const result = await request<undefined, Cluster[]>(
 		'/api/clusters',
 		'GET',
 		undefined,
