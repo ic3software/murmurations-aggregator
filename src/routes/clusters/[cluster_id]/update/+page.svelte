@@ -1,23 +1,25 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import type { PageProps } from './$types';
-	import type { Node, NodeUpdateInput } from '$lib/types/node';
-	import { fetchProfiles } from '$lib/profile-utils';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
 	import {
-		deleteNode,
-		updateNode,
-		getAuthorityMap,
 		createNode,
-		updateClusterTimestamp
+		deleteNode,
+		getAuthorityMap,
+		updateClusterTimestamp,
+		updateNode
 	} from '$lib/api';
-	import { processProfile, checkProfileAuthority } from '$lib/profile-utils';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
+	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { Progress } from '$lib/components/ui/progress';
+	import { fetchProfiles } from '$lib/profile-utils';
+	import { checkProfileAuthority, processProfile } from '$lib/profile-utils';
+	import type { Node, NodeUpdateInput } from '$lib/types/node';
+
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 

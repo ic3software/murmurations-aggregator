@@ -1,8 +1,8 @@
 import { getDB } from '$lib/server/db';
+import { updateClusterTimestamp } from '$lib/server/models/clusters';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
-import { updateClusterTimestamp } from '$lib/server/models/clusters';
 
 export const PATCH: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },

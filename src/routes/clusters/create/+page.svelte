@@ -1,24 +1,26 @@
 <script lang="ts">
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { goto } from '$app/navigation';
+	import { createCluster } from '$lib/api';
+	import { createNode } from '$lib/api';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Command from '$lib/components/ui/command/index.js';
-	import * as Popover from '$lib/components/ui/popover/index.js';
-	import { ChevronsUpDown, Check } from '@lucide/svelte';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { tick } from 'svelte';
-	import { cn } from '$lib/utils';
-	import type { PageProps } from './$types';
-	import type { ClusterCreateInput } from '$lib/types/cluster';
-	import { createCluster } from '$lib/api';
-	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
-	import { createNode } from '$lib/api';
-	import type { NodeCreateInput } from '$lib/types/node';
+	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Progress } from '$lib/components/ui/progress';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { fetchProfiles, processProfile } from '$lib/profile-utils';
+	import type { ClusterCreateInput } from '$lib/types/cluster';
+	import type { NodeCreateInput } from '$lib/types/node';
+	import { cn } from '$lib/utils';
+	import { Check, ChevronsUpDown } from '@lucide/svelte';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+
+	import { tick } from 'svelte';
+	import { toast } from 'svelte-sonner';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 

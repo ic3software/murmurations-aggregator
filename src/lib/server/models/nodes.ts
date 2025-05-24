@@ -1,8 +1,8 @@
-import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { nodes } from '$lib/server/db/schema';
+import type { NodeDbUpdateInput, NodeInsert } from '$lib/types/node';
 import type { D1Result } from '@cloudflare/workers-types';
-import type { NodeInsert, NodeDbUpdateInput } from '$lib/types/node';
 import { and, eq } from 'drizzle-orm';
+import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
 export async function getNodes(db: DrizzleD1Database, clusterId: string) {
 	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterId)).all();

@@ -1,8 +1,8 @@
+import { getDB } from '$lib/server/db';
+import { updateNodeStatus } from '$lib/server/models/nodes';
+import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { getDB } from '$lib/server/db';
-import type { D1Database } from '@cloudflare/workers-types';
-import { updateNodeStatus } from '$lib/server/models/nodes';
 
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },

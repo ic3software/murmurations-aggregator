@@ -1,5 +1,6 @@
-import type { PageLoad } from './$types';
 import { getCluster } from '$lib/api';
+
+import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
 	const clusterId = params.cluster_id;

@@ -1,13 +1,15 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { updateCluster } from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
-	import { updateCluster } from '$lib/api';
-	import type { PageProps } from './$types';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 

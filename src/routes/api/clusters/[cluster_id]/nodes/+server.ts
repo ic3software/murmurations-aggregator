@@ -1,9 +1,9 @@
+import { getDB } from '$lib/server/db';
+import { createNode, getNodes } from '$lib/server/models/nodes';
+import type { NodeInsert } from '$lib/types/node';
+import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import { getDB } from '$lib/server/db';
-import type { D1Database } from '@cloudflare/workers-types';
-import type { NodeInsert } from '$lib/types/node';
-import { createNode, getNodes } from '$lib/server/models/nodes';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },

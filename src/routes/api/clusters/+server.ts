@@ -1,9 +1,9 @@
+import { getDB } from '$lib/server/db';
+import { createCluster, getClusters } from '$lib/server/models/clusters';
+import type { ClusterInsert, ClusterPublic } from '$lib/types/cluster';
+import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { D1Database } from '@cloudflare/workers-types';
-import { createCluster, getClusters } from '$lib/server/models/clusters';
-import type { ClusterPublic, ClusterInsert } from '$lib/types/cluster';
-import { getDB } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Database } } }) => {
 	try {

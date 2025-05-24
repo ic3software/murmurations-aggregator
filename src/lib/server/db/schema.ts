@@ -1,5 +1,5 @@
-import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const clusters = sqliteTable('clusters', {
 	id: integer('id').primaryKey().notNull(),

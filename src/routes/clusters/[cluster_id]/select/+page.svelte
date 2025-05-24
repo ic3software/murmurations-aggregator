@@ -1,17 +1,19 @@
 <script lang="ts">
-	import * as Table from '$lib/components/ui/table/index.js';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
-	import type { Node } from '$lib/types/node';
-	import { Button } from '$lib/components/ui/button';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import type { PageProps } from './$types';
-	import { Label } from '$lib/components/ui/label';
-	import { updateNodeStatus } from '$lib/api';
-	import { toast } from 'svelte-sonner';
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-	import { Progress } from '$lib/components/ui/progress';
 	import { goto } from '$app/navigation';
+	import { updateNodeStatus } from '$lib/api';
+	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { Label } from '$lib/components/ui/label';
+	import { Progress } from '$lib/components/ui/progress';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
+	import type { Node } from '$lib/types/node';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
