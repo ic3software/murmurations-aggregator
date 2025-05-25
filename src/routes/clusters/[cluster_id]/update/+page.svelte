@@ -333,50 +333,72 @@
 		{/if}
 
 		{#if deletedProfiles.length > 0}
-			<div class="mx-auto max-w-none">
-				<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
-					Deleted Profiles
-				</h2>
-				<Table.Root>
-					<Table.Header>
-						<Table.Row>
-							<Table.Head>ID</Table.Head>
-							<Table.Head>Profile URL</Table.Head>
-						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						{#each deletedProfiles as profile}
+			<h2 class="mb-4 text-xl font-semibold">Deleted Profiles</h2>
+			<div class="overflow-hidden rounded-md border">
+				<div class="overflow-x-auto">
+					<Table.Root>
+						<Table.Header>
 							<Table.Row>
-								<Table.Cell>{profile.id}</Table.Cell>
-								<Table.Cell>{profile.profileUrl}</Table.Cell>
+								<Table.Head class="w-[40px]">ID</Table.Head>
+								<Table.Head>Name / Title</Table.Head>
+								<Table.Head>Profile URL</Table.Head>
+								<Table.Head>Status</Table.Head>
 							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
+						</Table.Header>
+						<Table.Body>
+							{#each deletedProfiles as node (node.id)}
+								<Table.Row>
+									<Table.Cell>{node.id}</Table.Cell>
+									<Table.Cell>{JSON.parse(node.data)?.name || 'N/A'}</Table.Cell>
+									<Table.Cell>
+										<a
+											href={node.profileUrl}
+											target="_blank"
+											rel="noreferrer"
+											class="text-blue-500 underline">{node.profileUrl}</a
+										>
+									</Table.Cell>
+									<Table.Cell class="capitalize">{node.status}</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
 			</div>
 		{/if}
 
 		{#if unauthorizedProfiles.length > 0}
-			<div class="mx-auto max-w-none">
-				<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
-					Unauthorized Profiles
-				</h2>
-				<Table.Root>
-					<Table.Header>
-						<Table.Row>
-							<Table.Head>ID</Table.Head>
-							<Table.Head>Profile URL</Table.Head>
-						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						{#each unauthorizedProfiles as profile}
+			<h2 class="mb-4 text-xl font-semibold">Unauthorized Profiles</h2>
+			<div class="overflow-hidden rounded-md border mb-8">
+				<div class="overflow-x-auto">
+					<Table.Root>
+						<Table.Header>
 							<Table.Row>
-								<Table.Cell>{profile.id}</Table.Cell>
-								<Table.Cell>{profile.profileUrl}</Table.Cell>
+								<Table.Head class="w-[40px]">ID</Table.Head>
+								<Table.Head>Name / Title</Table.Head>
+								<Table.Head>Profile URL</Table.Head>
+								<Table.Head>Status</Table.Head>
 							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
+						</Table.Header>
+						<Table.Body>
+							{#each unauthorizedProfiles as node (node.id)}
+								<Table.Row>
+									<Table.Cell>{node.id}</Table.Cell>
+									<Table.Cell>{JSON.parse(node.data)?.name || 'N/A'}</Table.Cell>
+									<Table.Cell>
+										<a
+											href={node.profileUrl}
+											target="_blank"
+											rel="noreferrer"
+											class="text-blue-500 underline">{node.profileUrl}</a
+										>
+									</Table.Cell>
+									<Table.Cell class="capitalize">{node.status}</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
 			</div>
 		{/if}
 
