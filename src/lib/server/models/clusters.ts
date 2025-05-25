@@ -31,7 +31,7 @@ export async function deleteCluster(db: DrizzleD1Database, clusterId: string): P
 export async function updateClusterTimestamp(
 	db: DrizzleD1Database,
 	clusterId: string,
-	lastUpdated: Date
+	lastUpdated: number
 ) {
 	return await db
 		.update(clusters)

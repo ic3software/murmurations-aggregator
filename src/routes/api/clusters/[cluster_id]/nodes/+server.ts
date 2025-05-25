@@ -68,7 +68,7 @@ export const POST: RequestHandler = async ({
 			clusterUuid: clusterId,
 			profileUrl,
 			data: JSON.stringify(data),
-			lastUpdated: new Date(lastUpdated * 1000),
+			lastUpdated: lastUpdated,
 			status,
 			isAvailable,
 			unavailableMessage,

@@ -5,9 +5,11 @@
 		deleteNode,
 		getAuthorityMap,
 		updateClusterTimestamp,
-		updateNode
+		updateNode,
+		updateNodeStatus
 	} from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -15,6 +17,7 @@
 	import { fetchProfiles } from '$lib/profile-utils';
 	import { checkProfileAuthority, processProfile } from '$lib/profile-utils';
 	import type { Node, NodeUpdateInput } from '$lib/types/node';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -47,6 +50,59 @@
 		actions.find((a) => a.value === selectedAction)?.label ?? 'Select action'
 	);
 
+	let selectedIds: number[] = $state([]);
+	const showUnavailableColumn = $derived(
+		profileList.some((n) => !n.isAvailable && n.unavailableMessage)
+	);
+
+	function toggleSelectAll() {
+		const selectable = profileList.filter((n) => n.isAvailable && n.hasAuthority);
+		if (selectedIds.length === selectable.length) {
+			selectedIds = [];
+		} else {
+			selectedIds = selectable.map((n) => n.id);
+		}
+	}
+
+	function toggleSelectRow(id: number) {
+		if (selectedIds.includes(id)) {
+			selectedIds = selectedIds.filter((i) => i !== id);
+		} else {
+			selectedIds = [...selectedIds, id];
+		}
+	}
+
+	async function handleSubmit(event: Event) {
+		event.preventDefault();
+
+		if (!selectedAction || selectedIds.length === 0) {
+			toast.error('Please select an action and at least one node.');
+			return;
+		}
+
+		// Scroll to the top of the page
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+
+		isLoading = true;
+		loadingProgress = 0;
+
+		try {
+			const step = 100 / selectedIds.length;
+			for (let i = 0; i < selectedIds.length; i++) {
+				await updateNodeStatus(clusterId, selectedIds[i], selectedAction);
+				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
+			}
+			toast.success('Node statuses updated successfully.');
+
+			await goto('/');
+		} catch (error) {
+			console.error('Error updating node statuses:', error);
+			toast.error('Failed to update node statuses. Please try again.');
+		} finally {
+			isLoading = false;
+		}
+	}
+
 	/**
 	 * Retrieve data from the index service with timestamp, which means get updated profiles only.
 	 * There are 5 types of profiles:
@@ -58,8 +114,6 @@
 	 */
 	async function handleRetrieve() {
 		isLoading = true;
-
-		let currentTimestamp = new Date();
 
 		try {
 			await fetchUpdatedProfiles();
@@ -80,7 +134,6 @@
 				(deletedProfiles.length > 0 || unauthorizedProfiles.length > 0) &&
 				profileList.length === 0
 			) {
-				await updateClusterTimestamp(clusterId, currentTimestamp);
 				toast.success('No updated profiles found.');
 			}
 		} catch (err) {
@@ -90,6 +143,7 @@
 			} else {
 				toast.error(`Retrieve node error: ${err}`);
 			}
+			await goto('/');
 		} finally {
 			isLoading = false;
 			loadingProgress = 0;
@@ -97,9 +151,13 @@
 	}
 
 	async function fetchUpdatedProfiles() {
+		let currentTimestamp = Math.floor(new Date().getTime() / 1000);
 		const clusterLastUpdated = data?.cluster?.lastUpdated;
+
 		if (clusterLastUpdated) {
 			queryUrl += `&last_updated=${clusterLastUpdated}`;
+		} else {
+			throw new Error('Cluster last updated is not set');
 		}
 
 		const rawNodes = await fetchProfiles(indexUrl, queryUrl);
@@ -163,6 +221,8 @@
 				}
 			}
 		}
+
+		await updateClusterTimestamp(clusterId, currentTimestamp);
 	}
 
 	async function checkUnavailableProfiles() {
@@ -261,76 +321,129 @@
 			<div class="my-6">
 				<p class="mb-2 text-sm text-muted-foreground">
 					{#if loadingProgress < 33}
-						Checking for new and updated profiles...
+						Checking for new and updated profiles... {loadingProgress}%
 					{:else if loadingProgress < 66}
-						Rechecking unavailable profiles...
+						Rechecking unavailable profiles... {loadingProgress}%
 					{:else}
-						Validating domain authority...
+						Validating domain authority... {loadingProgress}%
 					{/if}
 				</p>
 				<Progress value={loadingProgress} max={100} class="w-full" />
 			</div>
 		{/if}
 
-		{#if !isLoading}
-			{#if deletedProfiles.length > 0}
-				<div class="mx-auto max-w-none">
-					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
-						Deleted Profiles
-					</h2>
-					<Table.Root>
-						<Table.Header>
+		{#if deletedProfiles.length > 0}
+			<div class="mx-auto max-w-none">
+				<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
+					Deleted Profiles
+				</h2>
+				<Table.Root>
+					<Table.Header>
+						<Table.Row>
+							<Table.Head>ID</Table.Head>
+							<Table.Head>Profile URL</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#each deletedProfiles as profile}
 							<Table.Row>
-								<Table.Head>ID</Table.Head>
-								<Table.Head>Profile URL</Table.Head>
+								<Table.Cell>{profile.id}</Table.Cell>
+								<Table.Cell>{profile.profileUrl}</Table.Cell>
 							</Table.Row>
-						</Table.Header>
-						<Table.Body>
-							{#each deletedProfiles as profile}
-								<Table.Row>
-									<Table.Cell>{profile.id}</Table.Cell>
-									<Table.Cell>{profile.profileUrl}</Table.Cell>
-								</Table.Row>
-							{/each}
-						</Table.Body>
-					</Table.Root>
-				</div>
-			{/if}
-
-			{#if unauthorizedProfiles.length > 0}
-				<div class="mx-auto max-w-none">
-					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
-						Unauthorized Profiles
-					</h2>
-					<Table.Root>
-						<Table.Header>
-							<Table.Row>
-								<Table.Head>ID</Table.Head>
-								<Table.Head>Profile URL</Table.Head>
-							</Table.Row>
-						</Table.Header>
-						<Table.Body>
-							{#each unauthorizedProfiles as profile}
-								<Table.Row>
-									<Table.Cell>{profile.id}</Table.Cell>
-									<Table.Cell>{profile.profileUrl}</Table.Cell>
-								</Table.Row>
-							{/each}
-						</Table.Body>
-					</Table.Root>
-				</div>
-			{/if}
-
-			{#if profileList.length > 0}
-				<div class="mx-auto max-w-none">
-					<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">Profile List</h2>
-					<ul class="list-disc pl-5">
-						{#each profileList as profile}
-							<li>{profile.profileUrl}</li>
 						{/each}
-					</ul>
+					</Table.Body>
+				</Table.Root>
+			</div>
+		{/if}
+
+		{#if unauthorizedProfiles.length > 0}
+			<div class="mx-auto max-w-none">
+				<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
+					Unauthorized Profiles
+				</h2>
+				<Table.Root>
+					<Table.Header>
+						<Table.Row>
+							<Table.Head>ID</Table.Head>
+							<Table.Head>Profile URL</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#each unauthorizedProfiles as profile}
+							<Table.Row>
+								<Table.Cell>{profile.id}</Table.Cell>
+								<Table.Cell>{profile.profileUrl}</Table.Cell>
+							</Table.Row>
+						{/each}
+					</Table.Body>
+				</Table.Root>
+			</div>
+		{/if}
+
+		{#if profileList.length > 0}
+			<div class="overflow-hidden rounded-md border">
+				<div class="overflow-x-auto">
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head class="w-[40px]">
+									<Checkbox
+										checked={profileList.length > 0 &&
+											selectedIds.length ===
+												profileList.filter((r) => r.isAvailable && r.hasAuthority).length}
+										onCheckedChange={toggleSelectAll}
+									/>
+								</Table.Head>
+								<Table.Head class="w-[40px]">ID</Table.Head>
+								<Table.Head class="w-[40px]">📍</Table.Head>
+								<Table.Head>Name / Title</Table.Head>
+								<Table.Head>Profile URL</Table.Head>
+								<Table.Head>Status</Table.Head>
+								<Table.Head>Availability</Table.Head>
+								{#if showUnavailableColumn}
+									<Table.Head>Unavailable Message</Table.Head>
+								{/if}
+							</Table.Row>
+						</Table.Header>
+
+						<Table.Body>
+							{#each profileList as node (node.id)}
+								<Table.Row>
+									<Table.Cell>
+										<Checkbox
+											checked={selectedIds.includes(node.id)}
+											onCheckedChange={() => toggleSelectRow(node.id)}
+											disabled={!node.isAvailable || !node.hasAuthority}
+										/>
+									</Table.Cell>
+									<Table.Cell>{node.id}</Table.Cell>
+									<Table.Cell>{JSON.parse(node.data)?.geolocation ? '📍' : ''}</Table.Cell>
+									<Table.Cell>{JSON.parse(node.data)?.name || 'N/A'}</Table.Cell>
+									<Table.Cell>
+										<a
+											href={node.profileUrl}
+											target="_blank"
+											rel="noreferrer"
+											class="text-blue-500 underline">{node.profileUrl}</a
+										>
+									</Table.Cell>
+									<Table.Cell class="capitalize">{node.status}</Table.Cell>
+									<Table.Cell class="capitalize">
+										{node.isAvailable ? 'Available' : 'Unavailable'}
+									</Table.Cell>
+									{#if showUnavailableColumn}
+										<Table.Cell class="text-red-600">
+											{#if !node.isAvailable && node.unavailableMessage}
+												{node.unavailableMessage}
+											{/if}
+										</Table.Cell>
+									{/if}
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
 				</div>
-			{/if}
+			</div>
 
 			<div class="mt-6 flex items-center gap-4">
 				<div>
@@ -351,10 +464,21 @@
 					</Select.Root>
 				</div>
 
-				<Button variant="default" onclick={() => console.log('Submit action:', selectedAction)}>
-					Submit
-				</Button>
-				<Button variant="secondary" onclick={() => goto('/')}>Cancel</Button>
+				{#if isLoading}
+					<Button disabled>
+						<LoaderCircle class="animate-spin" />
+						Please wait
+					</Button>
+				{:else}
+					<Button variant="default" onclick={handleSubmit}>Submit</Button>
+				{/if}
+				<Button variant="outline" href="/">Cancel</Button>
+			</div>
+
+			<div class="mt-4 text-sm text-muted-foreground">
+				<p>Publish = display node on map</p>
+				<p>Dismiss = hide node until it has updates</p>
+				<p>Ignore = always hide node</p>
 			</div>
 		{/if}
 	</div>

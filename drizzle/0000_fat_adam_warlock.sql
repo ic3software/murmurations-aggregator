@@ -7,9 +7,9 @@ CREATE TABLE `clusters` (
 	`center_lat` real DEFAULT 46.603354 NOT NULL,
 	`center_lon` real DEFAULT 1.888334 NOT NULL,
 	`scale` integer DEFAULT 5 NOT NULL,
-	`last_updated` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`last_updated` integer DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `nodes` (
@@ -17,11 +17,11 @@ CREATE TABLE `nodes` (
 	`cluster_uuid` text NOT NULL,
 	`profile_url` text NOT NULL,
 	`data` text NOT NULL,
-	`last_updated` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`status` text DEFAULT 'ignore' NOT NULL,
 	`is_available` integer DEFAULT 0 NOT NULL,
 	`unavailable_message` text DEFAULT '',
 	`has_authority` integer DEFAULT 1 NOT NULL,
-	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`last_updated` integer DEFAULT (unixepoch()) NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
 );

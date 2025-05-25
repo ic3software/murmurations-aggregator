@@ -19,13 +19,11 @@ export const PATCH: RequestHandler = async ({
 			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
 		}
 
-		const lastUpdatedDate = new Date(lastUpdated);
-
-		if (isNaN(lastUpdatedDate.getTime())) {
+		if (isNaN(lastUpdated)) {
 			return json({ error: 'Invalid lastUpdated date', success: false }, { status: 400 });
 		}
 
-		const result = await updateClusterTimestamp(db, clusterId, lastUpdatedDate);
+		const result = await updateClusterTimestamp(db, clusterId, lastUpdated);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Failed to update cluster timestamp', success: false }, { status: 500 });

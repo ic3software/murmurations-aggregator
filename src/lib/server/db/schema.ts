@@ -10,15 +10,15 @@ export const clusters = sqliteTable('clusters', {
 	centerLat: real('center_lat').default(46.603354).notNull(),
 	centerLon: real('center_lon').default(1.888334).notNull(),
 	scale: integer('scale').default(5).notNull(),
-	lastUpdated: integer('last_updated', { mode: 'timestamp' })
+	lastUpdated: integer('last_updated', { mode: 'number' })
 		.notNull()
-		.default(sql`CURRENT_TIMESTAMP`),
-	createdAt: integer('created_at')
-		.default(sql`CURRENT_TIMESTAMP`)
-		.notNull(),
-	updatedAt: integer('updated_at')
-		.default(sql`CURRENT_TIMESTAMP`)
+		.default(sql`(unixepoch())`),
+	createdAt: integer('created_at', { mode: 'number' })
 		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
 });
 
 export const nodes = sqliteTable('nodes', {
@@ -26,17 +26,17 @@ export const nodes = sqliteTable('nodes', {
 	clusterUuid: text('cluster_uuid').notNull(),
 	profileUrl: text('profile_url').notNull(),
 	data: text('data').notNull(),
-	lastUpdated: integer('last_updated', { mode: 'timestamp' })
-		.notNull()
-		.default(sql`CURRENT_TIMESTAMP`),
 	status: text('status').notNull().default('ignore'),
 	isAvailable: integer('is_available').notNull().default(0),
 	unavailableMessage: text('unavailable_message').default(''),
 	hasAuthority: integer('has_authority').notNull().default(1),
-	createdAt: integer('created_at')
-		.default(sql`CURRENT_TIMESTAMP`)
-		.notNull(),
-	updatedAt: integer('updated_at')
-		.default(sql`CURRENT_TIMESTAMP`)
+	lastUpdated: integer('last_updated', { mode: 'number' })
 		.notNull()
+		.default(sql`(unixepoch())`),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
 });

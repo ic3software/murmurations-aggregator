@@ -11,4 +11,6 @@ export type ClusterCreateInput = Omit<
 
 export type ClusterUpdateInput = Pick<Cluster, 'name' | 'centerLat' | 'centerLon' | 'scale'>;
 
-export type ClusterPublic = Omit<Cluster, 'id'>;
+export type ClusterPublic = Omit<Cluster, 'id' | 'lastUpdated'> & {
+	lastUpdated: string;
+};

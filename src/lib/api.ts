@@ -112,10 +112,10 @@ export const getAuthorityMap = (clusterId: string, customFetch?: typeof fetch) =
 
 export const updateClusterTimestamp = (
 	clusterId: string,
-	lastUpdated: Date,
+	lastUpdated: number,
 	customFetch?: typeof fetch
 ) =>
-	request<{ lastUpdated: Date }, undefined>(
+	request<{ lastUpdated: number }, undefined>(
 		`/api/clusters/${clusterId}/update-timestamp`,
 		'PATCH',
 		{ lastUpdated },
