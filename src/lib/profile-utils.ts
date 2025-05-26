@@ -66,7 +66,7 @@ export async function processProfile(profile: ProfileData, sourceIndex: string) 
 
 	if (fetchProfileError) {
 		unavailableMessage = fetchProfileError;
-	} else if (profileData) {
+	} else if (profileData && Object.keys(profileData).length > 0) {
 		isValid = await validateProfileData(profileData, sourceIndex);
 		if (!isValid) {
 			unavailableMessage = 'Invalid Profile Data';
