@@ -120,9 +120,10 @@
   - Toast displays the error
   - Flow continues without crashing
 - **Test Steps**
-  - Change the URL of index_url in the cluster.
-  - Update the cluster.
-  - Should show up the errors in the toast and redirect to the home page.
+  1. Change the URL of index_url in the cluster.
+  2. Update the cluster.
+  3. Check the errors show up in the toast.
+  4. Confirm that the user is redirected to the home page.
 
 ### 5.2 No updates returned
 
@@ -130,3 +131,8 @@
 - **Expected Result**:
   - Toast message: `"No updated profiles found."`
   - User is redirected to `/`
+- **Test Steps**:
+  1. Ensure there are no new, deleted, or unauthorized profiles in the index service.
+  2. Update the cluster.
+  3. Check toast message appears: `No updated profiles found`.
+  4. Confirm that the user is redirected to the home page.
