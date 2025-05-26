@@ -1,7 +1,7 @@
 import { getDB } from '$lib/server/db';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
 import { deleteNodes } from '$lib/server/models/nodes';
-import type { ClusterPublic, ClusterUpdateInput } from '$lib/types/cluster';
+import type { ClusterDbUpdateInput, ClusterPublic } from '$lib/types/cluster';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -54,11 +54,12 @@ export const PUT: RequestHandler = async ({
 
 		const { name, centerLat, centerLon, scale } = await request.json();
 
-		const updatedCluster: ClusterUpdateInput = {
+		const updatedCluster: ClusterDbUpdateInput = {
 			name,
 			centerLat,
 			centerLon,
-			scale
+			scale,
+			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 
 		const result = await updateCluster(db, clusterId, updatedCluster);

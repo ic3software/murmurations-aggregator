@@ -1,5 +1,5 @@
 import { clusters } from '$lib/server/db/schema';
-import type { ClusterInsert, ClusterUpdateInput } from '$lib/types/cluster';
+import type { ClusterDbUpdateInput, ClusterInsert } from '$lib/types/cluster';
 import type { D1Result } from '@cloudflare/workers-types';
 import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
@@ -19,7 +19,7 @@ export async function createCluster(db: DrizzleD1Database, cluster: ClusterInser
 export async function updateCluster(
 	db: DrizzleD1Database,
 	clusterId: string,
-	cluster: ClusterUpdateInput
+	cluster: ClusterDbUpdateInput
 ) {
 	return await db.update(clusters).set(cluster).where(eq(clusters.clusterId, clusterId)).run();
 }

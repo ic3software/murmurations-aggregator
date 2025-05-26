@@ -11,4 +11,9 @@ export type ClusterCreateInput = Omit<
 
 export type ClusterUpdateInput = Pick<Cluster, 'name' | 'centerLat' | 'centerLon' | 'scale'>;
 
+export type ClusterDbUpdateInput = Pick<
+	Cluster,
+	'name' | 'centerLat' | 'centerLon' | 'scale' | 'updatedAt'
+>;
+
 export type ClusterPublic = Omit<Cluster, 'id'>;
