@@ -1,8 +1,37 @@
 # Test Cases
 
+## Basic Tests
+
+### 1.1 Add New Profile
+
+- **Context**: A new profile is published to the index.
+- **Expected Result**: The new profile should appear in the updated profiles list.
+- **Test Steps**:
+  1. Publish a new profile to the index.
+  2. Update the cluster.
+  3. Confirm the new profile appears in the updated profiles list.
+
+### 1.2 Update Existing Profile
+
+- **Context**: An existing profile is updated in the index (e.g., change a field).
+- **Expected Result**: The updated profile should appear in the updated profiles list.
+- **Test Steps**:
+  1. Update an existing profile in the index (e.g., change the name or description).
+  2. Update the cluster.
+  3. Confirm the profile appears in the updated profiles list with the new data.
+
+### 1.3 Delete Profile
+
+- **Context**: A profile is marked as deleted in the index.
+- **Expected Result**: The profile should appear in the deleted profiles list.
+- **Test Steps**:
+  1. Mark a profile as deleted in the index.
+  2. Update the cluster.
+  3. Confirm the profile appears in the deleted profiles list.
+
 ## Authority Transitions
 
-### 1.1 From AP to NAP (Authorized -> Not Authorized)
+### 2.1 From AP to NAP (Authorized -> Not Authorized)
 
 - **Context**: The domain owner built the website using a WordPress plugin themselves, rather than through `test-tools`.
 - **Expected Result**:
@@ -15,7 +44,7 @@
   3. Add the same profile to self-built WordPress site (AP).
   4. Verify the first profile appears in `unauthorizedProfiles` with `status = 'ignore'`.
 
-### 1.2 From NAP to AP (Not Authorized -> Authorized)
+### 2.2 From NAP to AP (Not Authorized -> Authorized)
 
 - **Context**: The profile is moved back to an authorized domain. For example: self-built WordPress is removed, and the `test-tools` becomes authorized.
 - **Expected Result**:
@@ -26,7 +55,7 @@
   2. Update the cluster.
   3. Confirm the profile from `test-tools` has `hasAuthority = 1` again.
 
-### 1.3 Unavailable prorfile revalidated
+### 2.3 Unavailable prorfile revalidated
 
 - **Context**: Re-checking profiles if the profile is not available.
 - **Expected Result**: The profile should should update in the background.
@@ -40,7 +69,7 @@
 
 ## Profile State Edge Cases
 
-### 2.1 Deleted in index, not present locally
+### 3.1 Deleted in index, not present locally
 
 - **Context**: A profile marked as deleted is returned from the index, but not present locally.
 - **Expected Result**: Skipped silently with no error or updates.
@@ -49,7 +78,7 @@
   2. Update the cluster.
   3. Verify no error is shown, and nothing is deleted.
 
-### 2.2 New profile from a NAP domain
+### 3.2 New profile from a NAP domain
 
 - **Context**: A new profile is published on a domain without authority.
 - **Expected Result**:
@@ -59,7 +88,7 @@
   2. Update the cluster.
   3. Verify it appears in `profileList` with `hasAuthority = 0`
 
-### 2.3 New profile from an AP domain
+### 3.3 New profile from an AP domain
 
 - **Context**: A new profile from an authorized domain.
 - **Expected Result**:
@@ -72,7 +101,7 @@
 
 ## Timestamp Synchronization
 
-### 3.1 Same timestamp – no update
+### 4.1 Same timestamp – no update
 
 - **Context**: `last_updated` timestamp matches the last trigger time.
 - **Expected Result**: Update the last_updated after click the `Update Node` button.
@@ -83,7 +112,7 @@
 
 ## Error and Empty Response Handling
 
-### 4.1 API Error Handling
+### 5.1 API Error Handling
 
 - **Context**: Simulate an API error in `fetchProfiles`, `updateNode`, or `deleteNode`.
 - **Expected Result**:
@@ -95,7 +124,7 @@
   - Update the cluster.
   - Should show up the errors in the toast and redirect to the home page.
 
-### 4.2 No updates returned
+### 5.2 No updates returned
 
 - **Context**: No updates, deleted, or unauthorized profiles are returned.
 - **Expected Result**:
