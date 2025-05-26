@@ -263,7 +263,7 @@
 	async function checkAuthorityProfiles() {
 		const { data: authorityMap } = await getAuthorityMap(clusterId);
 
-		const progressStep = 33 / existingNodes.length;
+		const progressStep = 33 / (existingNodes.length + profileList.length);
 		let currentProgress = 66;
 
 		for (const profile of existingNodes) {
@@ -301,6 +301,35 @@
 			}
 
 			await updateNode(clusterId, profile.id, profileUpdatedData);
+		}
+
+		for (const profile of profileList) {
+			currentProgress += progressStep;
+			loadingProgress = Math.min(100, Math.round(currentProgress));
+
+			const originalAuthority = profile.hasAuthority ? 1 : 0;
+
+			const hasAuthority = checkProfileAuthority(
+				authorityMap ?? [],
+				JSON.parse(profile.data)?.primary_url,
+				profile.profileUrl
+			);
+
+			if (originalAuthority === hasAuthority) {
+				continue;
+			}
+
+			const profileUpdatedData: NodeUpdateInput = {
+				data: JSON.parse(profile.data),
+				status: profile.status,
+				isAvailable: profile.isAvailable,
+				unavailableMessage: profile.unavailableMessage,
+				hasAuthority
+			};
+
+			await updateNode(clusterId, profile.id, profileUpdatedData);
+
+			profile.hasAuthority = hasAuthority;
 		}
 	}
 
