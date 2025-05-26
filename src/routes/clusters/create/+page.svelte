@@ -138,7 +138,7 @@
 					profileUrl: rawNodes[i].profile_url as string,
 					data: profile_data,
 					status: status,
-					lastUpdated: rawNodes[i].last_updated as Date,
+					lastUpdated: rawNodes[i].last_updated,
 					isAvailable: is_available ? 1 : 0,
 					unavailableMessage: unavailable_message,
 					hasAuthority: 1

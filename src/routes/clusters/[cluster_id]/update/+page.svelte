@@ -8,6 +8,7 @@
 		updateNode,
 		updateNodeStatus
 	} from '$lib/api';
+	import { toCamelCase } from '$lib/caseConverter';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { Label } from '$lib/components/ui/label';
@@ -208,7 +209,7 @@
 						unavailableMessage: unavailable_message,
 						hasAuthority: 1
 					});
-					profileList.push({ ...node });
+					profileList.push({ ...toCamelCase<Node>(node) });
 				} else {
 					const { data: updatedNode } = await updateNode(clusterId, existingNode.id, {
 						data: profile_data,
@@ -217,7 +218,7 @@
 						unavailableMessage: unavailable_message
 					});
 
-					profileList.push({ ...updatedNode });
+					profileList.push({ ...toCamelCase<Node>(updatedNode) });
 				}
 			}
 		}
@@ -403,6 +404,7 @@
 		{/if}
 
 		{#if profileList.length > 0}
+			<h2 class="mb-4 text-xl font-semibold">Updated Profiles</h2>
 			<div class="overflow-hidden rounded-md border">
 				<div class="overflow-x-auto">
 					<Table.Root>
@@ -451,7 +453,7 @@
 									</Table.Cell>
 									<Table.Cell class="capitalize">{node.status}</Table.Cell>
 									<Table.Cell class="capitalize">
-										{node.isAvailable ? 'Available' : 'Unavailable'}
+										{node.isAvailable === 1 ? 'Available' : 'Unavailable'}
 									</Table.Cell>
 									{#if showUnavailableColumn}
 										<Table.Cell class="text-red-600">
