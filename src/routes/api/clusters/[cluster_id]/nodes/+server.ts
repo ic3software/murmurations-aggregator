@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { createNode, getNodes } from '$lib/server/models/nodes';
+import { createNode, getNode, getNodes } from '$lib/server/models/nodes';
 import type { NodeInsert } from '$lib/types/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
@@ -61,6 +61,12 @@ export const POST: RequestHandler = async ({
 
 		if (!Number.isInteger(lastUpdated)) {
 			return json({ error: 'lastUpdated is not an integer', success: false }, { status: 400 });
+		}
+
+		const existingNode = await getNode(db, clusterId, profileUrl);
+
+		if (existingNode.length > 0) {
+			return json({ error: 'Node already exists', success: false }, { status: 400 });
 		}
 
 		// Insert data

@@ -34,7 +34,7 @@ export const PUT: RequestHandler = async ({
 			isAvailable,
 			unavailableMessage,
 			hasAuthority,
-			updatedAt: new Date().getTime() / 1000
+			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 
 		// Update node

@@ -9,6 +9,14 @@ export async function getNodes(db: DrizzleD1Database, clusterId: string) {
 	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterId)).all();
 }
 
+export async function getNode(db: DrizzleD1Database, clusterId: string, profileUrl: string) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.profileUrl, profileUrl)))
+		.limit(1);
+}
+
 export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promise<Node> {
 	const result = await db.insert(nodes).values(node).returning().run();
 	return result.results[0] as Node;

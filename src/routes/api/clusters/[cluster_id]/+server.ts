@@ -24,10 +24,7 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
-		const clusterPublic: ClusterPublic = {
-			...cluster,
-			lastUpdated: cluster.lastUpdated.toString()
-		};
+		const clusterPublic: ClusterPublic = { ...cluster };
 
 		return json({ data: clusterPublic, success: true }, { status: 200 });
 	} catch (error) {

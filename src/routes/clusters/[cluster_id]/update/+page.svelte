@@ -213,6 +213,7 @@
 				} else {
 					const { data: updatedNode } = await updateNode(clusterId, existingNode.id, {
 						data: profile_data,
+						lastUpdated: profile.last_updated,
 						status: status,
 						isAvailable: is_available ? 1 : 0,
 						unavailableMessage: unavailable_message
@@ -400,6 +401,12 @@
 						</Table.Body>
 					</Table.Root>
 				</div>
+			</div>
+		{/if}
+
+		{#if deletedProfiles.length > 0 || unauthorizedProfiles.length > 0}
+			<div class="mt-6 flex items-center gap-4">
+				<Button variant="outline" href="/">Return to Home</Button>
 			</div>
 		{/if}
 
