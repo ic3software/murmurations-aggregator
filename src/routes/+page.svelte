@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import type { PageProps } from './$types';
-	import { formatDate } from '$lib/date';
 	import { deleteCluster } from '$lib/api';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { formatDate } from '$lib/date';
+
 	import { toast } from 'svelte-sonner';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -97,6 +100,13 @@
 						</div>
 
 						<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
+							<div class="font-medium text-slate-900 dark:text-slate-50">Last Updated:</div>
+							<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
+								{formatDate(cluster.lastUpdated)}
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
 							<div class="font-medium text-slate-900 dark:text-slate-50">Created At:</div>
 							<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 								{formatDate(cluster.createdAt)}
@@ -112,14 +122,14 @@
 					</div>
 
 					<div class="flex flex-wrap gap-3">
-						<Button>Update Nodes</Button>
-						<Button>Manage Nodes</Button>
+						<Button href={`/clusters/${cluster.clusterId}/update`}>Update Nodes</Button>
+						<Button href={`/clusters/${cluster.clusterId}/select`}>Manage Nodes</Button>
 						<Button variant="secondary" href={`/clusters/${cluster.clusterId}/edit`}
 							>Edit Cluster</Button
 						>
 						<AlertDialog.Root>
-							<AlertDialog.Trigger>
-								<Button variant="destructive" aria-label="Delete Cluster">Delete Cluster</Button>
+							<AlertDialog.Trigger class={buttonVariants({ variant: 'destructive' })}>
+								Delete Cluster
 							</AlertDialog.Trigger>
 							<AlertDialog.Content>
 								<AlertDialog.Header>

@@ -1,9 +1,10 @@
 import { getDB } from '$lib/server/db';
+import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
+import { deleteNodes } from '$lib/server/models/nodes';
+import type { ClusterDbUpdateInput, ClusterPublic } from '$lib/types/cluster';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
-import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/clusters';
-import type { ClusterUpdateInput } from '$lib/types/cluster';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
@@ -23,15 +24,9 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
-		// Convert the cluster to an ClusterUpdateInput object
-		const editableCluster: ClusterUpdateInput = {
-			name: cluster.name,
-			centerLat: cluster.centerLat,
-			centerLon: cluster.centerLon,
-			scale: cluster.scale
-		};
+		const clusterPublic: ClusterPublic = { ...cluster };
 
-		return json({ data: editableCluster, success: true }, { status: 200 });
+		return json({ data: clusterPublic, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing GET request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
@@ -59,11 +54,12 @@ export const PUT: RequestHandler = async ({
 
 		const { name, centerLat, centerLon, scale } = await request.json();
 
-		const updatedCluster: ClusterUpdateInput = {
+		const updatedCluster: ClusterDbUpdateInput = {
 			name,
 			centerLat,
 			centerLon,
-			scale
+			scale,
+			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 
 		const result = await updateCluster(db, clusterId, updatedCluster);
@@ -72,7 +68,7 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing PUT request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
@@ -91,13 +87,17 @@ export const DELETE: RequestHandler = async ({
 			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
 		}
 
+		// Delete the cluster
 		const result = await deleteCluster(db, clusterId);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		// Delete all nodes in the cluster
+		await deleteNodes(db, clusterId);
+
+		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing DELETE request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

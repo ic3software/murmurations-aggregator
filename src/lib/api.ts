@@ -1,137 +1,123 @@
-import type { Cluster, ClusterCreateInput, ClusterUpdateInput } from './types/cluster';
+import type {
+	Cluster,
+	ClusterCreateInput,
+	ClusterPublic,
+	ClusterUpdateInput
+} from '$lib/types/cluster';
+import type { Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
 
-export async function getCountries(
+async function request<TBody, TResponse>(
+	url: string,
+	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+	body?: TBody,
 	customFetch: typeof fetch = fetch
-): Promise<Record<string, string[]>> {
+): Promise<{ data: TResponse; success: boolean; message?: string }> {
 	try {
-		const response = await customFetch('https://test-library.murmurations.network/v2/countries', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
+		const response = await customFetch(url, {
+			method,
+			body: body !== undefined ? JSON.stringify(body) : undefined,
+			headers: { 'Content-Type': 'application/json' }
 		});
 
+		const json = await response.json();
+
 		if (!response.ok) {
-			throw new Error('Failed to fetch countries');
+			return { data: null as unknown as TResponse, success: false, message: json?.message };
 		}
 
-		const data: Record<string, string[]> = await response.json();
-		return data;
+		return json;
 	} catch (error) {
-		console.error('Error fetching countries:', error);
+		console.error(`Error on request to ${url}:`, error);
 		throw error;
 	}
 }
 
-export async function getClusters(customFetch: typeof fetch = fetch): Promise<Cluster[]> {
-	try {
-		const response = await customFetch('/api/clusters', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+export const getCountries = (customFetch?: typeof fetch) =>
+	request<Record<string, string[]>, Record<string, string[]>>(
+		'https://test-library.murmurations.network/v2/countries',
+		'GET',
+		undefined,
+		customFetch
+	);
 
-		if (!response.ok) {
-			throw new Error('Failed to fetch clusters');
-		}
+export const getClusters = async (customFetch?: typeof fetch) => {
+	const result = await request<undefined, Cluster[]>(
+		'/api/clusters',
+		'GET',
+		undefined,
+		customFetch
+	);
+	return result.data ?? [];
+};
 
-		const result = await response.json();
-		const data: Cluster[] = result.data;
-		return data ?? [];
-	} catch (error) {
-		console.error('Error fetching clusters:', error);
-		throw error;
-	}
-}
+export const getCluster = (id: string, customFetch?: typeof fetch) =>
+	request<undefined, ClusterPublic>(`/api/clusters/${id}`, 'GET', undefined, customFetch);
 
-export async function getCluster(clusterId: string, customFetch: typeof fetch = fetch) {
-	try {
-		const response = await customFetch(`/api/clusters/${clusterId}`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
+	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch);
 
-		if (!response.ok) {
-			throw new Error('Failed to fetch cluster');
-		}
+export const updateCluster = (id: string, input: ClusterUpdateInput, customFetch?: typeof fetch) =>
+	request<ClusterUpdateInput, ClusterPublic>(`/api/clusters/${id}`, 'PUT', input, customFetch);
 
-		const result = await response.json();
-		const data: Cluster = result.data;
-		return data;
-	} catch (error) {
-		console.error('Error fetching cluster:', error);
-		throw error;
-	}
-}
+export const deleteCluster = (id: string, customFetch?: typeof fetch) =>
+	request<undefined, undefined>(`/api/clusters/${id}`, 'DELETE', undefined, customFetch);
 
-export async function createCluster(
-	cluster: ClusterCreateInput,
-	customFetch: typeof fetch = fetch
-) {
-	try {
-		const response = await customFetch(`/api/clusters`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(cluster)
-		});
+export const createNode = (clusterId: string, input: NodeCreateInput, customFetch?: typeof fetch) =>
+	request<NodeCreateInput, Node>(`/api/clusters/${clusterId}/nodes`, 'POST', input, customFetch);
 
-		if (!response.ok) {
-			throw new Error('Failed to create cluster');
-		}
-
-		return response.json();
-	} catch (error) {
-		console.error('Error creating cluster:', error);
-		throw error;
-	}
-}
-
-export async function updateCluster(
+export const updateNode = (
 	clusterId: string,
-	cluster: ClusterUpdateInput,
-	customFetch: typeof fetch = fetch
-) {
-	try {
-		const response = await customFetch(`/api/clusters/${clusterId}`, {
-			method: 'PUT',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(cluster)
-		});
+	nodeId: number,
+	input: NodeUpdateInput,
+	customFetch?: typeof fetch
+) =>
+	request<NodeUpdateInput, Node>(
+		`/api/clusters/${clusterId}/nodes/${nodeId}`,
+		'PUT',
+		input,
+		customFetch
+	);
 
-		if (!response.ok) {
-			throw new Error('Failed to update cluster');
-		}
+export const getNodes = (clusterId: string, customFetch?: typeof fetch) =>
+	request<undefined, Node[]>(`/api/clusters/${clusterId}/nodes`, 'GET', undefined, customFetch);
 
-		return response.json();
-	} catch (error) {
-		console.error('Error updating cluster:', error);
-		throw error;
-	}
-}
+export const updateNodeStatus = (
+	clusterId: string,
+	nodeId: number,
+	status: string,
+	customFetch?: typeof fetch
+) =>
+	request<{ status: string }, Node>(
+		`/api/clusters/${clusterId}/nodes/${nodeId}/status`,
+		'PUT',
+		{ status },
+		customFetch
+	);
 
-export async function deleteCluster(clusterId: string, customFetch: typeof fetch = fetch) {
-	try {
-		const response = await customFetch(`/api/clusters/${clusterId}`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+export const deleteNode = (clusterId: string, nodeId: number, customFetch?: typeof fetch) =>
+	request<undefined, undefined>(
+		`/api/clusters/${clusterId}/nodes/${nodeId}`,
+		'DELETE',
+		undefined,
+		customFetch
+	);
 
-		if (!response.ok) {
-			throw new Error('Failed to delete cluster');
-		}
+export const getAuthorityMap = (clusterId: string, customFetch?: typeof fetch) =>
+	request<undefined, string[]>(
+		`/api/clusters/${clusterId}/authority-map`,
+		'GET',
+		undefined,
+		customFetch
+	);
 
-		return response.json();
-	} catch (error) {
-		console.error('Error deleting cluster:', error);
-		throw error;
-	}
-}
+export const updateClusterTimestamp = (
+	clusterId: string,
+	lastUpdated: number,
+	customFetch?: typeof fetch
+) =>
+	request<{ lastUpdated: number }, undefined>(
+		`/api/clusters/${clusterId}/update-timestamp`,
+		'PATCH',
+		{ lastUpdated },
+		customFetch
+	);

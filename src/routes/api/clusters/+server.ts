@@ -1,27 +1,16 @@
+import { getDB } from '$lib/server/db';
+import { createCluster, getClusters } from '$lib/server/models/clusters';
+import type { ClusterInsert, ClusterPublic } from '$lib/types/cluster';
+import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { D1Database } from '@cloudflare/workers-types';
-import { createCluster, getClusters } from '$lib/server/models/clusters';
-import type { ClusterWithoutId, ClusterDbCreateInput } from '$lib/types/cluster';
-import { getDB } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Database } } }) => {
 	try {
 		const db = getDB(platform.env);
 		const clusterData = await getClusters(db);
 
-		const clusters: ClusterWithoutId[] = clusterData.map((cluster) => ({
-			clusterId: cluster.clusterId,
-			name: cluster.name,
-			indexUrl: cluster.indexUrl,
-			queryUrl: cluster.queryUrl,
-			centerLat: cluster.centerLat,
-			centerLon: cluster.centerLon,
-			scale: cluster.scale,
-			lastUpdated: cluster.lastUpdated,
-			createdAt: cluster.createdAt,
-			updatedAt: cluster.updatedAt
-		}));
+		const clusters: ClusterPublic[] = clusterData as ClusterPublic[];
 
 		return json({ data: clusters, success: true }, { status: 200 });
 	} catch (error) {
@@ -43,14 +32,14 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const cluster: ClusterDbCreateInput = {
+		const cluster: ClusterInsert = {
 			clusterId: crypto.randomUUID(),
 			name,
 			indexUrl,
 			queryUrl,
-			centerLat: centerLat || 46.603354,
-			centerLon: centerLon || 1.888334,
-			scale: scale || 5
+			centerLat,
+			centerLon,
+			scale
 		};
 
 		await createCluster(db, cluster);

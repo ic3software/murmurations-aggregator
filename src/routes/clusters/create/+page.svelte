@@ -1,20 +1,26 @@
 <script lang="ts">
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { goto } from '$app/navigation';
+	import { createCluster } from '$lib/api';
+	import { createNode } from '$lib/api';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Command from '$lib/components/ui/command/index.js';
-	import * as Popover from '$lib/components/ui/popover/index.js';
-	import { ChevronsUpDown, Check } from '@lucide/svelte';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { tick } from 'svelte';
-	import { cn } from '$lib/utils';
-	import type { PageProps } from './$types';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { Progress } from '$lib/components/ui/progress';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { fetchProfiles, processProfile } from '$lib/profile-utils';
 	import type { ClusterCreateInput } from '$lib/types/cluster';
-	import { createCluster } from '$lib/api';
+	import type { NodeCreateInput } from '$lib/types/node';
+	import { cn } from '$lib/utils';
+	import { Check, ChevronsUpDown } from '@lucide/svelte';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+
+	import { tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -55,6 +61,9 @@
 
 	let isCreatingCluster = $state(false);
 
+	let loadingNodes = $state(false);
+	let loadingProgress = $state(0);
+
 	const sourceIndexTriggerContent = $derived(
 		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
 			'Select a source index'
@@ -80,15 +89,15 @@
 	async function submitCluster(event: Event) {
 		event.preventDefault();
 
+		// Scroll to the top of the page
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+
 		isCreatingCluster = true;
 
 		try {
 			const queryParams = buildQueryParams();
 			const pageQueries = 'page=1&page_size=500';
 			const queryString = [...queryParams, pageQueries].join('&');
-			const urlWithParams = `${sourceIndex}?${queryString}`;
-
-			console.log('urlWithParams', urlWithParams);
 
 			const clusterData: ClusterCreateInput = {
 				name: clusterName,
@@ -98,19 +107,55 @@
 				centerLon: clusterCenterLongitude,
 				scale: clusterScale
 			};
+
+			const rawNodes = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
+			if (rawNodes.length === 0) {
+				toast.error('No nodes found. Please update your cluster settings.');
+				return;
+			}
+
+			if (rawNodes.length > 500) {
+				toast.error('Too many nodes. Please narrow your search.');
+				return;
+			}
+
 			const response = await createCluster(clusterData);
 
-			if (response?.success) {
-				toast.success('Cluster created successfully');
-				goto('/');
-			} else {
-				toast.error('Error creating cluster');
+			if (!response?.success) throw new Error('Create cluster failed');
+			const clusterId = response?.data?.clusterId;
+			toast.success('Cluster created successfully');
+
+			loadingNodes = true;
+
+			const step = 100 / rawNodes.length;
+			for (let i = 0; i < rawNodes.length; i++) {
+				const { profile_data, status, is_available, unavailable_message } = await processProfile(
+					rawNodes[i],
+					sourceIndex
+				);
+
+				const nodeData: NodeCreateInput = {
+					profileUrl: rawNodes[i].profile_url as string,
+					data: profile_data,
+					status: status,
+					lastUpdated: rawNodes[i].last_updated,
+					isAvailable: is_available ? 1 : 0,
+					unavailableMessage: unavailable_message,
+					hasAuthority: 1
+				};
+				await createNode(clusterId, nodeData);
+				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
 			}
+
+			toast.success(`Nodes created successfully. Processed ${rawNodes.length} nodes.`);
+
+			await goto(`/clusters/${clusterId}/select`);
 		} catch (error) {
 			console.error('Error creating cluster:', error);
-			toast.error('Error creating cluster');
+			toast.error('An error occurred while creating the cluster. Please try again.');
 		} finally {
 			isCreatingCluster = false;
+			loadingNodes = false;
 		}
 	}
 
@@ -130,7 +175,7 @@
 		// Tags handling
 		if (tags) {
 			queryParams.push(`tags=${encodeURIComponent(tags)}`);
-			queryParams.push(`operator=${allTags ? 'and' : 'or'}`);
+			queryParams.push(`tags_filter=${allTags ? 'and' : 'or'}`);
 		}
 
 		// Tags exact matching
@@ -153,6 +198,15 @@
 				Murmurations Collaborative Cluster Builder
 			</h1>
 		</header>
+
+		{#if loadingNodes}
+			<div class="my-6">
+				<p class="mb-2 text-sm text-muted-foreground">
+					Importing nodes, please wait... {loadingProgress}%
+				</p>
+				<Progress value={loadingProgress} max={100} class="w-full" />
+			</div>
+		{/if}
 
 		<div class="mx-auto max-w-none">
 			<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">

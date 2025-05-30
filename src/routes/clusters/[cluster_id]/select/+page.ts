@@ -1,4 +1,4 @@
-import { getCluster } from '$lib/api';
+import { getNodes } from '$lib/api';
 
 import type { PageLoad } from './$types';
 
@@ -6,15 +6,17 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	const clusterId = params.cluster_id;
 
 	try {
-		const { data: cluster } = await getCluster(clusterId, fetch);
+		const { data: nodes } = await getNodes(clusterId, fetch);
 
 		return {
-			cluster
+			clusterId,
+			nodes
 		};
 	} catch (err) {
-		console.error('Error loading cluster:', err);
+		console.error('Error loading nodes:', err);
 		return {
-			cluster: null
+			clusterId,
+			nodes: null
 		};
 	}
 };
