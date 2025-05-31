@@ -12,12 +12,12 @@ export const PUT: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 		const nodeId = params.node_id;
 
 		// Validate input
-		if (!clusterId || !nodeId) {
-			return json({ error: 'Missing cluster_id or node_id', success: false }, { status: 400 });
+		if (!clusterUuid || !nodeId) {
+			return json({ error: 'Missing cluster_uuid or node_id', success: false }, { status: 400 });
 		}
 
 		if (!Number.isInteger(parseInt(nodeId))) {
@@ -38,7 +38,7 @@ export const PUT: RequestHandler = async ({
 		};
 
 		// Update node
-		const result = await updateNode(db, clusterId, parseInt(nodeId), node);
+		const result = await updateNode(db, clusterUuid, parseInt(nodeId), node);
 
 		return json({ data: result, success: true }, { status: 200 });
 	} catch (error) {
@@ -53,12 +53,12 @@ export const DELETE: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 		const nodeId = params.node_id;
 
 		// Validate input
-		if (!clusterId || !nodeId) {
-			return json({ error: 'Missing cluster_id or node_id', success: false }, { status: 400 });
+		if (!clusterUuid || !nodeId) {
+			return json({ error: 'Missing cluster_uuid or node_id', success: false }, { status: 400 });
 		}
 
 		if (!Number.isInteger(parseInt(nodeId))) {
@@ -66,7 +66,7 @@ export const DELETE: RequestHandler = async ({
 		}
 
 		// Delete node
-		const result = await deleteNode(db, clusterId, parseInt(nodeId));
+		const result = await deleteNode(db, clusterUuid, parseInt(nodeId));
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Failed to delete node', success: false }, { status: 500 });

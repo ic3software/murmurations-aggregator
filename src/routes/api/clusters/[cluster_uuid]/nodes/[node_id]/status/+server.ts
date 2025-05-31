@@ -11,13 +11,13 @@ export const PUT: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 		const nodeId = params.node_id;
 		const { status } = await request.json();
 
 		// Validate input
-		if (!clusterId || !nodeId) {
-			return json({ error: 'Missing cluster_id or node_id', success: false }, { status: 400 });
+		if (!clusterUuid || !nodeId) {
+			return json({ error: 'Missing cluster_uuid or node_id', success: false }, { status: 400 });
 		}
 
 		if (!Number.isInteger(parseInt(nodeId))) {
@@ -29,7 +29,7 @@ export const PUT: RequestHandler = async ({
 		}
 
 		// Update node status
-		const result = await updateNodeStatus(db, clusterId, parseInt(nodeId), status);
+		const result = await updateNodeStatus(db, clusterUuid, parseInt(nodeId), status);
 
 		if (!result) {
 			return json({ error: 'Failed to update node status', success: false }, { status: 500 });

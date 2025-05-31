@@ -56,67 +56,80 @@ export const getCluster = (id: string, customFetch?: typeof fetch) =>
 export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
 	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch);
 
-export const updateCluster = (id: string, input: ClusterUpdateInput, customFetch?: typeof fetch) =>
-	request<ClusterUpdateInput, ClusterPublic>(`/api/clusters/${id}`, 'PUT', input, customFetch);
-
-export const deleteCluster = (id: string, customFetch?: typeof fetch) =>
-	request<undefined, undefined>(`/api/clusters/${id}`, 'DELETE', undefined, customFetch);
-
-export const createNode = (clusterId: string, input: NodeCreateInput, customFetch?: typeof fetch) =>
-	request<NodeCreateInput, Node>(`/api/clusters/${clusterId}/nodes`, 'POST', input, customFetch);
-
-export const updateNode = (
-	clusterId: string,
-	nodeId: number,
-	input: NodeUpdateInput,
+export const updateCluster = (
+	clusterUuid: string,
+	input: ClusterUpdateInput,
 	customFetch?: typeof fetch
 ) =>
-	request<NodeUpdateInput, Node>(
-		`/api/clusters/${clusterId}/nodes/${nodeId}`,
+	request<ClusterUpdateInput, ClusterPublic>(
+		`/api/clusters/${clusterUuid}`,
 		'PUT',
 		input,
 		customFetch
 	);
 
-export const getNodes = (clusterId: string, customFetch?: typeof fetch) =>
-	request<undefined, Node[]>(`/api/clusters/${clusterId}/nodes`, 'GET', undefined, customFetch);
+export const deleteCluster = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, undefined>(`/api/clusters/${clusterUuid}`, 'DELETE', undefined, customFetch);
+
+export const createNode = (
+	clusterUuid: string,
+	input: NodeCreateInput,
+	customFetch?: typeof fetch
+) =>
+	request<NodeCreateInput, Node>(`/api/clusters/${clusterUuid}/nodes`, 'POST', input, customFetch);
+
+export const updateNode = (
+	clusterUuid: string,
+	nodeId: number,
+	input: NodeUpdateInput,
+	customFetch?: typeof fetch
+) =>
+	request<NodeUpdateInput, Node>(
+		`/api/clusters/${clusterUuid}/nodes/${nodeId}`,
+		'PUT',
+		input,
+		customFetch
+	);
+
+export const getNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, Node[]>(`/api/clusters/${clusterUuid}/nodes`, 'GET', undefined, customFetch);
 
 export const updateNodeStatus = (
-	clusterId: string,
+	clusterUuid: string,
 	nodeId: number,
 	status: string,
 	customFetch?: typeof fetch
 ) =>
 	request<{ status: string }, Node>(
-		`/api/clusters/${clusterId}/nodes/${nodeId}/status`,
+		`/api/clusters/${clusterUuid}/nodes/${nodeId}/status`,
 		'PUT',
 		{ status },
 		customFetch
 	);
 
-export const deleteNode = (clusterId: string, nodeId: number, customFetch?: typeof fetch) =>
+export const deleteNode = (clusterUuid: string, nodeId: number, customFetch?: typeof fetch) =>
 	request<undefined, undefined>(
-		`/api/clusters/${clusterId}/nodes/${nodeId}`,
+		`/api/clusters/${clusterUuid}/nodes/${nodeId}`,
 		'DELETE',
 		undefined,
 		customFetch
 	);
 
-export const getAuthorityMap = (clusterId: string, customFetch?: typeof fetch) =>
+export const getAuthorityMap = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, string[]>(
-		`/api/clusters/${clusterId}/authority-map`,
+		`/api/clusters/${clusterUuid}/authority-map`,
 		'GET',
 		undefined,
 		customFetch
 	);
 
 export const updateClusterTimestamp = (
-	clusterId: string,
+	clusterUuid: string,
 	lastUpdated: number,
 	customFetch?: typeof fetch
 ) =>
 	request<{ lastUpdated: number }, undefined>(
-		`/api/clusters/${clusterId}/update-timestamp`,
+		`/api/clusters/${clusterUuid}/update-timestamp`,
 		'PATCH',
 		{ lastUpdated },
 		customFetch

@@ -122,7 +122,7 @@
 			const response = await createCluster(clusterData);
 
 			if (!response?.success) throw new Error('Create cluster failed');
-			const clusterId = response?.data?.clusterId;
+			const clusterUuid = response?.data?.clusterUuid;
 			toast.success('Cluster created successfully');
 
 			loadingNodes = true;
@@ -143,13 +143,13 @@
 					unavailableMessage: unavailable_message,
 					hasAuthority: 1
 				};
-				await createNode(clusterId, nodeData);
+				await createNode(clusterUuid, nodeData);
 				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
 			}
 
 			toast.success(`Nodes created successfully. Processed ${rawNodes.length} nodes.`);
 
-			await goto(`/clusters/${clusterId}/select`);
+			await goto(`/clusters/${clusterUuid}/select`);
 		} catch (error) {
 			console.error('Error creating cluster:', error);
 			toast.error('An error occurred while creating the cluster. Please try again.');

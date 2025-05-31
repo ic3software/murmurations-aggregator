@@ -3,10 +3,10 @@ import { getCluster, getNodes } from '$lib/api';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const clusterId = params.cluster_id;
+	const clusterUuid = params.cluster_uuid;
 
-	const { data: cluster } = await getCluster(clusterId, fetch);
-	const { data: nodes } = await getNodes(clusterId, fetch);
+	const { data: cluster } = await getCluster(clusterUuid, fetch);
+	const { data: nodes } = await getNodes(clusterUuid, fetch);
 
 	return {
 		cluster,

@@ -1,6 +1,6 @@
 CREATE TABLE `clusters` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`cluster_id` text NOT NULL,
+	`cluster_uuid` text NOT NULL,
 	`name` text NOT NULL,
 	`index_url` text NOT NULL,
 	`query_url` text NOT NULL,

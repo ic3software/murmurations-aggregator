@@ -28,7 +28,7 @@
 	let { data }: PageProps = $props();
 
 	const existingNodes = data?.nodes ?? [];
-	const clusterId = data?.cluster?.clusterId;
+	const clusterUuid = data?.cluster?.clusterUuid;
 	const indexUrl = data?.cluster?.indexUrl;
 	let queryUrl = data?.cluster?.queryUrl;
 
@@ -90,7 +90,7 @@
 		try {
 			const step = 100 / selectedIds.length;
 			for (let i = 0; i < selectedIds.length; i++) {
-				await updateNodeStatus(clusterId, selectedIds[i], selectedAction);
+				await updateNodeStatus(clusterUuid, selectedIds[i], selectedAction);
 				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
 			}
 			toast.success('Node statuses updated successfully.');
@@ -175,7 +175,7 @@
 					(node: Node) => node.profileUrl === profile.profile_url
 				);
 				if (existingNode) {
-					await deleteNode(clusterId, existingNode.id);
+					await deleteNode(clusterUuid, existingNode.id);
 					deletedProfiles.push({ ...existingNode });
 				}
 				continue;
@@ -200,7 +200,7 @@
 				);
 
 				if (shouldCreate) {
-					const { data: node } = await createNode(clusterId, {
+					const { data: node } = await createNode(clusterUuid, {
 						profileUrl: profile.profile_url,
 						data: profile_data,
 						status: status,
@@ -211,7 +211,7 @@
 					});
 					profileList.push({ ...toCamelCase<Node>(node) });
 				} else {
-					const { data: updatedNode } = await updateNode(clusterId, existingNode.id, {
+					const { data: updatedNode } = await updateNode(clusterUuid, existingNode.id, {
 						data: profile_data,
 						lastUpdated: profile.last_updated,
 						status: status,
@@ -224,7 +224,7 @@
 			}
 		}
 
-		await updateClusterTimestamp(clusterId, currentTimestamp);
+		await updateClusterTimestamp(clusterUuid, currentTimestamp);
 	}
 
 	async function checkUnavailableProfiles() {
@@ -249,7 +249,7 @@
 				unavailableMessage: unavailable_message
 			};
 
-			await updateNode(clusterId, profile.id, profileUpdatedData);
+			await updateNode(clusterUuid, profile.id, profileUpdatedData);
 		}
 	}
 
@@ -261,7 +261,7 @@
 	// 2.1 AP to NAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to NAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to NAP, we don't want to move them to the unauthorized list.
 	// - 2.2 If a profile shifts from NAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
 	async function checkAuthorityProfiles() {
-		const { data: authorityMap } = await getAuthorityMap(clusterId);
+		const { data: authorityMap } = await getAuthorityMap(clusterUuid);
 
 		const progressStep = 33 / (existingNodes.length + profileList.length);
 		let currentProgress = 66;
@@ -300,7 +300,7 @@
 				}
 			}
 
-			await updateNode(clusterId, profile.id, profileUpdatedData);
+			await updateNode(clusterUuid, profile.id, profileUpdatedData);
 		}
 
 		for (const profile of profileList) {
@@ -327,7 +327,7 @@
 				hasAuthority
 			};
 
-			await updateNode(clusterId, profile.id, profileUpdatedData);
+			await updateNode(clusterUuid, profile.id, profileUpdatedData);
 
 			profile.hasAuthority = hasAuthority;
 		}

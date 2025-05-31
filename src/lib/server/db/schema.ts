@@ -3,7 +3,7 @@ import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const clusters = sqliteTable('clusters', {
 	id: integer('id').primaryKey().notNull(),
-	clusterId: text('cluster_id').notNull(),
+	clusterUuid: text('cluster_uuid').notNull(),
 	name: text('name').notNull(),
 	indexUrl: text('index_url').notNull(),
 	queryUrl: text('query_url').notNull(),

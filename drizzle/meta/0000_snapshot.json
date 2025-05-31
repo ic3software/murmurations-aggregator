@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "955fc1fc-1f0f-410d-9d8f-73591c94af7e",
+  "id": "40b81b98-cb30-4e07-9b1a-8f984b428c75",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clusters": {
@@ -14,8 +14,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "cluster_id": {
-          "name": "cluster_id",
+        "cluster_uuid": {
+          "name": "cluster_uuid",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

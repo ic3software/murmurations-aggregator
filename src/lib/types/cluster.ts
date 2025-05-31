@@ -6,7 +6,7 @@ export type ClusterInsert = typeof clusters.$inferInsert;
 
 export type ClusterCreateInput = Omit<
 	ClusterInsert,
-	'id' | 'clusterId' | 'createdAt' | 'updatedAt' | 'lastUpdated'
+	'id' | 'clusterUuid' | 'createdAt' | 'updatedAt' | 'lastUpdated'
 >;
 
 export type ClusterUpdateInput = Pick<Cluster, 'name' | 'centerLat' | 'centerLon' | 'scale'>;

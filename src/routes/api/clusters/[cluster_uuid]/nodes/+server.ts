@@ -11,18 +11,18 @@ export const GET: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params?.cluster_id;
+		const clusterUuid = params?.cluster_uuid;
 
-		// Validate clusterId
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		// Validate clusterUuid
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
-		const nodes = await getNodes(db, clusterId);
+		const nodes = await getNodes(db, clusterUuid);
 
 		if (!nodes || nodes.length === 0) {
 			return json(
-				{ error: 'No nodes found for the given cluster_id', success: false },
+				{ error: 'No nodes found for the given cluster_uuid', success: false },
 				{ status: 404 }
 			);
 		}
@@ -41,14 +41,14 @@ export const POST: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params?.cluster_id;
+		const clusterUuid = params?.cluster_uuid;
 		const body = await request.json();
 		const { profileUrl, data, lastUpdated, status, isAvailable, unavailableMessage, hasAuthority } =
 			body;
 
 		// Validate data
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
 		if (!data || !profileUrl || !lastUpdated) {
@@ -63,7 +63,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'lastUpdated is not an integer', success: false }, { status: 400 });
 		}
 
-		const existingNode = await getNode(db, clusterId, profileUrl);
+		const existingNode = await getNode(db, clusterUuid, profileUrl);
 
 		if (existingNode.length > 0) {
 			return json({ error: 'Node already exists', success: false }, { status: 400 });
@@ -71,7 +71,7 @@ export const POST: RequestHandler = async ({
 
 		// Insert data
 		const node: NodeInsert = {
-			clusterUuid: clusterId,
+			clusterUuid,
 			profileUrl,
 			data: JSON.stringify(data),
 			lastUpdated: lastUpdated,

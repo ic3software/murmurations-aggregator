@@ -12,13 +12,13 @@ export const GET: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
-		const cluster = await getCluster(db, clusterId);
+		const cluster = await getCluster(db, clusterUuid);
 
 		if (!cluster) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
@@ -40,13 +40,13 @@ export const PUT: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
-		const cluster = await getCluster(db, clusterId);
+		const cluster = await getCluster(db, clusterUuid);
 
 		if (!cluster) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
@@ -62,7 +62,7 @@ export const PUT: RequestHandler = async ({
 			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 
-		const result = await updateCluster(db, clusterId, updatedCluster);
+		const result = await updateCluster(db, clusterUuid, updatedCluster);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
@@ -81,21 +81,21 @@ export const DELETE: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
 		// Delete the cluster
-		const result = await deleteCluster(db, clusterId);
+		const result = await deleteCluster(db, clusterUuid);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Cluster not found', success: false }, { status: 404 });
 		}
 
 		// Delete all nodes in the cluster
-		await deleteNodes(db, clusterId);
+		await deleteNodes(db, clusterUuid);
 
 		return json({ data: null, success: true }, { status: 200 });
 	} catch (error) {

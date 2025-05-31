@@ -3,19 +3,19 @@ import { getNodes } from '$lib/api';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const clusterId = params.cluster_id;
+	const clusterUuid = params.cluster_uuid;
 
 	try {
-		const { data: nodes } = await getNodes(clusterId, fetch);
+		const { data: nodes } = await getNodes(clusterUuid, fetch);
 
 		return {
-			clusterId,
+			clusterUuid,
 			nodes
 		};
 	} catch (err) {
 		console.error('Error loading nodes:', err);
 		return {
-			clusterId,
+			clusterUuid,
 			nodes: null
 		};
 	}

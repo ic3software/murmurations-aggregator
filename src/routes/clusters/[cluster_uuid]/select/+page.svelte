@@ -70,7 +70,7 @@
 		try {
 			const step = 100 / selectedIds.length;
 			for (let i = 0; i < selectedIds.length; i++) {
-				await updateNodeStatus(data?.clusterId, selectedIds[i], selectedAction);
+				await updateNodeStatus(data?.clusterUuid, selectedIds[i], selectedAction);
 				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
 			}
 			toast.success('Node statuses updated successfully.');

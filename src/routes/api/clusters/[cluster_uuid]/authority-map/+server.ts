@@ -11,13 +11,13 @@ export const GET: RequestHandler = async ({
 }) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterId = params.cluster_id;
+		const clusterUuid = params.cluster_uuid;
 
-		if (!clusterId) {
-			return json({ error: 'Missing cluster_id', success: false }, { status: 400 });
+		if (!clusterUuid) {
+			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
 		}
 
-		const nodes = await getNodes(db, clusterId);
+		const nodes = await getNodes(db, clusterUuid);
 
 		const primaryUrlMap: string[] = [];
 

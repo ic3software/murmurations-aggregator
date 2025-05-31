@@ -13,10 +13,10 @@
 
 	let clusters = $state(data?.clusters ?? []);
 
-	async function handleDeleteCluster(clusterId: string) {
+	async function handleDeleteCluster(clusterUuid: string) {
 		try {
-			await deleteCluster(clusterId);
-			clusters = clusters.filter((cluster) => cluster.clusterId !== clusterId);
+			await deleteCluster(clusterUuid);
+			clusters = clusters.filter((cluster) => cluster.clusterUuid !== clusterUuid);
 			toast.success('Cluster deleted successfully');
 		} catch (error) {
 			toast.error(`Failed to delete cluster: ${error}`);
@@ -122,9 +122,9 @@
 					</div>
 
 					<div class="flex flex-wrap gap-3">
-						<Button href={`/clusters/${cluster.clusterId}/update`}>Update Nodes</Button>
-						<Button href={`/clusters/${cluster.clusterId}/select`}>Manage Nodes</Button>
-						<Button variant="secondary" href={`/clusters/${cluster.clusterId}/edit`}
+						<Button href={`/clusters/${cluster.clusterUuid}/update`}>Update Nodes</Button>
+						<Button href={`/clusters/${cluster.clusterUuid}/select`}>Manage Nodes</Button>
+						<Button variant="secondary" href={`/clusters/${cluster.clusterUuid}/edit`}
 							>Edit Cluster</Button
 						>
 						<AlertDialog.Root>
@@ -142,7 +142,7 @@
 								</AlertDialog.Description>
 								<AlertDialog.Footer>
 									<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-									<AlertDialog.Action onclick={() => handleDeleteCluster(cluster.clusterId)}>
+									<AlertDialog.Action onclick={() => handleDeleteCluster(cluster.clusterUuid)}>
 										Continue
 									</AlertDialog.Action>
 								</AlertDialog.Footer>
