@@ -1,15 +1,27 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { deleteCluster } from '$lib/api';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import { Alert, AlertTitle } from '$lib/components/ui/alert/index.js';
 	import { Button } from '$lib/components/ui/button';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { formatDate } from '$lib/date';
+	import { CircleAlert } from '@lucide/svelte';
+	import type { Page } from '@sveltejs/kit';
 
 	import { toast } from 'svelte-sonner';
 
 	import type { PageProps } from '../$types';
 
 	let { data }: PageProps = $props();
+
+	interface CustomPageState extends Page {
+		state: {
+			message?: string;
+		};
+	}
+
+	let typedPage = page as unknown as CustomPageState;
 
 	let clusters = $state(data?.clusters ?? []);
 
@@ -34,6 +46,15 @@
 			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
 				Murmurations Collaborative Cluster Builder
 			</h1>
+
+			{#if typedPage?.state?.message}
+				<Alert class="mb-6">
+					<CircleAlert class="size-4" />
+					<AlertTitle>
+						{typedPage.state.message}
+					</AlertTitle>
+				</Alert>
+			{/if}
 
 			<Button href="/clusters/create">Create Cluster</Button>
 		</header>

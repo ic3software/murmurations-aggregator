@@ -155,11 +155,6 @@ async function loadKeyPair() {
 	}
 }
 
-export async function hasPrivateKey(): Promise<boolean> {
-	const storedPrivateKey = await getKey('privateKey');
-	return !!storedPrivateKey;
-}
-
 async function fetchApi(method: string, endpoint: string, payload: ApiPayload = {}) {
 	try {
 		await loadKeyPair();
