@@ -2,14 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { createCluster } from '$lib/api';
 	import { createNode } from '$lib/api';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
-	import * as Command from '$lib/components/ui/command/index.js';
+	import * as Command from '$lib/components/ui/command';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as Popover from '$lib/components/ui/popover';
 	import { Progress } from '$lib/components/ui/progress';
-	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Select from '$lib/components/ui/select';
 	import { fetchProfiles, processProfile } from '$lib/profile-utils';
 	import type { ClusterCreateInput } from '$lib/types/cluster';
 	import type { NodeCreateInput } from '$lib/types/node';

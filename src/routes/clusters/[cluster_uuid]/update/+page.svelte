@@ -10,11 +10,11 @@
 	} from '$lib/api';
 	import { toCamelCase } from '$lib/caseConverter';
 	import { Button } from '$lib/components/ui/button';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import * as Select from '$lib/components/ui/select';
+	import * as Table from '$lib/components/ui/table';
 	import { fetchProfiles } from '$lib/profile-utils';
 	import { checkProfileAuthority, processProfile } from '$lib/profile-utils';
 	import type { Node, NodeUpdateInput } from '$lib/types/node';

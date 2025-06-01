@@ -2,11 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { updateNodeStatus } from '$lib/api';
 	import { Button } from '$lib/components/ui/button';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import * as Select from '$lib/components/ui/select';
+	import * as Table from '$lib/components/ui/table';
 	import type { Node } from '$lib/types/node';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 

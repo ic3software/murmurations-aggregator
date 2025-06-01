@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { deleteCluster } from '$lib/api';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-	import { Alert, AlertTitle } from '$lib/components/ui/alert/index.js';
+	import { Alert, AlertTitle } from '$lib/components/ui/alert';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { formatDate } from '$lib/date';
