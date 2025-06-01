@@ -1,10 +1,15 @@
+import { exportPublicKey, generateKeyPair, getKey, signRequest, storeKeys } from '$lib/crypto';
+import type { ApiPayload } from '$lib/types/api';
 import type {
 	Cluster,
 	ClusterCreateInput,
 	ClusterPublic,
 	ClusterUpdateInput
 } from '$lib/types/cluster';
+import type { Keypair } from '$lib/types/keypair';
 import type { Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
+
+let keypair: Keypair | null = null;
 
 async function request<TBody, TResponse>(
 	url: string,
@@ -134,3 +139,80 @@ export const updateClusterTimestamp = (
 		{ lastUpdated },
 		customFetch
 	);
+
+async function loadKeyPair() {
+	if (!keypair) {
+		const storedPrivateKey = await getKey('privateKey');
+		if (storedPrivateKey) {
+			keypair = {
+				publicKey: (await getKey('publicKey')) as CryptoKey,
+				privateKey: storedPrivateKey
+			};
+		} else {
+			keypair = await generateKeyPair();
+			await storeKeys(keypair.publicKey, keypair.privateKey);
+		}
+	}
+}
+
+export async function hasPrivateKey(): Promise<boolean> {
+	const storedPrivateKey = await getKey('privateKey');
+	return !!storedPrivateKey;
+}
+
+async function fetchApi(method: string, endpoint: string, payload: ApiPayload = {}) {
+	try {
+		await loadKeyPair();
+
+		if (!keypair) {
+			throw new Error('No keypair found');
+		}
+
+		const xTimer = Math.floor(Date.now());
+		const signature = await signRequest(payload, keypair!.privateKey);
+		const xTimerSignature = await signRequest(xTimer, keypair!.privateKey);
+		const res = await fetch(endpoint, {
+			method,
+			headers: {
+				'Content-Type': 'application/json',
+				'X-Timer': xTimer.toString(),
+				'X-Timer-Signature': xTimerSignature,
+				'X-Signature': signature,
+				'X-Public-Key': await exportPublicKey(keypair!.publicKey)
+			},
+			body: method !== 'GET' ? JSON.stringify(payload) : undefined
+		});
+		return res.json();
+	} catch (error) {
+		console.error(`Error during ${method} ${endpoint} request:`, error);
+		throw error;
+	}
+}
+
+export async function fetchUsers(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/users', payload);
+}
+
+export async function fetchEmails(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/emails', payload);
+}
+
+export async function fetchKeys(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/keys', payload);
+}
+
+export async function fetchTokens(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/tokens', payload);
+}
+
+export async function fetchUserEmailReset(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/users/email-reset', payload);
+}
+
+export async function fetchEmailReset(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/emails/reset', payload);
+}
+
+export async function fetchUCAN(method: string, payload: ApiPayload = {}) {
+	return await fetchApi(method, '/api/ucans', payload);
+}

@@ -63,7 +63,8 @@
 		"wrangler": "^4.14.4"
 	},
 	"dependencies": {
-		"drizzle-orm": "^0.40.1"
+		"drizzle-orm": "^0.40.1",
+		"uint8arrays": "^5.1.0"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": [
