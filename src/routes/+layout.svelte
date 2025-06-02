@@ -20,11 +20,13 @@
 </script>
 
 <svelte:head>
-	<script>
+	<script lang="ts">
 		// Prevent flash of wrong theme
 		(() => {
-			const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-			document.documentElement.classList.toggle('dark', isDark);
+			if (typeof window !== 'undefined') {
+				const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				document.documentElement.classList.toggle('dark', isDark);
+			}
 		})();
 	</script>
 </svelte:head>
