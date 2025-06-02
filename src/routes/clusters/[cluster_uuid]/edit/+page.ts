@@ -1,4 +1,4 @@
-import { getCluster } from '$lib/api';
+import { getCluster } from '$lib/api/clusters';
 
 import type { PageLoad } from './$types';
 

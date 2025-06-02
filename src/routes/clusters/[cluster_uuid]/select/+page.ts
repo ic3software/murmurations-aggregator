@@ -1,4 +1,4 @@
-import { getNodes } from '$lib/api';
+import { getNodes } from '$lib/api/nodes';
 
 import type { PageLoad } from './$types';
 

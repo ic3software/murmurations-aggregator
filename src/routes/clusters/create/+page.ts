@@ -1,4 +1,4 @@
-import { getCountries } from '$lib/api';
+import { getCountries } from '$lib/api/countries';
 
 import type { PageLoad } from './$types';
 

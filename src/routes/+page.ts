@@ -1,9 +1,9 @@
-import { getClusters } from '$lib/api';
+import { getClusters } from '$lib/api/clusters';
 
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch }) => {
-	const clusters = await getClusters(fetch);
+	const { data: clusters } = await getClusters(fetch);
 
 	return {
 		clusters

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { createCluster } from '$lib/api';
-	import { createNode } from '$lib/api';
+	import { createCluster } from '$lib/api/clusters';
+	import { createNode } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Command from '$lib/components/ui/command';

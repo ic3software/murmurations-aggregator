@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { fetchKeys } from '$lib/api';
+	import { linkPublicKey } from '$lib/api/keys';
 
 	import { onMount } from 'svelte';
 
@@ -17,7 +17,7 @@
 		}
 
 		try {
-			const { success, error } = await fetchKeys('POST', { token });
+			const { success, error } = await linkPublicKey(token);
 
 			if (success) {
 				goto('/admin', {

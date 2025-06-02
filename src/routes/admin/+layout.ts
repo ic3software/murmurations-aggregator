@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { fetchKeys } from '$lib/api.js';
+import { getPublicKeys } from '$lib/api/keys';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({ url }) {
@@ -10,7 +10,7 @@ export async function load({ url }) {
 		}
 
 		try {
-			const { success, error } = await fetchKeys('GET');
+			const { success, error } = await getPublicKeys();
 			if (!success || error) {
 				throw redirect(302, '/admin/register');
 			}

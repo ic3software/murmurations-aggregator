@@ -1,14 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import {
-		createNode,
-		deleteNode,
-		getAuthorityMap,
-		updateClusterTimestamp,
-		updateNode,
-		updateNodeStatus
-	} from '$lib/api';
-	import { toCamelCase } from '$lib/caseConverter';
+	import { getAuthorityMap, updateClusterTimestamp } from '$lib/api/clusters';
+	import { createNode, deleteNode, updateNode, updateNodeStatus } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
@@ -17,6 +10,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import { fetchProfiles } from '$lib/profile-utils';
 	import { checkProfileAuthority, processProfile } from '$lib/profile-utils';
+	import { toCamelCase } from '$lib/string-case-utils';
 	import type { Node, NodeUpdateInput } from '$lib/types/node';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 

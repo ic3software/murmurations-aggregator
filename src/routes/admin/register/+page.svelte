@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { fetchKeys, fetchUsers } from '$lib/api';
+	import { createUser, getUser } from '$lib/api/users';
 	import * as Alert from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
@@ -22,7 +22,7 @@
 
 		try {
 			isRegistering = true;
-			const { success, error } = await fetchUsers('POST', { name });
+			const { success, error } = await createUser({ name });
 			if (!success) {
 				errorMessage = `${error}`;
 				return;
@@ -44,7 +44,7 @@
 
 	onMount(async () => {
 		try {
-			const { success } = await fetchKeys('GET');
+			const { success } = await getUser();
 			if (success) {
 				goto('/admin', {
 					state: { message: 'You have already signed in' },

@@ -1,4 +1,4 @@
-import { isValidBase58btc } from '$lib/base58btcUtils';
+import { isValidBase58btc } from '$lib/base58btc-utils';
 import { getDB } from '$lib/server/db';
 import { verifySignature } from '$lib/server/db/crypto.server';
 import { getUserIdByPublicKey } from '$lib/server/models/publicKey';

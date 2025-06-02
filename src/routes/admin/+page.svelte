@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { deleteCluster } from '$lib/api';
+	import { deleteCluster } from '$lib/api/clusters';
 	import { Alert, AlertTitle } from '$lib/components/ui/alert';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Button } from '$lib/components/ui/button';
