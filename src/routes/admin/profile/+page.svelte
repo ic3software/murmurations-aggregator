@@ -4,6 +4,7 @@
 	import { deletePublicKey, getPublicKeys } from '$lib/api/keys';
 	import { createToken, deleteToken, getTokens } from '$lib/api/tokens';
 	import { getUser, resetEmail } from '$lib/api/users';
+	import type { PageLoginToken } from '$lib/types/token';
 	import { validateEmail } from '$lib/validate-email';
 	import type { Page } from '@sveltejs/kit';
 
@@ -13,12 +14,6 @@
 		state: {
 			message?: string;
 		};
-	}
-
-	interface PageLoginToken {
-		token: string;
-		expiresAt: Date;
-		expiresIn: number;
 	}
 
 	let typedPage = page as unknown as CustomPageState;
@@ -86,12 +81,11 @@
 		try {
 			const { data, success } = await createToken();
 			if (success) {
-				const expiresAt = new Date(data.expiresAt * 1000);
 				tokens = [
 					{
 						token: data.token,
-						expiresAt,
-						expiresIn: Math.floor((expiresAt.getTime() - Date.now()) / 1000)
+						expiresAt: data.expiresAt,
+						expiresIn: Math.max(0, Math.floor((data.expiresAt * 1000 - Date.now()) / 1000))
 					},
 					...tokens
 				];
@@ -203,13 +197,10 @@
 
 				if (tokensResult.success) {
 					tokens = tokensResult?.data?.map((item: { token: string; expiresAt: number }) => {
-						const expiresAtMs = item.expiresAt * 1000;
-						const nowMs = Date.now();
-
 						return {
 							token: item.token,
-							expiresAt: new Date(expiresAtMs),
-							expiresIn: Math.max(0, Math.floor((expiresAtMs - nowMs) / 1000))
+							expiresAt: item.expiresAt,
+							expiresIn: Math.max(0, Math.floor((item.expiresAt * 1000 - Date.now()) / 1000))
 						};
 					});
 					startTokenCountdown();
@@ -232,8 +223,10 @@
 	function startTokenCountdown() {
 		setInterval(() => {
 			tokens = tokens.map((token) => {
-				const expiresIn = Math.floor((new Date(token.expiresAt).getTime() - Date.now()) / 1000);
-				return { ...token, expiresIn };
+				return {
+					...token,
+					expiresIn: Math.max(0, Math.floor((token.expiresAt * 1000 - Date.now()) / 1000))
+				};
 			});
 		}, 1000);
 	}
