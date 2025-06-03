@@ -1,7 +1,7 @@
 import { PRIVATE_RESEND_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
 import { getUserIdByEmail } from '$lib/server/models/email';
-import { insertLoginToken } from '$lib/server/models/login_tokens';
+import { insertLoginToken } from '$lib/server/models/loginTokens';
 import { getByUserId } from '$lib/server/models/user';
 import { generateLoginToken } from '$lib/server/utils';
 import type { D1Database } from '@cloudflare/workers-types';
