@@ -89,7 +89,7 @@
 			}
 			toast.success('Node statuses updated successfully.');
 
-			await goto('/');
+			await goto('/admin');
 		} catch (error) {
 			console.error('Error updating node statuses:', error);
 			toast.error('Failed to update node statuses. Please try again.');
@@ -121,7 +121,7 @@
 				unauthorizedProfiles.length === 0
 			) {
 				toast.success('No updated profiles found.');
-				await goto('/');
+				await goto('/admin');
 			}
 
 			// If it only has deleted profiles and unauthorized profiles, update map timestamp and set `setIsMapSelected` to false and return to the map list
@@ -138,7 +138,7 @@
 			} else {
 				toast.error(`Retrieve node error: ${err}`);
 			}
-			await goto('/');
+			await goto('/admin');
 		} finally {
 			isLoading = false;
 			loadingProgress = 0;
