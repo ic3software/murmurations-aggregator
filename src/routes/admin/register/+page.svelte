@@ -111,7 +111,7 @@
 					<Button class="w-full" onclick={register} disabled={isRegistering || !name.trim()}>
 						{isRegistering ? 'Creating Account...' : 'Create Account'}
 					</Button>
-					<Button class="w-full mt-2" href="/" variant="secondary">Back to Home</Button>
+					<Button class="w-full mt-2" href="/admin" variant="secondary">Back to Home</Button>
 				</Card.Content>
 			</Card.Root>
 		</div>

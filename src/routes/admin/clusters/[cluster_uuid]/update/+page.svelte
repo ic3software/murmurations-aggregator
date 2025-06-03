@@ -429,7 +429,7 @@
 
 		{#if deletedProfiles.length > 0 || unauthorizedProfiles.length > 0}
 			<div class="mt-6 flex items-center gap-4">
-				<Button variant="outline" href="/">Return to Home</Button>
+				<Button variant="outline" href="/admin">Return to Home</Button>
 			</div>
 		{/if}
 
@@ -526,7 +526,7 @@
 				{:else}
 					<Button variant="default" onclick={handleSubmit}>Submit</Button>
 				{/if}
-				<Button variant="outline" href="/">Cancel</Button>
+				<Button variant="outline" href="/admin">Cancel</Button>
 			</div>
 
 			<div class="mt-4 text-sm text-muted-foreground">

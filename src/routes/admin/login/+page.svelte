@@ -43,7 +43,7 @@
 		{/if}
 		<a
 			class="block w-full rounded-md bg-blue-500 px-4 py-2 text-center text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-800"
-			href="/"
+			href="/admin"
 		>
 			Go to Home
 		</a>

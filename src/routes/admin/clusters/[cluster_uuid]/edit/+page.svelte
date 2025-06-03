@@ -148,7 +148,7 @@
 			{:else}
 				<Button type="submit">Submit</Button>
 			{/if}
-			<Button variant="secondary" href="/">Cancel</Button>
+			<Button variant="secondary" href="/admin">Cancel</Button>
 		</div>
 	</form>
 </div>
