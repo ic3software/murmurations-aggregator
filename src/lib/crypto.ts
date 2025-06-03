@@ -74,16 +74,16 @@ export async function getKey(keyName: 'publicKey' | 'privateKey'): Promise<Crypt
 /**
  * Signs a request payload using the provided private key with Ed25519.
  */
-export async function signRequest(payload: unknown, privateKey: CryptoKey): Promise<string> {
+export async function signRequest(payload: string, privateKey: CryptoKey): Promise<string> {
 	try {
 		// For empty payloads, use an empty object string
-		const data = payload === undefined || payload === null ? '{}' : JSON.stringify(payload);
+		const encoded = new TextEncoder().encode(payload);
 		const signature = await crypto.subtle.sign(
 			{
 				name: 'Ed25519'
 			},
 			privateKey,
-			new TextEncoder().encode(data)
+			encoded
 		);
 		return uint8arrays.toString(new Uint8Array(signature), 'base58btc');
 	} catch (error) {

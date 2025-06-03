@@ -20,12 +20,12 @@ export async function getTokensByUserId(
 	db: DrizzleD1Database,
 	userId: number
 ): Promise<{ token: string; expiresAt: number }[]> {
-	const currentTime = new Date();
+	const currentTime = Math.floor(Date.now() / 1000);
 
 	// Delete expired tokens
 	await db
 		.delete(loginTokens)
-		.where(and(eq(loginTokens.userId, userId), lt(loginTokens.expiresAt, currentTime.getTime())))
+		.where(and(eq(loginTokens.userId, userId), lt(loginTokens.expiresAt, currentTime)))
 		.run();
 
 	const result = await db

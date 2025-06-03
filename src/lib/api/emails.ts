@@ -1,16 +1,10 @@
 import { request } from '$lib/api/request';
 
 export const getEmails = (customFetch?: typeof fetch) =>
-	request<undefined, { data: { email: string }[]; success: boolean; error?: string }>(
-		'/api/emails',
-		'GET',
-		undefined,
-		customFetch,
-		true
-	);
+	request<undefined, { email: string }[]>('/api/emails', 'GET', undefined, customFetch, true);
 
 export const addEmail = (email: string, customFetch?: typeof fetch) =>
-	request<{ email: string }, { data: { email: string }; success: boolean; error?: string }>(
+	request<{ email: string }, { email: string }>(
 		'/api/emails',
 		'POST',
 		{ email },
@@ -19,13 +13,16 @@ export const addEmail = (email: string, customFetch?: typeof fetch) =>
 	);
 
 export const deleteEmail = (email: string, customFetch?: typeof fetch) =>
-	request<
-		{ email: string },
-		{ data: { email: string; emailReset: boolean }; success: boolean; error?: string }
-	>('/api/emails', 'DELETE', { email }, customFetch, true);
+	request<{ email: string }, { email: string; emailReset: boolean }>(
+		'/api/emails',
+		'DELETE',
+		{ email },
+		customFetch,
+		true
+	);
 
 export const sendResetEmailRequest = (email: string, customFetch?: typeof fetch) =>
-	request<{ email: string }, { data: { email: string }; success: boolean; error?: string }>(
+	request<{ email: string }, { email: string }>(
 		'/api/emails/send-reset-request',
 		'POST',
 		{ email },

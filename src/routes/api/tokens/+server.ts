@@ -23,7 +23,7 @@ export const GET: RequestHandler = async ({
 		const { userId, db } = authResult.data;
 		const tokens = await getTokensByUserId(db, userId!);
 
-		return json({ data: { tokens }, success: true }, { status: 200 });
+		return json({ data: tokens, success: true }, { status: 200 });
 	} catch (error) {
 		console.error('Error processing GET request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
@@ -47,7 +47,7 @@ export const POST: RequestHandler = async ({
 
 		const { expiresAt } = await insertLoginToken(db, userId!, token);
 
-		return json({ data: { token, expires_at: expiresAt }, success: true }, { status: 201 });
+		return json({ data: { token, expiresAt }, success: true }, { status: 201 });
 	} catch (error) {
 		console.error('Error processing POST request:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });

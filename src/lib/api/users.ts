@@ -8,7 +8,7 @@ export const createUser = (input: { name: string }, customFetch?: typeof fetch) 
 	request<{ name: string }, { public_key: string }>('/api/users', 'POST', input, customFetch, true);
 
 export const resetEmail = (emailReset: boolean, customFetch?: typeof fetch) =>
-	request<{ emailReset: boolean }, { success: boolean }>(
+	request<{ emailReset: boolean }, undefined>(
 		'/api/users/email-reset',
 		'PATCH',
 		{ emailReset },

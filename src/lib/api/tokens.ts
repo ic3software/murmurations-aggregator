@@ -8,10 +8,4 @@ export const createToken = (customFetch?: typeof fetch) =>
 	request<undefined, LoginToken>('/api/tokens', 'POST', undefined, customFetch, true);
 
 export const deleteToken = (token: string, customFetch?: typeof fetch) =>
-	request<{ token: string }, { success: boolean }>(
-		'/api/tokens',
-		'DELETE',
-		{ token },
-		customFetch,
-		true
-	);
+	request<{ token: string }, undefined>('/api/tokens', 'DELETE', { token }, customFetch, true);

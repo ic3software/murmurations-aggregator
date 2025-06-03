@@ -25,10 +25,9 @@ export async function request<TBody, TResponse>(
 			}
 
 			const xTimer = Math.floor(Date.now());
-			const payload = requestBody || {};
 
-			const signature = await signRequest(payload, keypair!.privateKey);
-			const xTimerSignature = await signRequest(xTimer, keypair!.privateKey);
+			const signature = await signRequest(requestBody || '{}', keypair!.privateKey);
+			const xTimerSignature = await signRequest(xTimer.toString(), keypair!.privateKey);
 			const publicKey = await exportPublicKey(keypair.publicKey);
 
 			headers['X-Timer'] = xTimer.toString();

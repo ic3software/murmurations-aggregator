@@ -20,7 +20,7 @@ export const linkPublicKey = (token: string, customFetch?: typeof fetch) =>
 	);
 
 export const deletePublicKey = (publicKey: string, customFetch?: typeof fetch) =>
-	request<{ publicKey: string }, { success: boolean }>(
+	request<{ publicKey: string }, undefined>(
 		'/api/keys',
 		'DELETE',
 		{ publicKey },
