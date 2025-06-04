@@ -5,11 +5,11 @@
 ### 1.1 Add New Profile
 
 - **Context**: A new profile is published to the index.
-- **Expected Result**: The new profile should appear in the updated profiles list.
+- **Expected Result**: The new profile should appear in the list of updated profiles.
 - **Test Steps**:
   1. Publish a new profile to the index.
-  2. Update the cluster.
-  3. Confirm the new profile appears in the updated profiles list.
+  2. Update the cluster (click **Update Nodes**).
+  3. Confirm the new profile appears under **Updated Profiles**.
 
 ### 1.2 Update Existing Profile
 
@@ -31,22 +31,22 @@
 
 ## Authority Transitions
 
-### 2.1 From AP to NAP (Authorized -> Not Authorized)
+### 2.1 From Authoritative -> Unauthoritative Profile (AP to UAP)
 
 - **Context**: The domain owner built the website using a WordPress plugin themselves, rather than through `test-tools`.
 - **Expected Result**:
   - `hasAuthority` should be updated to `0`
-  - If `status !== 'ignore'` and `isAvailable === 1`, the profile should be added to `unauthorizedProfiles`
+  - If `status !== 'ignore'` and `isAvailable === 1`, the profile should be added to `unauthoritativeProfiles`
   - `status` should be changed to `'ignore'` automatically
 - **Test Steps**:
   1. Add a profile to `test-tools` website.
   2. Update the cluster.
   3. Add the same profile to self-built WordPress site (AP).
-  4. Verify the first profile appears in `unauthorizedProfiles` with `status = 'ignore'`.
+  4. Verify the first profile appears in `unauthoritativeProfiles` with `status = 'ignore'`.
 
-### 2.2 From NAP to AP (Not Authorized -> Authorized)
+### 2.2 From Unauthoritative -> Authoritative Profile (UAP to AP)
 
-- **Context**: The profile is moved back to an authorized domain. For example: self-built WordPress is removed, and the `test-tools` becomes authorized.
+- **Context**: The profile is moved back to an authoritative domain. For example: self-built WordPress is removed, and the `test-tools` becomes authoritative.
 - **Expected Result**:
   - `hasAuthority` should be updated to `1`
   - `status` should remain unchanged (manual editing required)
@@ -55,14 +55,14 @@
   2. Update the cluster.
   3. Confirm the profile from `test-tools` has `hasAuthority = 1` again.
 
-### 2.3 Unavailable prorfile revalidated
+### 2.3 Unavailable profile revalidated
 
 - **Context**: Re-checking profiles if the profile is not available.
 - **Expected Result**: The profile should should update in the background.
 - **Test Steps**:
   1. Temporarily make the WordPress website unavailable.
   2. Create a new cluster to get the profiles.
-  3. Confirm the profile is unavailble in the list.
+  3. Confirm the profile is unavailable in the list.
   4. Make the site available again.
   5. Update the cluster.
   6. Go to `Edit Node` page and see the profile becomes available.
@@ -90,14 +90,14 @@
 
 ### 3.3 New profile from an AP domain
 
-- **Context**: A new profile from an authorized domain.
+- **Context**: A new profile from an authoritative domain.
 - **Expected Result**:
   - Profile is added to `profileList`
-  - Unauthroized profiles should show up in the unauthorized profile list.
+  - Unauthoritative profiles should show up in the unauthoritative profile list.
 - **Test Steps**:
-  1. Publish a profile on a selft-built WordPress domain.
+  1. Publish a profile on a self-built WordPress domain.
   2. Update the cluster.
-  3. Verify it appears in `profileList` with `hasAuthority = 1`, and unauthroized profiles should show up in the unauthorized profile list.
+  3. Verify it appears in `profileList` with `hasAuthority = 1`, and unauthoritative profiles should show up in the unauthoritative profile list.
 
 ## Timestamp Synchronization
 
@@ -127,12 +127,12 @@
 
 ### 5.2 No updates returned
 
-- **Context**: No updates, deleted, or unauthorized profiles are returned.
+- **Context**: No updates, deleted, or unauthoritative profiles are returned.
 - **Expected Result**:
   - Toast message: `"No updated profiles found."`
   - User is redirected to `/`
 - **Test Steps**:
-  1. Ensure there are no new, deleted, or unauthorized profiles in the index service.
+  1. Ensure there are no new, deleted, or unauthoritative profiles in the index service.
   2. Update the cluster.
   3. Check toast message appears: `No updated profiles found`.
   4. Confirm that the user is redirected to the home page.
