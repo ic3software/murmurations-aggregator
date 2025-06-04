@@ -9,6 +9,7 @@
 	import type { Page } from '@sveltejs/kit';
 
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	interface CustomPageState extends Page {
 		state: {
@@ -122,9 +123,11 @@
 	}
 
 	function copyLinkToClipboard(token: string) {
-		navigator.clipboard.writeText(`${window.location.origin}/login?token=${token}`).then(() => {
-			alert('Link copied!');
-		});
+		navigator.clipboard
+			.writeText(`${window.location.origin}/admin/login?token=${token}`)
+			.then(() => {
+				toast.success('Link copied!');
+			});
 	}
 
 	async function handleDeletePublicKey(publicKey: string) {
@@ -231,6 +234,10 @@
 		}, 1000);
 	}
 </script>
+
+<svelte:head>
+	<title>Profile | Murmurations Collaborative Cluster Builder</title>
+</svelte:head>
 
 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Simple and Secure Logins</h1>
 <div class="font-serif text-lg">
@@ -491,7 +498,7 @@
 	<div class="my-4">
 		Use this link to test resetting your email: <a
 			class="text-blue-500 hover:text-blue-700 dark:text-blue-600 dark:hover:text-blue-800"
-			href="{window.location.origin}/email">{window.location.origin}/email</a
+			href="{window.location.origin}/admin/email">{window.location.origin}/admin/email</a
 		>
 	</div>
 {/if}

@@ -37,7 +37,7 @@
 </script>
 
 <svelte:head>
-	<title>Murmurations Collaborative Cluster Builder</title>
+	<title>Dashboard | Murmurations Collaborative Cluster Builder</title>
 </svelte:head>
 
 {#if typedPage?.state?.message}
