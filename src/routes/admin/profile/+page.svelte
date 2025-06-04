@@ -365,7 +365,7 @@
 				<div class="space-y-4">
 					{#each publicKeyList as publicKey, index}
 						<div class="space-y-4">
-							<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div class="flex items-center justify-between gap-4">
 								<div class="font-mono text-sm break-all flex-1">
 									did:key:z{publicKey}
 								</div>
@@ -409,11 +409,12 @@
 												<span class="ml-2 font-mono text-sm truncate">{token}</span>
 											</div>
 											<div class="flex items-center">
-												<span class="text-sm font-medium">Expires in:</span>
 												{#if expiresIn > 0}
-													<span class="ml-2 text-sm">{expiresIn} seconds</span>
+													<span class="text-sm font-medium"
+														>Expires in: <span class="font-normal">{expiresIn} seconds</span></span
+													>
 												{:else}
-													<Badge variant="destructive" class="ml-2">Expired</Badge>
+													<Badge variant="destructive">Expired</Badge>
 												{/if}
 											</div>
 										</div>
