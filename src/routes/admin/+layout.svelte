@@ -19,10 +19,13 @@
 
 			<div class="mb-6">
 				<Menubar>
-					<MenubarMenu>
+					<MenubarMenu value="dashboard">
 						<MenubarTrigger>
 							<a href="/admin">Dashboard</a>
 						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="profile">
 						<MenubarTrigger>
 							<a href="/admin/profile">Profile</a>
 						</MenubarTrigger>
