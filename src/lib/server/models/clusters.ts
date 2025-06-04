@@ -8,8 +8,8 @@ export async function getClusters(db: DrizzleD1Database) {
 	return await db.select().from(clusters).all();
 }
 
-export async function getCluster(db: DrizzleD1Database, clusterId: string) {
-	return await db.select().from(clusters).where(eq(clusters.clusterId, clusterId)).get();
+export async function getCluster(db: DrizzleD1Database, clusterUuid: string) {
+	return await db.select().from(clusters).where(eq(clusters.clusterUuid, clusterUuid)).get();
 }
 
 export async function createCluster(db: DrizzleD1Database, cluster: ClusterInsert) {
@@ -18,24 +18,24 @@ export async function createCluster(db: DrizzleD1Database, cluster: ClusterInser
 
 export async function updateCluster(
 	db: DrizzleD1Database,
-	clusterId: string,
+	clusterUuid: string,
 	cluster: ClusterDbUpdateInput
 ) {
-	return await db.update(clusters).set(cluster).where(eq(clusters.clusterId, clusterId)).run();
+	return await db.update(clusters).set(cluster).where(eq(clusters.clusterUuid, clusterUuid)).run();
 }
 
-export async function deleteCluster(db: DrizzleD1Database, clusterId: string): Promise<D1Result> {
-	return await db.delete(clusters).where(eq(clusters.clusterId, clusterId)).run();
+export async function deleteCluster(db: DrizzleD1Database, clusterUuid: string): Promise<D1Result> {
+	return await db.delete(clusters).where(eq(clusters.clusterUuid, clusterUuid)).run();
 }
 
 export async function updateClusterTimestamp(
 	db: DrizzleD1Database,
-	clusterId: string,
+	clusterUuid: string,
 	lastUpdated: number
 ) {
 	return await db
 		.update(clusters)
 		.set({ lastUpdated })
-		.where(eq(clusters.clusterId, clusterId))
+		.where(eq(clusters.clusterUuid, clusterUuid))
 		.run();
 }

@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({
 		}
 
 		const cluster: ClusterInsert = {
-			clusterId: crypto.randomUUID(),
+			clusterUuid: crypto.randomUUID(),
 			name,
 			indexUrl,
 			queryUrl,

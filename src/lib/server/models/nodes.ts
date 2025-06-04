@@ -5,15 +5,15 @@ import type { D1Result } from '@cloudflare/workers-types';
 import { and, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
-export async function getNodes(db: DrizzleD1Database, clusterId: string) {
-	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterId)).all();
+export async function getNodes(db: DrizzleD1Database, clusterUuid: string) {
+	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterUuid)).all();
 }
 
-export async function getNode(db: DrizzleD1Database, clusterId: string, profileUrl: string) {
+export async function getNode(db: DrizzleD1Database, clusterUuid: string, profileUrl: string) {
 	return await db
 		.select()
 		.from(nodes)
-		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.profileUrl, profileUrl)))
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.profileUrl, profileUrl)))
 		.limit(1);
 }
 
@@ -24,43 +24,43 @@ export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promi
 
 export async function updateNodeStatus(
 	db: DrizzleD1Database,
-	clusterId: string,
+	clusterUuid: string,
 	nodeId: number,
 	status: string
 ): Promise<D1Result> {
 	return await db
 		.update(nodes)
 		.set({ status })
-		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.id, nodeId)))
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 		.run();
 }
 
 export async function updateNode(
 	db: DrizzleD1Database,
-	clusterId: string,
+	clusterUuid: string,
 	nodeId: number,
 	node: NodeDbUpdateInput
 ): Promise<Node> {
 	const result = await db
 		.update(nodes)
 		.set(node)
-		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.id, nodeId)))
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 		.returning()
 		.run();
 	return result.results[0] as Node;
 }
 
-export async function deleteNodes(db: DrizzleD1Database, clusterId: string): Promise<D1Result> {
-	return await db.delete(nodes).where(eq(nodes.clusterUuid, clusterId)).run();
+export async function deleteNodes(db: DrizzleD1Database, clusterUuid: string): Promise<D1Result> {
+	return await db.delete(nodes).where(eq(nodes.clusterUuid, clusterUuid)).run();
 }
 
 export async function deleteNode(
 	db: DrizzleD1Database,
-	clusterId: string,
+	clusterUuid: string,
 	nodeId: number
 ): Promise<D1Result> {
 	return await db
 		.delete(nodes)
-		.where(and(eq(nodes.clusterUuid, clusterId), eq(nodes.id, nodeId)))
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 		.run();
 }
