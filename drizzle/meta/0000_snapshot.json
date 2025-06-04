@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "955fc1fc-1f0f-410d-9d8f-73591c94af7e",
+  "id": "afbe9be6-90b2-4dc2-a14e-de52c8dbef1d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clusters": {
@@ -121,13 +121,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "data": {
-          "name": "data",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "status": {
           "name": "status",
           "type": "text",
@@ -183,6 +176,20 @@
           "notNull": true,
           "autoincrement": false,
           "default": "(unixepoch())"
+        },
+        "data": {
+          "name": "data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_data": {
+          "name": "updated_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},

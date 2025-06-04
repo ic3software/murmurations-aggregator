@@ -23,9 +23,9 @@
 	let loadingProgress = $state(0);
 
 	const actions = [
-		{ value: 'publish', label: 'Publish' },
-		{ value: 'dismiss', label: 'Dismiss' },
-		{ value: 'ignore', label: 'Ignore' }
+		{ value: 'published', label: 'Publish' },
+		{ value: 'dismissed', label: 'Dismiss' },
+		{ value: 'ignored', label: 'Ignore' }
 	];
 
 	let selectedAction = $state('');

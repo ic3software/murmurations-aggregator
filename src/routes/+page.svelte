@@ -100,21 +100,23 @@
 						</div>
 
 						<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
-							<div class="font-medium text-slate-900 dark:text-slate-50">Last Updated:</div>
+							<div class="font-medium text-slate-900 dark:text-slate-50">
+								Nodes Last Updated from Index:
+							</div>
 							<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 								{formatDate(cluster.lastUpdated)}
 							</div>
 						</div>
 
 						<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
-							<div class="font-medium text-slate-900 dark:text-slate-50">Created At:</div>
+							<div class="font-medium text-slate-900 dark:text-slate-50">Cluster Created:</div>
 							<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 								{formatDate(cluster.createdAt)}
 							</div>
 						</div>
 
 						<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
-							<div class="font-medium text-slate-900 dark:text-slate-50">Updated At:</div>
+							<div class="font-medium text-slate-900 dark:text-slate-50">Cluster Edited:</div>
 							<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 								{formatDate(cluster.updatedAt)}
 							</div>

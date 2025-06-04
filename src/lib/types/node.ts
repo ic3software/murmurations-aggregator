@@ -11,11 +11,13 @@ export type NodeCreateInput = Omit<NodeInsert, 'clusterUuid' | 'data'> & {
 
 export type NodeUpdateInput = Omit<NodeInsert, 'clusterUuid' | 'profileUrl' | 'data'> & {
 	data: ProfileData;
+	updatedData?: ProfileData;
 };
 
 export type NodeDbUpdateInput = Pick<
 	NodeInsert,
 	| 'data'
+	| 'updatedData'
 	| 'status'
 	| 'lastUpdated'
 	| 'isAvailable'

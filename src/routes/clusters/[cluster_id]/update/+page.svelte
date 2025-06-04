@@ -42,9 +42,9 @@
 	let selectedAction = $state('');
 
 	const actions = [
-		{ value: 'publish', label: 'Publish' },
-		{ value: 'dismiss', label: 'Dismiss' },
-		{ value: 'ignore', label: 'Ignore' }
+		{ value: 'published', label: 'Publish' },
+		{ value: 'dismissed', label: 'Dismiss' },
+		{ value: 'ignored', label: 'Ignore' }
 	];
 
 	const triggerContent = $derived(
@@ -212,12 +212,13 @@
 					profileList.push({ ...toCamelCase<Node>(node) });
 				} else {
 					const { data: updatedNode } = await updateNode(clusterId, existingNode.id, {
-						data: profile_data,
+						data: JSON.parse(existingNode.data),
+						updatedData: profile_data,
 						lastUpdated: profile.last_updated,
-						status: status,
+						status: 'updated',
 						isAvailable: is_available ? 1 : 0,
 						unavailableMessage: unavailable_message
-					});
+					} as NodeUpdateInput);
 
 					profileList.push({ ...toCamelCase<Node>(updatedNode) });
 				}
