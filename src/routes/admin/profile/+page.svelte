@@ -89,8 +89,15 @@
 			if (success) {
 				emailList = emailList.filter((_, i) => i !== index);
 				errorMessage = '';
+				const previousEmailResetEnabled = emailResetEnabled;
 				emailResetEnabled = data?.emailReset ?? false;
-				toast.success('Email address removed successfully');
+				if (previousEmailResetEnabled !== emailResetEnabled) {
+					toast.success(
+						`Email address removed successfully. Email reset is now ${emailResetEnabled ? 'enabled' : 'disabled'}.`
+					);
+				} else {
+					toast.success('Email address removed successfully');
+				}
 			} else {
 				toast.error(error || 'Failed to remove email.');
 			}
@@ -462,8 +469,8 @@
 								{#if email && !validEmail}
 									<p class="text-sm text-destructive">Invalid email format</p>
 								{/if}
+								<Button onclick={handleAddEmail} disabled={!validEmail}>Add Email</Button>
 							</div>
-							<Button onclick={handleAddEmail} disabled={!validEmail}>Add Email</Button>
 						</div>
 					{:else}
 						<div class="space-y-2">
