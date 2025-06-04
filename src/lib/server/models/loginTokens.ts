@@ -6,11 +6,12 @@ export async function isTokenValidAndGetUserId(
 	db: DrizzleD1Database,
 	token: string
 ): Promise<number | null> {
-	const currentTime = new Date();
+	const currentTime = Math.floor(Date.now() / 1000);
+
 	const result = await db
 		.select({ userId: loginTokens.userId })
 		.from(loginTokens)
-		.where(and(eq(loginTokens.token, token), gt(loginTokens.expiresAt, currentTime.getTime())))
+		.where(and(eq(loginTokens.token, token), gt(loginTokens.expiresAt, currentTime)))
 		.get();
 
 	return result ? result.userId : null;
