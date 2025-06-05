@@ -25,6 +25,7 @@
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
 		"@lucide/svelte": "^0.482.0",
+		"@paralleldrive/cuid2": "^2.2.2",
 		"@playwright/test": "^1.49.1",
 		"@sveltejs/adapter-cloudflare": "^7.0.3",
 		"@sveltejs/kit": "^2.16.0",
@@ -52,7 +53,7 @@
 		"svelte-check": "^4.0.0",
 		"svelte-sonner": "^1.0.1",
 		"tailwind-merge": "^3.3.0",
-		"tailwind-variants": "^1.0.0",
+		"tailwind-variants": "^0.2.1",
 		"tailwindcss": "^3.4.17",
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "^5.0.0",
@@ -63,7 +64,10 @@
 		"wrangler": "^4.14.4"
 	},
 	"dependencies": {
-		"drizzle-orm": "^0.40.1"
+		"@ucans/ucans": "^0.12.0",
+		"drizzle-orm": "^0.40.1",
+		"resend": "^4.5.1",
+		"uint8arrays": "^5.1.0"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": [

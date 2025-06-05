@@ -16,6 +16,11 @@ declare global {
 			caches: CacheStorage & { default: Cache };
 		}
 	}
+
+	interface CryptoKeyPair {
+		privateKey: CryptoKey;
+		publicKey: CryptoKey;
+	}
 }
 
 export {};
