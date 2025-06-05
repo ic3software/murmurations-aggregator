@@ -54,18 +54,18 @@
 </div>
 
 <div class="mb-6 max-w-none text-slate-700 dark:text-slate-300">
-	<p class="mb-2">
+	<!-- <p class="mb-2">
 		Add a shortcode into a page or post. More information about the parameters for shortcodes can be
 		found
 		<a
 			href="https://murmurations.network"
 			class="font-medium text-slate-900 hover:underline dark:text-slate-50">in the docs</a
 		>.
-	</p>
+	</p> -->
 	<p>
-		Click the <span class="font-medium">Update Nodes</span> button to check for updates to the nodes
-		in that map.
-		<span class="font-medium">Manage Nodes</span> enables you to change the published status of nodes
+		Click the <span class="font-extrabold">Update Nodes</span> button to check for updates to the
+		nodes in that map.
+		<span class="font-extrabold">Manage Nodes</span> enables you to change the published status of nodes
 		without checking for updates.
 	</p>
 </div>
@@ -113,9 +113,7 @@
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
-					<div class="font-medium text-slate-900 dark:text-slate-50">
-						Nodes Last Updated from Index:
-					</div>
+					<div class="font-medium text-slate-900 dark:text-slate-50">Last Update from Index:</div>
 					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 						{formatDate(cluster.lastUpdated)}
 					</div>

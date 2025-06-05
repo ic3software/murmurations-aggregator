@@ -109,8 +109,8 @@
 <h2 class="mb-4 text-xl font-semibold">Select Nodes</h2>
 
 <p class="mb-6">
-	Manage the nodes to display in your map or directory. You can learn more
-	<a href="https://murmurations.network" class="text-primary hover:underline">in the docs</a>.
+	Manage the nodes to display in your cluster. You can learn more
+	<a href="https://docs.murmurations.network" class="text-primary hover:underline">in the docs</a>.
 </p>
 
 <div class="overflow-hidden rounded-md border">
@@ -139,7 +139,7 @@
 
 			<Table.Body>
 				{#each nodes as node (node.id)}
-					<Table.Row>
+					<Table.Row class={node.hasUpdated ? 'bg-yellow-100 dark:bg-yellow-950' : ''}>
 						<Table.Cell>
 							<Checkbox
 								checked={selectedIds.includes(node.id)}
@@ -161,7 +161,7 @@
 						<Table.Cell class="capitalize">
 							{node.status}
 							{#if node.hasUpdated}
-								<Badge class="ml-2" variant="destructive">Update</Badge>
+								<Badge class="ml-2" variant="outline">Updated</Badge>
 							{/if}
 						</Table.Cell>
 						<Table.Cell class="capitalize">
@@ -212,7 +212,7 @@
 </div>
 
 <div class="mt-4 text-sm text-muted-foreground">
-	<p>Publish = display node on map</p>
+	<p>Publish = display node in cluster</p>
 	<p>Dismiss = hide node until it has updates</p>
 	<p>Ignore = always hide node</p>
 </div>
