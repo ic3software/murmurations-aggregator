@@ -206,7 +206,7 @@
 					profileList.push({ ...toCamelCase<Node>(node) });
 				} else {
 					const { data: updatedNode } = await updateNode(clusterUuid, existingNode.id, {
-						data: profile_data,
+						data: JSON.parse(existingNode.data),
 						updatedData: profile_data,
 						lastUpdated: profile.last_updated,
 						status: 'updated',
@@ -239,6 +239,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: profile_data,
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: is_available ? 1 : 0,
 				unavailableMessage: unavailable_message
@@ -278,6 +279,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
 				unavailableMessage: profile.unavailableMessage,
@@ -316,6 +318,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
 				unavailableMessage: profile.unavailableMessage,
