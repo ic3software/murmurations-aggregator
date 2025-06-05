@@ -163,11 +163,11 @@
 		for (const profile of rawNodes) {
 			currentProgress += progressStep;
 			loadingProgress = Math.min(33, Math.round(currentProgress));
+			const existingNode = existingNodes.find(
+				(node: Node) => node.profileUrl === profile.profile_url
+			);
 
 			if (profile.status === 'deleted') {
-				const existingNode = existingNodes.find(
-					(node: Node) => node.profileUrl === profile.profile_url
-				);
 				if (existingNode) {
 					await deleteNode(clusterUuid, existingNode.id);
 					deletedProfiles.push({ ...existingNode });
@@ -175,10 +175,12 @@
 				continue;
 			}
 
+			// if the profile is `ignored`, we don't need to update it
+			if (existingNode?.status === 'ignored') {
+				continue;
+			}
+
 			// Handle new and updated profiles
-			const existingNode = existingNodes.find(
-				(node: Node) => node.profileUrl === profile.profile_url
-			);
 			const shouldCreate = !existingNode;
 			let existingTimestamp = new Date();
 			if (existingNode) {
