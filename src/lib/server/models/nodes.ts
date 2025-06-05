@@ -41,7 +41,7 @@ export async function updateNodeStatus(
 	if (moveUpdatedData) {
 		return await db
 			.update(nodes)
-			.set({ status, data: updatedData ?? '', updatedData: null })
+			.set({ status, data: updatedData ?? '', updatedData: null, hasUpdated: false })
 			.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 			.run();
 	}

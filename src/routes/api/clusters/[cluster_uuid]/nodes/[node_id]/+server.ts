@@ -31,7 +31,8 @@ export const PUT: RequestHandler = async ({
 			lastUpdated,
 			isAvailable,
 			unavailableMessage,
-			hasAuthority
+			hasAuthority,
+			hasUpdated
 		} = await request.json();
 
 		const node: NodeDbUpdateInput = {
@@ -42,6 +43,7 @@ export const PUT: RequestHandler = async ({
 			isAvailable,
 			unavailableMessage,
 			hasAuthority,
+			hasUpdated,
 			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 

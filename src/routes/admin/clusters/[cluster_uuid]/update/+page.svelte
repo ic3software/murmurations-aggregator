@@ -209,9 +209,10 @@
 						data: JSON.parse(existingNode.data),
 						updatedData: profile_data,
 						lastUpdated: profile.last_updated,
-						status: 'updated',
+						status: existingNode.status,
 						isAvailable: is_available ? 1 : 0,
-						unavailableMessage: unavailable_message
+						unavailableMessage: unavailable_message,
+						hasUpdated: true
 					} as NodeUpdateInput);
 
 					profileList.push({ ...toCamelCase<Node>(updatedNode) });

@@ -39,7 +39,8 @@ export const nodes = sqliteTable('nodes', {
 		.notNull()
 		.default(sql`(unixepoch())`),
 	data: text('data').notNull(),
-	updatedData: text('updated_data')
+	updatedData: text('updated_data'),
+	hasUpdated: integer('has_updated', { mode: 'boolean' }).notNull().default(false)
 });
 
 // Table for users

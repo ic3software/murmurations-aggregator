@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { updateNodeStatus } from '$lib/api/nodes';
+	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
@@ -157,7 +158,12 @@
 								class="text-blue-500 underline">{node.profileUrl}</a
 							>
 						</Table.Cell>
-						<Table.Cell class="capitalize">{node.status}</Table.Cell>
+						<Table.Cell class="capitalize">
+							{node.status}
+							{#if node.hasUpdated}
+								<Badge class="ml-2" variant="destructive">Update</Badge>
+							{/if}
+						</Table.Cell>
 						<Table.Cell class="capitalize">
 							{node.isAvailable ? 'Available' : 'Unavailable'}
 						</Table.Cell>

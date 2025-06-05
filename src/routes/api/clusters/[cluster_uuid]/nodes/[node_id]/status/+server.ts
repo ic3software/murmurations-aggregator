@@ -35,7 +35,7 @@ export const PUT: RequestHandler = async ({
 		}
 
 		let result;
-		if (existingNode[0].status === 'updated' && status !== 'updated') {
+		if (existingNode[0].hasUpdated) {
 			result = await updateNodeStatus(
 				db,
 				clusterUuid,

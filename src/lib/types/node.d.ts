@@ -23,5 +23,6 @@ export type NodeDbUpdateInput = Pick<
 	| 'isAvailable'
 	| 'unavailableMessage'
 	| 'hasAuthority'
+	| 'hasUpdated'
 	| 'updatedAt'
 >;
