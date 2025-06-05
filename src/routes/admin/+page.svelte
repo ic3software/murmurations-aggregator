@@ -122,7 +122,7 @@
 				</div>
 
 				<div class="grid grid-cols-1 gap-2 md:grid-cols-4">
-					<div class="font-medium text-slate-900 dark:text-slate-50">luster Created:</div>
+					<div class="font-medium text-slate-900 dark:text-slate-50">Cluster Created:</div>
 					<div class="text-slate-700 dark:text-slate-300 md:col-span-3">
 						{formatDate(cluster.createdAt)}
 					</div>
