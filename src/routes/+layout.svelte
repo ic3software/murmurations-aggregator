@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	import { onMount } from 'svelte';
 
@@ -32,6 +32,6 @@
 </svelte:head>
 
 <div class="min-h-screen bg-background text-foreground">
-	<Toaster />
+	<Toaster position="top-center" />
 	{@render children()}
 </div>
