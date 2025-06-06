@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { updateNodeStatus } from '$lib/api/nodes';
+	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
@@ -23,9 +24,9 @@
 	let loadingProgress = $state(0);
 
 	const actions = [
-		{ value: 'publish', label: 'Publish' },
-		{ value: 'dismiss', label: 'Dismiss' },
-		{ value: 'ignore', label: 'Ignore' }
+		{ value: 'published', label: 'Publish' },
+		{ value: 'dismissed', label: 'Dismiss' },
+		{ value: 'ignored', label: 'Ignore' }
 	];
 
 	let selectedAction = $state('');
@@ -108,8 +109,8 @@
 <h2 class="mb-4 text-xl font-semibold">Select Nodes</h2>
 
 <p class="mb-6">
-	Manage the nodes to display in your map or directory. You can learn more
-	<a href="https://murmurations.network" class="text-primary hover:underline">in the docs</a>.
+	Manage the nodes to display in your cluster. You can learn more
+	<a href="https://docs.murmurations.network" class="text-primary hover:underline">in the docs</a>.
 </p>
 
 <div class="overflow-hidden rounded-md border">
@@ -138,7 +139,7 @@
 
 			<Table.Body>
 				{#each nodes as node (node.id)}
-					<Table.Row>
+					<Table.Row class={node.hasUpdated ? 'bg-yellow-100 dark:bg-yellow-950' : ''}>
 						<Table.Cell>
 							<Checkbox
 								checked={selectedIds.includes(node.id)}
@@ -157,7 +158,12 @@
 								class="text-blue-500 underline">{node.profileUrl}</a
 							>
 						</Table.Cell>
-						<Table.Cell class="capitalize">{node.status}</Table.Cell>
+						<Table.Cell class="capitalize">
+							{node.status}
+							{#if node.hasUpdated}
+								<Badge class="ml-2" variant="outline">Updated</Badge>
+							{/if}
+						</Table.Cell>
 						<Table.Cell class="capitalize">
 							{node.isAvailable ? 'Available' : 'Unavailable'}
 						</Table.Cell>
@@ -206,7 +212,7 @@
 </div>
 
 <div class="mt-4 text-sm text-muted-foreground">
-	<p>Publish = display node on map</p>
+	<p>Publish = display node in cluster</p>
 	<p>Dismiss = hide node until it has updates</p>
 	<p>Ignore = always hide node</p>
 </div>

@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { updateNodeStatus } from '$lib/server/models/nodes';
+import { getNodeById, updateNodeStatus } from '$lib/server/models/nodes';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -28,8 +28,25 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Missing status', success: false }, { status: 400 });
 		}
 
-		// Update node status
-		const result = await updateNodeStatus(db, clusterUuid, parseInt(nodeId), status);
+		const existingNode = await getNodeById(db, clusterUuid, parseInt(nodeId));
+
+		if (!existingNode) {
+			return json({ error: 'Node not found', success: false }, { status: 404 });
+		}
+
+		let result;
+		if (existingNode[0].hasUpdated) {
+			result = await updateNodeStatus(
+				db,
+				clusterUuid,
+				parseInt(nodeId),
+				status,
+				existingNode[0].updatedData,
+				true
+			);
+		} else {
+			result = await updateNodeStatus(db, clusterUuid, parseInt(nodeId), status, null, false);
+		}
 
 		if (!result) {
 			return json({ error: 'Failed to update node status', success: false }, { status: 500 });

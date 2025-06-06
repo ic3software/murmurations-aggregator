@@ -11,5 +11,3 @@
 	Welcome to the Murmurations Collaborative Cluster Builder. This is a tool to help you build
 	clusters of nodes that can be used to build a collaborative cluster.
 </p>
-
-<p></p>

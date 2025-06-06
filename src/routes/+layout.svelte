@@ -32,6 +32,6 @@
 </svelte:head>
 
 <div class="min-h-screen bg-background text-foreground">
-	<Toaster />
+	<Toaster position="top-center" />
 	{@render children()}
 </div>

@@ -17,6 +17,14 @@ export async function getNode(db: DrizzleD1Database, clusterUuid: string, profil
 		.limit(1);
 }
 
+export async function getNodeById(db: DrizzleD1Database, clusterUuid: string, nodeId: number) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
+		.limit(1);
+}
+
 export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promise<Node> {
 	const result = await db.insert(nodes).values(node).returning().run();
 	return result.results[0] as Node;
@@ -26,8 +34,18 @@ export async function updateNodeStatus(
 	db: DrizzleD1Database,
 	clusterUuid: string,
 	nodeId: number,
-	status: string
+	status: string,
+	updatedData: string | null,
+	moveUpdatedData: boolean = false
 ): Promise<D1Result> {
+	if (moveUpdatedData) {
+		return await db
+			.update(nodes)
+			.set({ status, data: updatedData ?? '', updatedData: null, hasUpdated: false })
+			.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
+			.run();
+	}
+
 	return await db
 		.update(nodes)
 		.set({ status })

@@ -25,7 +25,6 @@ export const nodes = sqliteTable('nodes', {
 	id: integer('id').primaryKey().notNull(),
 	clusterUuid: text('cluster_uuid').notNull(),
 	profileUrl: text('profile_url').notNull(),
-	data: text('data').notNull(),
 	status: text('status').notNull().default('ignore'),
 	isAvailable: integer('is_available').notNull().default(0),
 	unavailableMessage: text('unavailable_message').default(''),
@@ -38,7 +37,10 @@ export const nodes = sqliteTable('nodes', {
 		.default(sql`(unixepoch())`),
 	updatedAt: integer('updated_at', { mode: 'number' })
 		.notNull()
-		.default(sql`(unixepoch())`)
+		.default(sql`(unixepoch())`),
+	data: text('data').notNull(),
+	updatedData: text('updated_data'),
+	hasUpdated: integer('has_updated', { mode: 'boolean' }).notNull().default(false)
 });
 
 // Table for users

@@ -36,9 +36,9 @@
 	let selectedAction = $state('');
 
 	const actions = [
-		{ value: 'publish', label: 'Publish' },
-		{ value: 'dismiss', label: 'Dismiss' },
-		{ value: 'ignore', label: 'Ignore' }
+		{ value: 'published', label: 'Publish' },
+		{ value: 'dismissed', label: 'Dismiss' },
+		{ value: 'ignored', label: 'Ignore' }
 	];
 
 	const triggerContent = $derived(
@@ -163,11 +163,11 @@
 		for (const profile of rawNodes) {
 			currentProgress += progressStep;
 			loadingProgress = Math.min(33, Math.round(currentProgress));
+			const existingNode = existingNodes.find(
+				(node: Node) => node.profileUrl === profile.profile_url
+			);
 
 			if (profile.status === 'deleted') {
-				const existingNode = existingNodes.find(
-					(node: Node) => node.profileUrl === profile.profile_url
-				);
 				if (existingNode) {
 					await deleteNode(clusterUuid, existingNode.id);
 					deletedProfiles.push({ ...existingNode });
@@ -175,10 +175,12 @@
 				continue;
 			}
 
+			// if the profile is `ignored`, we don't need to update it
+			if (existingNode?.status === 'ignored') {
+				continue;
+			}
+
 			// Handle new and updated profiles
-			const existingNode = existingNodes.find(
-				(node: Node) => node.profileUrl === profile.profile_url
-			);
 			const shouldCreate = !existingNode;
 			let existingTimestamp = new Date();
 			if (existingNode) {
@@ -206,12 +208,14 @@
 					profileList.push({ ...toCamelCase<Node>(node) });
 				} else {
 					const { data: updatedNode } = await updateNode(clusterUuid, existingNode.id, {
-						data: profile_data,
+						data: JSON.parse(existingNode.data),
+						updatedData: profile_data,
 						lastUpdated: profile.last_updated,
-						status: status,
+						status: existingNode.status,
 						isAvailable: is_available ? 1 : 0,
-						unavailableMessage: unavailable_message
-					});
+						unavailableMessage: unavailable_message,
+						hasUpdated: true
+					} as NodeUpdateInput);
 
 					profileList.push({ ...toCamelCase<Node>(updatedNode) });
 				}
@@ -238,6 +242,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: profile_data,
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: is_available ? 1 : 0,
 				unavailableMessage: unavailable_message
@@ -277,6 +282,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
 				unavailableMessage: profile.unavailableMessage,
@@ -315,6 +321,7 @@
 
 			const profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
+				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
 				isAvailable: profile.isAvailable,
 				unavailableMessage: profile.unavailableMessage,

@@ -96,7 +96,7 @@
 
 		try {
 			const queryParams = buildQueryParams();
-			const pageQueries = 'page=1&page_size=500';
+			const pageQueries = 'page=1&page_size=500&status=posted';
 			const queryString = [...queryParams, pageQueries].join('&');
 
 			const clusterData: ClusterCreateInput = {

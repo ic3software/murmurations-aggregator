@@ -24,16 +24,26 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Invalid node_id', success: false }, { status: 400 });
 		}
 
-		const { data, status, lastUpdated, isAvailable, unavailableMessage, hasAuthority } =
-			await request.json();
-
-		const node: NodeDbUpdateInput = {
-			data: JSON.stringify(data),
+		const {
+			data,
+			updatedData,
 			status,
 			lastUpdated,
 			isAvailable,
 			unavailableMessage,
 			hasAuthority,
+			hasUpdated
+		} = await request.json();
+
+		const node: NodeDbUpdateInput = {
+			data: JSON.stringify(data),
+			updatedData: updatedData ? JSON.stringify(updatedData) : undefined,
+			status,
+			lastUpdated,
+			isAvailable,
+			unavailableMessage,
+			hasAuthority,
+			hasUpdated,
 			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 
