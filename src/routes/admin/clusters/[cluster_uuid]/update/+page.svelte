@@ -257,8 +257,8 @@
 	// Now, we need to check if the profiles have authority or not.
 	// 1. The first step involves checking the authority status of each profile. If the authority status remains unchanged, it indicates there are no modifications required, and thus, no action will be taken.
 	// 2. If the authority status changes, there are two distinct scenarios:
-	// 2.1 AP to NAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to NAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to NAP, we don't want to move them to the unauthorized list.
-	// - 2.2 If a profile shifts from NAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
+	// 2.1 AP to UAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to UAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to UAP, we don't want to move them to the unauthorized list.
+	// - 2.2 If a profile shifts from UAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
 	async function checkAuthorityProfiles() {
 		const { data: authorityMap } = await getAuthorityMap(clusterUuid);
 
@@ -289,7 +289,7 @@
 				hasAuthority
 			};
 
-			// From AP to NAP
+			// From AP to UAP
 			if (originalAuthority === 1 && hasAuthority === 0) {
 				// If a profile has no domain authority, mark it as ignored
 				profileUpdatedData.status = 'ignore';
