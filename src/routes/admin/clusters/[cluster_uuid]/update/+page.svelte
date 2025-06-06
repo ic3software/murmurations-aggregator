@@ -30,7 +30,7 @@
 	let loadingProgress = $state(0);
 
 	let deletedProfiles = $state<Node[]>([]);
-	let unauthorizedProfiles = $state<Node[]>([]);
+	let unauthoritativeProfiles = $state<Node[]>([]);
 	let profileList = $state<Node[]>([]);
 
 	let selectedAction = $state('');
@@ -105,7 +105,7 @@
 	 * 2. updated profiles - profiles that are in the nodes table and have updates
 	 * 3. unavailable profiles - profiles that unavailable in nodes table needs to check again to see if it's available now
 	 * 4. deleted profiles - profiles status is marked as "deleted" in the index service
-	 * 5. unauthorized profiles - if a profile's domain authority is false, and there are no other available profiles, it will be marked as unauthorized. Otherwise, unauthorized profiles should be showed in the profiles list.
+	 * 5. unauthoritative profiles - if a profile's domain authority is false, and there are no other available profiles, it will be marked as unauthorized. Otherwise, unauthoritative profiles should be showed in the profiles list.
 	 */
 	async function handleRetrieve() {
 		isLoading = true;
@@ -118,15 +118,15 @@
 			if (
 				deletedProfiles.length === 0 &&
 				profileList.length === 0 &&
-				unauthorizedProfiles.length === 0
+				unauthoritativeProfiles.length === 0
 			) {
 				toast.success('No updated profiles found.');
 				await goto('/admin');
 			}
 
-			// If it only has deleted profiles and unauthorized profiles, update map timestamp and set `setIsMapSelected` to false and return to the map list
+			// If it only has deleted profiles and unauthoritative profiles, update map timestamp and set `setIsMapSelected` to false and return to the map list
 			if (
-				(deletedProfiles.length > 0 || unauthorizedProfiles.length > 0) &&
+				(deletedProfiles.length > 0 || unauthoritativeProfiles.length > 0) &&
 				profileList.length === 0
 			) {
 				toast.success('No updated profiles found.');
@@ -252,13 +252,13 @@
 		}
 	}
 
-	// Handle unauthorized profiles
+	// Handle unauthoritative profiles
 	// Previously, we retrieve updated profiles and unavailable profiles.
 	// Now, we need to check if the profiles have authority or not.
 	// 1. The first step involves checking the authority status of each profile. If the authority status remains unchanged, it indicates there are no modifications required, and thus, no action will be taken.
 	// 2. If the authority status changes, there are two distinct scenarios:
-	// 2.1 AP to NAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to NAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to NAP, we don't want to move them to the unauthorized list.
-	// - 2.2 If a profile shifts from NAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
+	// 2.1 AP to UAP: If it's in a 'publish' status, we need to move it to the unauthorized list. Updated profiles and unavailable profiles only have AP to UAP states, because default value of has_authority is TRUE. If updated profiles and unavailable profiles transition to UAP, we don't want to move them to the unauthorized list.
+	// - 2.2 If a profile shifts from UAP to AP, we update the profile's background to reflect its new AP status. If users want to add this profile, they can go to 'Edit Nodes' and modify the status there.
 	async function checkAuthorityProfiles() {
 		const { data: authorityMap } = await getAuthorityMap(clusterUuid);
 
@@ -289,14 +289,14 @@
 				hasAuthority
 			};
 
-			// From AP to NAP
+			// From AP to UAP
 			if (originalAuthority === 1 && hasAuthority === 0) {
 				// If a profile has no domain authority, mark it as ignored
 				profileUpdatedData.status = 'ignore';
 
-				// If a profile is not in ignore state, and isAvailable is true, add it to the unauthorizedProfiles
+				// If a profile is not in ignore state, and isAvailable is true, add it to the unauthoritativeProfiles
 				if (profile.status !== 'ignore' && profile.isAvailable === 1) {
-					unauthorizedProfiles.push({ ...profile });
+					unauthoritativeProfiles.push({ ...profile });
 				}
 			}
 
@@ -346,7 +346,7 @@
 <div class="min-h-screen bg-background text-foreground">
 	<div class="container mx-auto px-4 py-8">
 		<header class="mb-8">
-			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">Update Nodes</h1>
+			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">Updated Nodes</h1>
 		</header>
 
 		{#if isLoading}
@@ -399,8 +399,8 @@
 			</div>
 		{/if}
 
-		{#if unauthorizedProfiles.length > 0}
-			<h2 class="mb-4 text-xl font-semibold">Unauthorized Profiles</h2>
+		{#if unauthoritativeProfiles.length > 0}
+			<h2 class="mb-4 text-xl font-semibold">Unauthoritative Profiles</h2>
 			<div class="overflow-hidden rounded-md border mb-8">
 				<div class="overflow-x-auto">
 					<Table.Root>
@@ -413,7 +413,7 @@
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
-							{#each unauthorizedProfiles as node (node.id)}
+							{#each unauthoritativeProfiles as node (node.id)}
 								<Table.Row>
 									<Table.Cell>{node.id}</Table.Cell>
 									<Table.Cell>{JSON.parse(node.data)?.name || 'N/A'}</Table.Cell>
@@ -434,7 +434,7 @@
 			</div>
 		{/if}
 
-		{#if deletedProfiles.length > 0 || unauthorizedProfiles.length > 0}
+		{#if deletedProfiles.length > 0 || unauthoritativeProfiles.length > 0}
 			<div class="mt-6 flex items-center gap-4">
 				<Button variant="outline" href="/admin">Return to Home</Button>
 			</div>
