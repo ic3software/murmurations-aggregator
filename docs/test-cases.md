@@ -11,7 +11,7 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
 ### 1.1 Add New Profile
 
 - **Context**: A new profile is published to the index.
-- **Expected Result**: The new profile should appear in the list of updated profiles.
+- **Expected Result**: The new profile should appear in the updated profiles list.
 - **Test Steps**:
   1. Publish a new profile to the index.
   2. Update the cluster (click **Update Nodes**).
@@ -24,7 +24,7 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
 - **Test Steps**:
   1. Update an existing profile in the index (e.g., change the name or description).
   2. Update the cluster.
-  3. Confirm the profile appears in the updated profiles list with the new data.
+  3. Confirm the profile appears under **Updated Profiles** with the new data (confirm this in the DB's `updated_data` column).
 
 ### 1.3 Delete Profile
 
@@ -33,35 +33,43 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
 - **Test Steps**:
   1. Mark a profile as deleted in the index.
   2. Update the cluster.
-  3. Confirm the profile appears in the deleted profiles list.
+  3. Confirm the profile appears under **Deleted Profiles**.
 
 ## 2. Authority Transitions
+
+A profile has "authority" if it is hosted at the website it is claiming to be about. For example, if a profile is claiming to be about -- by setting its primary URL to -- <https://murmurations.network>, this obviously has more meaning if the profile is actually hosted at <https://murmurations.network> rather than some other website. For more context, see this FAQ in the Murmurations docs:
+
+<https://docs.murmurations.network/faqs/schema.html#what-is-a-primary-url>
+
+A node's authority must prioritized by the aggregator when its profile claiming the primary URL is hosted at that primary URL.
 
 ### 2.1 From Authoritative to Unauthoritative Profile (AP -> UAP)
 
 - **Context**: A profile claiming a primary URL but not hosted at that primary URL is overridden by a profile actually hosted at that primary URL.
 - **Expected Result**:
-  - `hasAuthority` should be updated to `0` for the overridden profile
-  - If `status !== 'ignore'` and `isAvailable === 1`, the profile should appear under the **Unauthoritative Profiles** list
-  - `status` should be changed to `'ignore'` automatically
+  - `hasAuthority` should be updated to `0` in the DB for the overridden profile.
+  - If `status !== 'ignored'` and `isAvailable === 1`, the profile should appear under the **Unauthoritative Profiles** list.
+  - `status` should be changed to `'ignored'` automatically.
 - **Test Steps**:
-  1. Add a profile to `test-tools` website.
-  2. Update the cluster.
-  3. Add the same profile to self-built WordPress site (AP).
-  4. Verify the first profile appears in `unauthoritativeProfiles` with `status = 'ignore'`.
+  1. Add a profile to a website that is not the primary URL and post it to the index.
+  2. Update the cluster and set its `status` to `'published'`.
+  3. Add the same profile to a website that is the same as the primary URL and post it to the index.
+  4. Verify the first profile appears under the **Unauthoritative Profiles** list has `status === 'ignored'` and `hasAuthority === 0` in the DB.
 
 ### 2.2 From Unauthoritative to Authoritative Profile (UAP -> AP)
 
-- **Context**: The profile is moved back to an authoritative domain. For example: self-built WordPress is removed, and the `test-tools` becomes authoritative.
+- **Context**: The authoritative profile hosted at the primary URL is removed from the index so the overridden profile is reinstated as the authoritative profile.
 - **Expected Result**:
-  - `hasAuthority` should be updated to `1`
-  - `status` should remain unchanged (manual editing required)
+  - `hasAuthority` should be updated to `1` in the DB for the overridden profile.
+  - `status` should remain unchanged (`ignored`) -- a manual change is required to publish it again.
 - **Test Steps**:
-  1. Remove the profile from self-built WordPress site.
+  1. Delete the authoritative profile (primary URL is the same as the host for the profile) from the index.
   2. Update the cluster.
-  3. Confirm the profile from `test-tools` has `hasAuthority = 1` again.
+  3. Confirm the previously unauthoritative profile `hasAuthority = 1` and `status === 'ignored'` in the DB.
 
-### 2.3 Unavailable profile revalidated
+## 3. Profile State Edge Cases
+
+### 3.1 Unavailable profile revalidated
 
 - **Context**: Re-checking profiles if the profile is not available.
 - **Expected Result**: The profile should should update in the background.
@@ -73,9 +81,7 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
   5. Update the cluster.
   6. Go to `Edit Node` page and see the profile becomes available.
 
-## 3. Profile State Edge Cases
-
-### 3.1 Deleted in index, not present locally
+### 3.2 Deleted in index, not present locally
 
 - **Context**: A profile marked as deleted is returned from the index, but not present locally.
 - **Expected Result**: Skipped silently with no error or updates.
@@ -84,7 +90,7 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
   2. Update the cluster.
   3. Verify no error is shown, and nothing is deleted.
 
-### 3.2 New profile from a UAP domain
+### 3.3 New profile from a UAP domain
 
 - **Context**: A new profile is published on a domain without authority.
 - **Expected Result**:
@@ -94,7 +100,7 @@ Create a new cluster to get started from the Admin Dashboard by clicking **Creat
   2. Update the cluster.
   3. Verify it appears in `profileList` with `hasAuthority = 0`
 
-### 3.3 New profile from an AP domain
+### 3.4 New profile from an AP domain
 
 - **Context**: A new profile from an authoritative domain.
 - **Expected Result**:
