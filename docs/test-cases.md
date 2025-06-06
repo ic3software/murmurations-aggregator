@@ -1,6 +1,12 @@
 # Test Cases
 
-## Basic Tests
+## 0. Cluster Setup
+
+> Note: The term "cluster" comes from machine learning, where "graph clustering" is about partitioning nodes in a graph into cohesive groups (clusters) based on their common characteristics.
+
+Create a new cluster to get started from the Admin Dashboard by clicking **Create Cluster**. It takes time to build a cluster because once the list of nodes has been retrieved from a Murmurations index, the aggregator app must fetch the profiles from every node in the list; this process can take some time if the list is long. Select two or more tags (e.g., "network" and "software") and check the **All Tags** checkbox to reduce the total size of the node list.
+
+## 1. Basic Tests
 
 ### 1.1 Add New Profile
 
@@ -13,7 +19,7 @@
 
 ### 1.2 Update Existing Profile
 
-- **Context**: An existing profile is updated in the index (e.g., change a field).
+- **Context**: An existing profile is updated in the index.
 - **Expected Result**: The updated profile should appear in the updated profiles list.
 - **Test Steps**:
   1. Update an existing profile in the index (e.g., change the name or description).
@@ -29,14 +35,14 @@
   2. Update the cluster.
   3. Confirm the profile appears in the deleted profiles list.
 
-## Authority Transitions
+## 2. Authority Transitions
 
-### 2.1 From Authoritative -> Unauthoritative Profile (AP to UAP)
+### 2.1 From Authoritative to Unauthoritative Profile (AP -> UAP)
 
-- **Context**: The domain owner built the website using a WordPress plugin themselves, rather than through `test-tools`.
+- **Context**: A profile claiming a primary URL but not hosted at that primary URL is overridden by a profile actually hosted at that primary URL.
 - **Expected Result**:
-  - `hasAuthority` should be updated to `0`
-  - If `status !== 'ignore'` and `isAvailable === 1`, the profile should be added to `unauthoritativeProfiles`
+  - `hasAuthority` should be updated to `0` for the overridden profile
+  - If `status !== 'ignore'` and `isAvailable === 1`, the profile should appear under the **Unauthoritative Profiles** list
   - `status` should be changed to `'ignore'` automatically
 - **Test Steps**:
   1. Add a profile to `test-tools` website.
@@ -44,7 +50,7 @@
   3. Add the same profile to self-built WordPress site (AP).
   4. Verify the first profile appears in `unauthoritativeProfiles` with `status = 'ignore'`.
 
-### 2.2 From Unauthoritative -> Authoritative Profile (UAP to AP)
+### 2.2 From Unauthoritative to Authoritative Profile (UAP -> AP)
 
 - **Context**: The profile is moved back to an authoritative domain. For example: self-built WordPress is removed, and the `test-tools` becomes authoritative.
 - **Expected Result**:
@@ -67,7 +73,7 @@
   5. Update the cluster.
   6. Go to `Edit Node` page and see the profile becomes available.
 
-## Profile State Edge Cases
+## 3. Profile State Edge Cases
 
 ### 3.1 Deleted in index, not present locally
 
@@ -78,7 +84,7 @@
   2. Update the cluster.
   3. Verify no error is shown, and nothing is deleted.
 
-### 3.2 New profile from a NAP domain
+### 3.2 New profile from a UAP domain
 
 - **Context**: A new profile is published on a domain without authority.
 - **Expected Result**:
@@ -99,7 +105,7 @@
   2. Update the cluster.
   3. Verify it appears in `profileList` with `hasAuthority = 1`, and unauthoritative profiles should show up in the unauthoritative profile list.
 
-## Timestamp Synchronization
+## 4. Timestamp Synchronization
 
 ### 4.1 Same timestamp – no update
 
@@ -110,7 +116,7 @@
   2. Update the cluster.
   3. Confirm last_updated is applied and shown in the cluster list.
 
-## Error and Empty Response Handling
+## 5. Error and Empty Response Handling
 
 ### 5.1 API Error Handling
 
