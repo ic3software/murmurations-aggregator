@@ -31,7 +31,16 @@
 	</script>
 </svelte:head>
 
-<div class="min-h-screen bg-background text-foreground">
+<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
 	<Toaster position="top-center" />
-	{@render children()}
+
+	<div class="container mx-auto px-4 py-4">
+		<header class="mb-8">
+			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
+				Murmurations Collaborative Clusters
+			</h1>
+		</header>
+
+		{@render children()}
+	</div>
 </div>
