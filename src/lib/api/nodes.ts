@@ -24,6 +24,14 @@ export const updateNode = (
 export const getNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, Node[]>(`/api/clusters/${clusterUuid}/nodes`, 'GET', undefined, customFetch);
 
+export const getPublishedNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, Node[]>(
+		`/api/clusters/${clusterUuid}/published-nodes`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
 export const updateNodeStatus = (
 	clusterUuid: string,
 	nodeId: number,

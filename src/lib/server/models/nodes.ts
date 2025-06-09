@@ -9,6 +9,20 @@ export async function getNodes(db: DrizzleD1Database, clusterUuid: string) {
 	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterUuid)).all();
 }
 
+export async function getPublishedNodes(db: DrizzleD1Database, clusterUuid: string) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(
+				eq(nodes.clusterUuid, clusterUuid),
+				eq(nodes.isAvailable, 1),
+				eq(nodes.status, 'published')
+			)
+		)
+		.all();
+}
+
 export async function getNode(db: DrizzleD1Database, clusterUuid: string, profileUrl: string) {
 	return await db
 		.select()

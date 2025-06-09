@@ -1,18 +1,12 @@
 <script lang="ts">
+	import { formatDate } from '$lib/date';
+
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	const { clusters } = data;
-
-	function formatDate(date: number): string {
-		return new Date(date).toLocaleString();
-	}
 </script>
-
-<svelte:head>
-	<title>Murmurations Collaborative Clusters</title>
-</svelte:head>
 
 <div class="mb-8">
 	<h2 class="text-2xl font-bold text-slate-900 dark:text-slate-50">All Clusters</h2>
@@ -36,7 +30,7 @@
 				</h2>
 
 				<p class="mb-4 text-sm text-slate-500 dark:text-slate-400">
-					Last updated: {formatDate(cluster.lastUpdated * 1000)}
+					Last updated: {formatDate(cluster.lastUpdated)}
 				</p>
 
 				<div class="flex gap-2">
