@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { Toaster } from '$lib/components/ui/sonner';
 
 	import { onMount } from 'svelte';
@@ -6,6 +7,9 @@
 	import '../app.css';
 
 	let { children } = $props();
+
+	const siteName = 'Murmurations Collaborative Cluster';
+	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
 	onMount(() => {
 		// Check system preference
@@ -20,6 +24,7 @@
 </script>
 
 <svelte:head>
+	<title>{page.data.title ? `${page.data.title} | ${siteName}` : siteName}</title>
 	<script lang="ts">
 		// Prevent flash of wrong theme
 		(() => {
@@ -31,16 +36,20 @@
 	</script>
 </svelte:head>
 
-<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-	<Toaster position="top-center" />
+{#if !isAdminRoute}
+	<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
+		<Toaster position="top-center" />
 
-	<div class="container mx-auto px-4 py-4">
-		<header class="mb-8">
-			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
-				Murmurations Collaborative Clusters
-			</h1>
-		</header>
+		<div class="container mx-auto px-4 py-4">
+			<header class="mb-8">
+				<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
+					{siteName}
+				</h1>
+			</header>
 
-		{@render children()}
+			{@render children()}
+		</div>
 	</div>
-</div>
+{:else}
+	{@render children()}
+{/if}

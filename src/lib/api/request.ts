@@ -45,7 +45,12 @@ export async function request<TBody, TResponse>(
 		const json = await response.json();
 
 		if (!response.ok) {
-			return { data: null as unknown as TResponse, success: false, message: json?.message };
+			return {
+				data: null as unknown as TResponse,
+				success: false,
+				message: json?.message,
+				error: json?.error
+			};
 		}
 
 		return json;
