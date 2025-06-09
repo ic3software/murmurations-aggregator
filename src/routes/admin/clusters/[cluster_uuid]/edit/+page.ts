@@ -9,11 +9,13 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		const { data: cluster } = await getCluster(clusterUuid, fetch);
 
 		return {
+			title: 'Edit Cluster',
 			cluster
 		};
 	} catch (err) {
 		console.error('Error loading cluster:', err);
 		return {
+			title: 'Edit Cluster',
 			cluster: null
 		};
 	}

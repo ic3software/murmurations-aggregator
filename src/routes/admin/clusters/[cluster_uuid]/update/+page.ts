@@ -10,6 +10,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	const { data: nodes } = await getNodes(clusterUuid, fetch);
 
 	return {
+		title: 'Update Nodes',
 		cluster,
 		nodes
 	};

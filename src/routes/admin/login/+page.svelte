@@ -34,10 +34,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Login | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 <div class="flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
 	<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
 		{#if errorMessage}

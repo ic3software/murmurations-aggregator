@@ -37,10 +37,6 @@
 	};
 </script>
 
-<svelte:head>
-	<title>Email Reset | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Email Reset</h1>
 
 {#if successMessage}
