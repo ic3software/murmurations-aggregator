@@ -91,7 +91,7 @@
 								<img
 									src={nodeData.image}
 									alt={nodeData.name || `Item #${index + 1}`}
-									class="w-full h-48 object-cover rounded-md border"
+									class="w-full h-48 object-contain rounded-md border"
 								/>
 							</div>
 						{/if}
