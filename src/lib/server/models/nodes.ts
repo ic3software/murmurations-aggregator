@@ -2,14 +2,19 @@ import { nodes } from '$lib/server/db/schema';
 import type { NodeDbUpdateInput, NodeInsert } from '$lib/types/node';
 import type { Node } from '$lib/types/node';
 import type { D1Result } from '@cloudflare/workers-types';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
 export async function getNodes(db: DrizzleD1Database, clusterUuid: string) {
 	return await db.select().from(nodes).where(eq(nodes.clusterUuid, clusterUuid)).all();
 }
 
-export async function getPublishedNodes(db: DrizzleD1Database, clusterUuid: string) {
+export async function getPublishedNodes(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	limit: number,
+	offset: number
+) {
 	return await db
 		.select()
 		.from(nodes)
@@ -20,7 +25,25 @@ export async function getPublishedNodes(db: DrizzleD1Database, clusterUuid: stri
 				eq(nodes.status, 'published')
 			)
 		)
+		.limit(limit)
+		.offset(offset)
 		.all();
+}
+
+export async function getPublishedNodeCount(db: DrizzleD1Database, clusterUuid: string) {
+	const result = await db
+		.select({ count: count() })
+		.from(nodes)
+		.where(
+			and(
+				eq(nodes.clusterUuid, clusterUuid),
+				eq(nodes.isAvailable, 1),
+				eq(nodes.status, 'published')
+			)
+		)
+		.get();
+
+	return result?.count ?? 0;
 }
 
 export async function getNode(db: DrizzleD1Database, clusterUuid: string, profileUrl: string) {

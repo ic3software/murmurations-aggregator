@@ -1,1 +1,6 @@
-export type ApiPayload = Record<string, string | number | boolean | null | undefined>;
+export type Meta = {
+	total: number;
+	perPage: number;
+	currentPage: number;
+	totalPages: number;
+};

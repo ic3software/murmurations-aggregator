@@ -1,13 +1,47 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { getPublishedNodes } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import * as Pagination from '$lib/components/ui/pagination/index.js';
+	import type { Meta } from '$lib/types/api';
+	import type { ClusterPublic } from '$lib/types/cluster';
+	import type { Node } from '$lib/types/node';
 	import { AlertCircle, ArrowLeft, Database } from '@lucide/svelte';
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+
+	import { MediaQuery } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	const { nodes, cluster } = data;
+	let nodes: Node[] = $state(data?.nodes ?? []);
+	let cluster: ClusterPublic = $state(data?.cluster);
+	let meta: Meta | null = $state(data?.meta ?? null);
+
+	const isDesktop = new MediaQuery('(min-width: 768px)');
+
+	const siblingCount = $derived(isDesktop.current ? 1 : 0);
+
+	let currentPage = $derived(meta?.currentPage ?? 1);
+
+	function getPage() {
+		return currentPage;
+	}
+
+	async function setPage(newPage: number) {
+		currentPage = newPage;
+
+		goto(`?page=${currentPage}`);
+
+		if (cluster?.clusterUuid) {
+			const res = await getPublishedNodes(cluster.clusterUuid, currentPage, fetch);
+			nodes = res.data;
+			meta = res.meta ?? null;
+		}
+	}
 </script>
 
 {#if !cluster}
@@ -168,6 +202,51 @@
 					</Card>
 				{/each}
 			</div>
+
+			{#if meta && meta.totalPages > 1}
+				<div class="flex justify-center mt-8">
+					<Pagination.Root
+						count={meta.total}
+						perPage={meta.perPage}
+						{siblingCount}
+						bind:page={getPage, setPage}
+					>
+						{#snippet children({ pages })}
+							<Pagination.Content>
+								<Pagination.Item>
+									<Pagination.PrevButton>
+										<ChevronLeftIcon class="size-4" />
+										<span class="hidden sm:block">Previous</span>
+									</Pagination.PrevButton>
+								</Pagination.Item>
+								{#each pages as page (page.key)}
+									{#if page.type === 'ellipsis'}
+										<Pagination.Item>
+											<Pagination.Ellipsis />
+										</Pagination.Item>
+									{:else}
+										<Pagination.Item>
+											<Pagination.Link
+												onclick={() => setPage(page.value)}
+												isActive={getPage() === page.value}
+												{page}
+											>
+												{page.value}
+											</Pagination.Link>
+										</Pagination.Item>
+									{/if}
+								{/each}
+								<Pagination.Item>
+									<Pagination.NextButton>
+										<span class="hidden sm:block">Next</span>
+										<ChevronRightIcon class="size-4" />
+									</Pagination.NextButton>
+								</Pagination.Item>
+							</Pagination.Content>
+						{/snippet}
+					</Pagination.Root>
+				</div>
+			{/if}
 		{/if}
 	</div>
 {/if}
