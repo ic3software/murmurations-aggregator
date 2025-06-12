@@ -36,10 +36,10 @@
 	</script>
 </svelte:head>
 
+<Toaster position="top-center" richColors={true} />
+
 {#if !isAdminRoute}
 	<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-		<Toaster position="top-center" />
-
 		<div class="container mx-auto px-4 py-4">
 			<header class="mb-8">
 				<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
