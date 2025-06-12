@@ -207,7 +207,7 @@
 
 	<form class="space-y-8" onsubmit={submitCluster}>
 		<!-- Cluster Settings -->
-		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-xs">
 			<div class="flex flex-col space-y-1.5 p-0">
 				<h3 class="text-2xl font-semibold leading-none tracking-tight">Cluster Settings</h3>
 			</div>
@@ -282,7 +282,7 @@
 		</div>
 
 		<!-- Node Selection -->
-		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-xs">
 			<div class="flex flex-col space-y-1.5 p-0">
 				<h3 class="text-2xl font-semibold leading-none tracking-tight">Node Selection</h3>
 			</div>
