@@ -9,12 +9,14 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		const { data: nodes } = await getNodes(clusterUuid, fetch);
 
 		return {
+			title: 'Select Nodes',
 			clusterUuid,
 			nodes
 		};
 	} catch (err) {
 		console.error('Error loading nodes:', err);
 		return {
+			title: 'Select Nodes',
 			clusterUuid,
 			nodes: null
 		};

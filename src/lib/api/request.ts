@@ -1,5 +1,6 @@
 import { exportPublicKey, signRequest } from '$lib/crypto';
 import { generateKeyPair, getKey, storeKeys } from '$lib/crypto';
+import type { Meta } from '$lib/types/api';
 import type { Keypair } from '$lib/types/keypair';
 
 let keypair: Keypair | null = null;
@@ -10,7 +11,7 @@ export async function request<TBody, TResponse>(
 	body?: TBody,
 	customFetch: typeof fetch = fetch,
 	signed = false
-): Promise<{ data: TResponse; success: boolean; message?: string; error?: string }> {
+): Promise<{ data: TResponse; success: boolean; message?: string; error?: string; meta?: Meta }> {
 	try {
 		const headers: HeadersInit = {
 			'Content-Type': 'application/json'
@@ -45,7 +46,13 @@ export async function request<TBody, TResponse>(
 		const json = await response.json();
 
 		if (!response.ok) {
-			return { data: null as unknown as TResponse, success: false, message: json?.message };
+			return {
+				data: null as unknown as TResponse,
+				success: false,
+				message: json?.message,
+				error: json?.error,
+				meta: json?.meta
+			};
 		}
 
 		return json;

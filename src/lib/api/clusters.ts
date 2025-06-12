@@ -9,8 +9,8 @@ import type {
 export const getClusters = async (customFetch?: typeof fetch) =>
 	request<undefined, Cluster[]>('/api/clusters', 'GET', undefined, customFetch);
 
-export const getCluster = (id: string, customFetch?: typeof fetch) =>
-	request<undefined, ClusterPublic>(`/api/clusters/${id}`, 'GET', undefined, customFetch);
+export const getCluster = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, ClusterPublic>(`/api/clusters/${clusterUuid}`, 'GET', undefined, customFetch);
 
 export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
 	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch, true);

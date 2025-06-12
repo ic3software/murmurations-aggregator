@@ -58,10 +58,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Register | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 <div
 	class="min-h-screen flex items-center justify-center bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50"
 >

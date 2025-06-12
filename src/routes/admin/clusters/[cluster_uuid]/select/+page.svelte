@@ -93,10 +93,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Select Nodes | Murmurations Collaborative Map Builder</title>
-</svelte:head>
-
 {#if isSubmitting}
 	<div class="my-6">
 		<p class="mb-2 text-sm text-muted-foreground">

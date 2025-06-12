@@ -277,10 +277,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Profile | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 {#if typedPage?.state?.message}
 	<Alert
 		class="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"

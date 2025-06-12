@@ -57,10 +57,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Edit Cluster | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 <div class="mx-auto max-w-none">
 	<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">Edit Cluster</h2>
 

@@ -36,10 +36,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Dashboard | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 {#if typedPage?.state?.message}
 	<Alert class="mb-6">
 		<CircleAlert class="size-4" />

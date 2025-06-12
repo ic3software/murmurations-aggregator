@@ -17,6 +17,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	}));
 
 	return {
+		title: 'Create a Cluster',
 		countries
 	};
 };

@@ -339,10 +339,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Update Nodes | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 <div class="min-h-screen bg-background text-foreground">
 	<div class="container mx-auto px-4 py-8">
 		<header class="mb-8">

@@ -187,10 +187,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Create a Cluster | Murmurations Collaborative Cluster Builder</title>
-</svelte:head>
-
 {#if loadingNodes}
 	<div class="my-6">
 		<p class="mb-2 text-sm text-muted-foreground">
