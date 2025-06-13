@@ -78,7 +78,7 @@
 {:else}
 	{#each clusters as cluster}
 		<div
-			class="mb-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+			class="mb-8 rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 		>
 			<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
 				{cluster.name}

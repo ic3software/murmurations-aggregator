@@ -23,7 +23,7 @@
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#each clusters as cluster}
 			<div
-				class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+				class="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 			>
 				<h2 class="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-50">
 					{cluster.name}
