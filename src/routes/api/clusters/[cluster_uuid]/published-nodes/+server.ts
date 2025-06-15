@@ -20,10 +20,12 @@ export const GET: RequestHandler = async ({
 		const page = Math.max(Number(url.searchParams.get('page') || 1), 1);
 		const limit = Math.max(Number(url.searchParams.get('limit') || 12), 1);
 		const offset = (page - 1) * limit;
+		const search = url.searchParams.get('search') || undefined;
+		const sort = url.searchParams.get('sort') as 'name-asc' | 'name-desc' | undefined;
 
-		const totalCount = await getPublishedNodeCount(db, clusterUuid);
+		const totalCount = await getPublishedNodeCount(db, clusterUuid, search);
 
-		const nodes = await getPublishedNodes(db, clusterUuid, limit, offset);
+		const nodes = await getPublishedNodes(db, clusterUuid, limit, offset, search, sort);
 
 		if (!nodes || nodes.length === 0) {
 			return json(

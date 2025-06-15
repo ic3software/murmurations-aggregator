@@ -9,13 +9,30 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 	const page = parseInt(url.searchParams.get('page') ?? '1', 10);
 	const currentPage = isNaN(page) || page < 1 ? 1 : page;
 
+	const search = url.searchParams.get('search') || '';
+
+	// sort value can only be `name-asc`, `name-desc`, `default`. if not, set to `default`
+	const sortParam = url.searchParams.get('sort');
+	const validSortOptions = ['name-asc', 'name-desc', 'default'] as const;
+	const sort = validSortOptions.includes(sortParam as (typeof validSortOptions)[number])
+		? (sortParam as 'name-asc' | 'name-desc' | 'default')
+		: 'default';
+
 	const { data: cluster } = await getCluster(clusterUuid, fetch);
-	const { data: nodes, meta } = await getPublishedNodes(clusterUuid, currentPage, fetch);
+	const { data: nodes, meta } = await getPublishedNodes(
+		clusterUuid,
+		currentPage,
+		search,
+		sort,
+		fetch
+	);
 
 	return {
 		title: cluster?.name || 'Nodes List',
 		cluster,
 		nodes,
-		meta
+		meta,
+		search,
+		sort
 	};
 };
