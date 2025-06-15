@@ -3,14 +3,17 @@
 	import { getPublishedNodes } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
 	import * as Pagination from '$lib/components/ui/pagination/index.js';
+	import * as Select from '$lib/components/ui/select';
 	import type { Meta } from '$lib/types/api';
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { Node } from '$lib/types/node';
-	import { AlertCircle, ArrowLeft, Database } from '@lucide/svelte';
+	import { AlertCircle, ArrowLeft, Database, Search } from '@lucide/svelte';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 
+	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
@@ -20,6 +23,8 @@
 	let nodes: Node[] = $state(data?.nodes ?? []);
 	let cluster: ClusterPublic = $state(data?.cluster);
 	let meta: Meta | null = $state(data?.meta ?? null);
+	let search: string = $state(data?.search ?? '');
+	let sort: 'name-asc' | 'name-desc' | 'default' = $state(data?.sort ?? 'default');
 
 	const isDesktop = new MediaQuery('(min-width: 768px)');
 
@@ -32,12 +37,39 @@
 	}
 
 	async function setPage(newPage: number) {
-		currentPage = newPage;
+		await reloadData(newPage);
+	}
 
-		goto(`?page=${currentPage}`);
+	const sortOptions = [
+		{ value: 'default', label: 'Default' },
+		{ value: 'name-asc', label: 'Name (A → Z)' },
+		{ value: 'name-desc', label: 'Name (Z → A)' }
+	];
+
+	const triggerContent = $derived(
+		sortOptions.find((f) => f.value === sort)?.label ?? 'Select a sort option'
+	);
+
+	$effect(() => {
+		// Make sure sort can be tracked
+		void sort;
+		untrack(() => {
+			reloadData(1);
+		});
+	});
+
+	async function reloadData(page = 1) {
+		currentPage = page;
+
+		const query = new URLSearchParams();
+		query.set('page', currentPage.toString());
+		if (search) query.set('search', search);
+		if (sort) query.set('sort', sort);
+
+		goto(`?${query.toString()}`);
 
 		if (cluster?.clusterUuid) {
-			const res = await getPublishedNodes(cluster.clusterUuid, currentPage, fetch);
+			const res = await getPublishedNodes(cluster.clusterUuid, currentPage, search, sort, fetch);
 			nodes = res.data;
 			meta = res.meta ?? null;
 		}
@@ -65,13 +97,58 @@
 			</div>
 		</div>
 
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+			<div class="flex-1 space-y-2">
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						reloadData(1);
+					}}
+					class="flex-1 space-y-2"
+				>
+					<div class="flex gap-2">
+						<div class="relative flex-1">
+							<Search
+								class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+							/>
+							<Input
+								id="search"
+								placeholder="Search by name..."
+								class="pl-10"
+								bind:value={search}
+							/>
+						</div>
+						<Button type="submit">Search</Button>
+					</div>
+				</form>
+			</div>
+			<div class="space-y-2">
+				<Select.Root type="single" bind:value={sort}>
+					<Select.Trigger class="w-[180px]">
+						{triggerContent}
+					</Select.Trigger>
+					<Select.Content>
+						{#each sortOptions as option}
+							<Select.Item value={option.value}>{option.label}</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			</div>
+		</div>
+
 		{#if !nodes || nodes.length === 0}
 			<Card>
 				<CardContent class="flex h-32 items-center justify-center">
 					<div class="text-center space-y-2">
 						<Database class="h-8 w-8 text-muted-foreground mx-auto" />
-						<h3 class="text-lg font-semibold">No Data Available</h3>
-						<p class="text-sm text-muted-foreground">This cluster doesn't contain any data yet.</p>
+						<h3 class="text-lg font-semibold">
+							{search.trim() ? 'No Results Found' : 'No Data Available'}
+						</h3>
+						<p class="text-sm text-muted-foreground">
+							{search.trim()
+								? 'Try adjusting your search terms.'
+								: "This cluster doesn't contain any data yet."}
+						</p>
 					</div>
 				</CardContent>
 			</Card>
