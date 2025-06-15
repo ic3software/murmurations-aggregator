@@ -30,13 +30,13 @@ export async function getPublishedNodes(
 			.select()
 			.from(nodes)
 			.where(whereClause)
-			.orderBy(sql`json_extract(${nodes.data}, '$.name') ASC`);
+			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) ASC`);
 	} else if (sort === 'name-desc') {
 		query = db
 			.select()
 			.from(nodes)
 			.where(whereClause)
-			.orderBy(sql`json_extract(${nodes.data}, '$.name') DESC`);
+			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) DESC`);
 	} else {
 		query = db.select().from(nodes).where(whereClause);
 	}
