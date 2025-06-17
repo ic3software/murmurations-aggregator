@@ -20,16 +20,24 @@ export const GET: RequestHandler = async ({
 		const page = Math.max(Number(url.searchParams.get('page') || 1), 1);
 		const limit = Math.max(Number(url.searchParams.get('limit') || 12), 1);
 		const offset = (page - 1) * limit;
-		const search = url.searchParams.get('search') || undefined;
+		const nameSearch = url.searchParams.get('name') || undefined;
+		const tagsSearch = url.searchParams.get('tags') || undefined;
 		const sort = url.searchParams.get('sort') as 'name-asc' | 'name-desc' | undefined;
 
-		const totalCount = await getPublishedNodeCount(db, clusterUuid, search);
-
-		const nodes = await getPublishedNodes(db, clusterUuid, limit, offset, search, sort);
+		const totalCount = await getPublishedNodeCount(db, clusterUuid, nameSearch, tagsSearch);
+		const nodes = await getPublishedNodes(
+			db,
+			clusterUuid,
+			limit,
+			offset,
+			nameSearch,
+			tagsSearch,
+			sort
+		);
 
 		if (!nodes || nodes.length === 0) {
 			return json(
-				{ error: 'No nodes found for the given cluster_uuid', success: false },
+				{ error: 'No nodes found for the given criteria', success: false },
 				{ status: 404 }
 			);
 		}

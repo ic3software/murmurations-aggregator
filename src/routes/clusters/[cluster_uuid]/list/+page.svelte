@@ -9,7 +9,7 @@
 	import type { Meta } from '$lib/types/api';
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { Node } from '$lib/types/node';
-	import { AlertCircle, ArrowLeft, Database, Search } from '@lucide/svelte';
+	import { AlertCircle, ArrowLeft, Database, Search, Tag } from '@lucide/svelte';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 
@@ -23,7 +23,8 @@
 	let nodes: Node[] = $state(data?.nodes ?? []);
 	let cluster: ClusterPublic = $state(data?.cluster);
 	let meta: Meta | null = $state(data?.meta ?? null);
-	let search: string = $state(data?.search ?? '');
+	let nameSearch: string = $state(data?.nameSearch ?? '');
+	let tagSearch: string = $state(data?.tagSearch ?? '');
 	let sort: 'name-asc' | 'name-desc' | 'default' = $state(data?.sort ?? 'default');
 
 	const isDesktop = new MediaQuery('(min-width: 768px)');
@@ -63,13 +64,21 @@
 
 		const query = new URLSearchParams();
 		query.set('page', currentPage.toString());
-		if (search) query.set('search', search);
+		if (nameSearch) query.set('name', nameSearch);
+		if (tagSearch) query.set('tags', tagSearch);
 		if (sort) query.set('sort', sort);
 
 		goto(`?${query.toString()}`);
 
 		if (cluster?.clusterUuid) {
-			const res = await getPublishedNodes(cluster.clusterUuid, currentPage, search, sort, fetch);
+			const res = await getPublishedNodes(
+				cluster.clusterUuid,
+				currentPage,
+				nameSearch,
+				tagSearch,
+				sort,
+				fetch
+			);
 			nodes = res.data;
 			meta = res.meta ?? null;
 		}
@@ -112,10 +121,19 @@
 								class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
 							/>
 							<Input
-								id="search"
+								id="nameSearch"
 								placeholder="Search by name..."
 								class="pl-10"
-								bind:value={search}
+								bind:value={nameSearch}
+							/>
+						</div>
+						<div class="relative flex-1">
+							<Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								id="tagSearch"
+								placeholder="Search by tags (comma separated)..."
+								class="pl-10"
+								bind:value={tagSearch}
 							/>
 						</div>
 						<Button type="submit">Search</Button>
@@ -142,10 +160,10 @@
 					<div class="text-center space-y-2">
 						<Database class="h-8 w-8 text-muted-foreground mx-auto" />
 						<h3 class="text-lg font-semibold">
-							{search.trim() ? 'No Results Found' : 'No Data Available'}
+							{nameSearch.trim() || tagSearch.trim() ? 'No Results Found' : 'No Data Available'}
 						</h3>
 						<p class="text-sm text-muted-foreground">
-							{search.trim()
+							{nameSearch.trim() || tagSearch.trim()
 								? 'Try adjusting your search terms.'
 								: "This cluster doesn't contain any data yet."}
 						</p>

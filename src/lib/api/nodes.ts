@@ -27,12 +27,13 @@ export const getNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
 export const getPublishedNodes = (
 	clusterUuid: string,
 	page: number,
-	search: string,
+	nameSearch: string,
+	tagsSearch: string,
 	sort: 'name-asc' | 'name-desc' | 'default',
 	customFetch?: typeof fetch
 ) =>
 	request<undefined, Node[]>(
-		`/api/clusters/${clusterUuid}/published-nodes?page=${page}&search=${search}&sort=${sort}`,
+		`/api/clusters/${clusterUuid}/published-nodes?page=${page}&name=${nameSearch}&tags=${tagsSearch}&sort=${sort}`,
 		'GET',
 		undefined,
 		customFetch

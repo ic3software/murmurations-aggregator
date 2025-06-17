@@ -9,7 +9,8 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 	const page = parseInt(url.searchParams.get('page') ?? '1', 10);
 	const currentPage = isNaN(page) || page < 1 ? 1 : page;
 
-	const search = url.searchParams.get('search') || '';
+	const nameSearch = url.searchParams.get('name') || '';
+	const tagSearch = url.searchParams.get('tags') || '';
 
 	// sort value can only be `name-asc`, `name-desc`, `default`. if not, set to `default`
 	const sortParam = url.searchParams.get('sort');
@@ -22,7 +23,8 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 	const { data: nodes, meta } = await getPublishedNodes(
 		clusterUuid,
 		currentPage,
-		search,
+		nameSearch,
+		tagSearch,
 		sort,
 		fetch
 	);
@@ -32,7 +34,8 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 		cluster,
 		nodes,
 		meta,
-		search,
+		nameSearch,
+		tagSearch,
 		sort
 	};
 };

@@ -14,15 +14,11 @@ export async function getPublishedNodes(
 	clusterUuid: string,
 	limit: number,
 	offset: number,
-	search?: string,
+	nameSearch?: string,
+	tagsSearch?: string,
 	sort?: 'name-asc' | 'name-desc'
 ) {
-	const whereClause = and(
-		eq(nodes.clusterUuid, clusterUuid),
-		eq(nodes.isAvailable, 1),
-		eq(nodes.status, 'published'),
-		search ? sql`json_extract(${nodes.data}, '$.name') LIKE ${'%' + search + '%'}` : undefined
-	);
+	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch);
 
 	let query;
 	if (sort === 'name-asc') {
@@ -47,20 +43,12 @@ export async function getPublishedNodes(
 export async function getPublishedNodeCount(
 	db: DrizzleD1Database,
 	clusterUuid: string,
-	search?: string
+	nameSearch?: string,
+	tagsSearch?: string
 ) {
-	const result = await db
-		.select({ count: count() })
-		.from(nodes)
-		.where(
-			and(
-				eq(nodes.clusterUuid, clusterUuid),
-				eq(nodes.isAvailable, 1),
-				eq(nodes.status, 'published'),
-				search ? sql`json_extract(${nodes.data}, '$.name') LIKE ${'%' + search + '%'}` : undefined
-			)
-		)
-		.get();
+	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch);
+
+	const result = await db.select({ count: count() }).from(nodes).where(whereClause).get();
 
 	return result?.count ?? 0;
 }
@@ -137,4 +125,42 @@ export async function deleteNode(
 		.delete(nodes)
 		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 		.run();
+}
+
+function buildSearchCondition(clusterUuid: string, nameSearch?: string, tagsSearch?: string) {
+	const baseCondition = and(
+		eq(nodes.clusterUuid, clusterUuid),
+		eq(nodes.isAvailable, 1),
+		eq(nodes.status, 'published')
+	);
+
+	const conditions = [baseCondition];
+
+	if (nameSearch) {
+		const name = nameSearch.trim().toLowerCase();
+		if (name.length > 0) {
+			conditions.push(sql`LOWER(json_extract(${nodes.data}, '$.name')) LIKE ${'%' + name + '%'}`);
+		}
+	}
+
+	// Tags search, all tags must match
+	if (tagsSearch) {
+		const tags = tagsSearch
+			.split(',')
+			.map((tag) => tag.trim().toLowerCase())
+			.filter((tag) => tag.length > 0);
+		if (tags.length > 0) {
+			conditions.push(
+				...tags.map(
+					(tag) =>
+						sql`EXISTS (
+					SELECT 1 FROM json_each(json_extract(${nodes.data}, '$.tags'))
+					WHERE LOWER(json_each.value) = ${tag}
+				)`
+				)
+			);
+		}
+	}
+
+	return and(...conditions);
 }
