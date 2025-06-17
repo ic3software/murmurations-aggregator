@@ -24,7 +24,24 @@ export const GET: RequestHandler = async ({
 		const tagsSearch = url.searchParams.get('tags') || undefined;
 		const sort = url.searchParams.get('sort') as 'name-asc' | 'name-desc' | undefined;
 
-		const totalCount = await getPublishedNodeCount(db, clusterUuid, nameSearch, tagsSearch);
+		// Get dynamic filters for enum dropdowns
+		const enumFilters: Record<string, string> = {};
+		url.searchParams.forEach((value, key) => {
+			if (!['name', 'tags', 'page', 'limit', 'sort'].includes(key)) {
+				const trimmed = value.trim();
+				if (trimmed !== '') {
+					enumFilters[key] = trimmed;
+				}
+			}
+		});
+
+		const totalCount = await getPublishedNodeCount(
+			db,
+			clusterUuid,
+			nameSearch,
+			tagsSearch,
+			enumFilters
+		);
 		const nodes = await getPublishedNodes(
 			db,
 			clusterUuid,
@@ -32,7 +49,8 @@ export const GET: RequestHandler = async ({
 			offset,
 			nameSearch,
 			tagsSearch,
-			sort
+			sort,
+			enumFilters
 		);
 
 		if (!nodes || nodes.length === 0) {

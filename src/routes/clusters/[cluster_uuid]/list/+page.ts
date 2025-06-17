@@ -1,4 +1,4 @@
-import { getCluster } from '$lib/api/clusters';
+import { getCluster, getEnumsDropdown } from '$lib/api/clusters';
 import { getPublishedNodes } from '$lib/api/nodes';
 
 import type { PageLoad } from './$types';
@@ -11,6 +11,11 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 
 	const nameSearch = url.searchParams.get('name') || '';
 	const tagSearch = url.searchParams.get('tags') || '';
+	const enumFilters = Object.fromEntries(
+		Array.from(url.searchParams.entries()).filter(
+			([key]) => key !== 'page' && key !== 'name' && key !== 'tags' && key !== 'sort'
+		)
+	);
 
 	// sort value can only be `name-asc`, `name-desc`, `default`. if not, set to `default`
 	const sortParam = url.searchParams.get('sort');
@@ -26,16 +31,21 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 		nameSearch,
 		tagSearch,
 		sort,
+		enumFilters,
 		fetch
 	);
+
+	const { data: enumsDropdown } = await getEnumsDropdown(clusterUuid, fetch);
 
 	return {
 		title: cluster?.name || 'Nodes List',
 		cluster,
 		nodes,
 		meta,
+		enumsDropdown,
 		nameSearch,
 		tagSearch,
-		sort
+		sort,
+		enumFilters
 	};
 };

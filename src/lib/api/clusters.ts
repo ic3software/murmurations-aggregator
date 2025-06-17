@@ -5,6 +5,7 @@ import type {
 	ClusterPublic,
 	ClusterUpdateInput
 } from '$lib/types/cluster';
+import type { DropdownField } from '$lib/types/enum-dropdown';
 
 export const getClusters = async (customFetch?: typeof fetch) =>
 	request<undefined, Cluster[]>('/api/clusters', 'GET', undefined, customFetch);
@@ -56,4 +57,12 @@ export const updateClusterTimestamp = (
 		{ lastUpdated },
 		customFetch,
 		true
+	);
+
+export const getEnumsDropdown = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, DropdownField[]>(
+		`/api/clusters/${clusterUuid}/enums-dropdown`,
+		'GET',
+		undefined,
+		customFetch
 	);

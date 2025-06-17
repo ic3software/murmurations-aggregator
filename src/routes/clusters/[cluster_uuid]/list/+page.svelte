@@ -8,6 +8,7 @@
 	import * as Select from '$lib/components/ui/select';
 	import type { Meta } from '$lib/types/api';
 	import type { ClusterPublic } from '$lib/types/cluster';
+	import type { DropdownField } from '$lib/types/enum-dropdown';
 	import type { Node } from '$lib/types/node';
 	import { AlertCircle, ArrowLeft, Database, Search, Tag } from '@lucide/svelte';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
@@ -26,6 +27,8 @@
 	let nameSearch: string = $state(data?.nameSearch ?? '');
 	let tagSearch: string = $state(data?.tagSearch ?? '');
 	let sort: 'name-asc' | 'name-desc' | 'default' = $state(data?.sort ?? 'default');
+	let enumsDropdown: DropdownField[] = $state(data?.enumsDropdown ?? []);
+	let enumFilters: Record<string, string> = $state(data?.enumFilters ?? {});
 
 	const isDesktop = new MediaQuery('(min-width: 768px)');
 
@@ -51,6 +54,15 @@
 		sortOptions.find((f) => f.value === sort)?.label ?? 'Select a sort option'
 	);
 
+	function getDropdownTriggerContent(dropdown: DropdownField, fieldName: string) {
+		const selectedValue = enumFilters[fieldName];
+		if (!selectedValue) {
+			return `All ${dropdown.title}`;
+		}
+		const selectedOption = dropdown.options.find((opt) => opt.value === selectedValue);
+		return selectedOption?.label ?? `All ${dropdown.title}`;
+	}
+
 	$effect(() => {
 		// Make sure sort can be tracked
 		void sort;
@@ -68,6 +80,13 @@
 		if (tagSearch) query.set('tags', tagSearch);
 		if (sort) query.set('sort', sort);
 
+		// Add enumFilters to query parameters if not empty
+		for (const [key, value] of Object.entries(enumFilters)) {
+			if (value) {
+				query.set(key, value);
+			}
+		}
+
 		goto(`?${query.toString()}`);
 
 		if (cluster?.clusterUuid) {
@@ -77,11 +96,23 @@
 				nameSearch,
 				tagSearch,
 				sort,
+				enumFilters,
 				fetch
 			);
 			nodes = res.data;
 			meta = res.meta ?? null;
 		}
+	}
+
+	function clearFilters() {
+		nameSearch = '';
+		tagSearch = '';
+		enumFilters = {};
+		reloadData(1);
+	}
+
+	function hasActiveFilters() {
+		return nameSearch.trim() || tagSearch.trim() || Object.values(enumFilters).some((v) => v);
 	}
 </script>
 
@@ -106,17 +137,17 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-			<div class="flex-1 space-y-2">
+		<Card>
+			<CardContent class="p-6">
 				<form
 					onsubmit={(e) => {
 						e.preventDefault();
 						reloadData(1);
 					}}
-					class="flex-1 space-y-2"
+					class="space-y-4"
 				>
-					<div class="flex gap-2">
-						<div class="relative flex-1">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="relative">
 							<Search
 								class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
 							/>
@@ -127,7 +158,7 @@
 								bind:value={nameSearch}
 							/>
 						</div>
-						<div class="relative flex-1">
+						<div class="relative">
 							<Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
 								id="tagSearch"
@@ -136,23 +167,58 @@
 								bind:value={tagSearch}
 							/>
 						</div>
-						<Button type="submit">Search</Button>
+					</div>
+
+					{#if enumsDropdown && enumsDropdown.length > 0}
+						<div class="space-y-3">
+							<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+								{#each enumsDropdown as dropdown}
+									<Select.Root type="single" bind:value={enumFilters[dropdown.field_name]}>
+										<Select.Trigger class="w-full">
+											{getDropdownTriggerContent(dropdown, dropdown.field_name)}
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Item value="">All {dropdown.title}</Select.Item>
+											{#each dropdown.options as opt}
+												<Select.Item value={opt.value}>{opt.label}</Select.Item>
+											{/each}
+										</Select.Content>
+									</Select.Root>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
+					<div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2">
+						<div class="flex gap-2">
+							<Button type="submit" class="flex-shrink-0">
+								<Search class="h-4 w-4 mr-2" />
+								Search
+							</Button>
+							{#if hasActiveFilters()}
+								<Button type="button" variant="outline" onclick={clearFilters}>
+									Clear Filters
+								</Button>
+							{/if}
+						</div>
+
+						<div class="flex items-center gap-2">
+							<span class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
+							<Select.Root type="single" bind:value={sort}>
+								<Select.Trigger class="w-[160px]">
+									{triggerContent}
+								</Select.Trigger>
+								<Select.Content>
+									{#each sortOptions as option}
+										<Select.Item value={option.value}>{option.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
 					</div>
 				</form>
-			</div>
-			<div class="space-y-2">
-				<Select.Root type="single" bind:value={sort}>
-					<Select.Trigger class="w-[180px]">
-						{triggerContent}
-					</Select.Trigger>
-					<Select.Content>
-						{#each sortOptions as option}
-							<Select.Item value={option.value}>{option.label}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 
 		{#if !nodes || nodes.length === 0}
 			<Card>

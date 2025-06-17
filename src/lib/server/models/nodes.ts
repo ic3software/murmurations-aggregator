@@ -16,9 +16,10 @@ export async function getPublishedNodes(
 	offset: number,
 	nameSearch?: string,
 	tagsSearch?: string,
-	sort?: 'name-asc' | 'name-desc'
+	sort?: 'name-asc' | 'name-desc',
+	enumFilters?: Record<string, string>
 ) {
-	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch);
+	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch, enumFilters);
 
 	let query;
 	if (sort === 'name-asc') {
@@ -44,9 +45,10 @@ export async function getPublishedNodeCount(
 	db: DrizzleD1Database,
 	clusterUuid: string,
 	nameSearch?: string,
-	tagsSearch?: string
+	tagsSearch?: string,
+	enumFilters?: Record<string, string>
 ) {
-	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch);
+	const whereClause = buildSearchCondition(clusterUuid, nameSearch, tagsSearch, enumFilters);
 
 	const result = await db.select({ count: count() }).from(nodes).where(whereClause).get();
 
@@ -127,7 +129,12 @@ export async function deleteNode(
 		.run();
 }
 
-function buildSearchCondition(clusterUuid: string, nameSearch?: string, tagsSearch?: string) {
+function buildSearchCondition(
+	clusterUuid: string,
+	nameSearch?: string,
+	tagsSearch?: string,
+	enumFilters?: Record<string, string>
+) {
 	const baseCondition = and(
 		eq(nodes.clusterUuid, clusterUuid),
 		eq(nodes.isAvailable, 1),
@@ -159,6 +166,13 @@ function buildSearchCondition(clusterUuid: string, nameSearch?: string, tagsSear
 				)`
 				)
 			);
+		}
+	}
+
+	if (enumFilters) {
+		for (const [field, value] of Object.entries(enumFilters)) {
+			const jsonPath = `$.${field}`;
+			conditions.push(sql`json_extract(${nodes.data}, ${jsonPath}) = ${value}`);
 		}
 	}
 

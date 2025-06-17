@@ -30,10 +30,11 @@ export const getPublishedNodes = (
 	nameSearch: string,
 	tagsSearch: string,
 	sort: 'name-asc' | 'name-desc' | 'default',
+	enumFilters: Record<string, string>,
 	customFetch?: typeof fetch
 ) =>
 	request<undefined, Node[]>(
-		`/api/clusters/${clusterUuid}/published-nodes?page=${page}&name=${nameSearch}&tags=${tagsSearch}&sort=${sort}`,
+		`/api/clusters/${clusterUuid}/published-nodes?page=${page}&name=${nameSearch}&tags=${tagsSearch}&sort=${sort}&${new URLSearchParams(enumFilters).toString()}`,
 		'GET',
 		undefined,
 		customFetch
