@@ -36,6 +36,12 @@
 							<a href="/admin/profile">Profile</a>
 						</MenubarTrigger>
 					</MenubarMenu>
+
+					<MenubarMenu value="source-indexes">
+						<MenubarTrigger>
+							<a href="/admin/source-indexes">Source Config</a>
+						</MenubarTrigger>
+					</MenubarMenu>
 				</Menubar>
 			</div>
 
