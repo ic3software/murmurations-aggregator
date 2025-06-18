@@ -7,6 +7,10 @@ export async function getSourceIndexes(db: DrizzleD1Database) {
 	return await db.select().from(sourceIndexes).all();
 }
 
+export async function getSourceIndexByUrl(db: DrizzleD1Database, url: string) {
+	return await db.select().from(sourceIndexes).where(eq(sourceIndexes.url, url)).get();
+}
+
 export async function createSourceIndex(db: DrizzleD1Database, data: SourceIndexInsert) {
 	return await db.insert(sourceIndexes).values(data).run();
 }

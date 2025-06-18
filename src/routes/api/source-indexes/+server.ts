@@ -1,6 +1,10 @@
 import { authenticateRequest } from '$lib/server/auth';
 import { getDB } from '$lib/server/db';
-import { createSourceIndex, getSourceIndexes } from '$lib/server/models/source-indexes';
+import {
+	createSourceIndex,
+	getSourceIndexByUrl,
+	getSourceIndexes
+} from '$lib/server/models/source-indexes';
 import type { SourceIndex, SourceIndexInsert } from '$lib/types/source-index';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
@@ -37,6 +41,12 @@ export const POST: RequestHandler = async ({
 
 		if (!url || !label) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
+		}
+
+		const existingSourceIndex = await getSourceIndexByUrl(db, url);
+
+		if (existingSourceIndex) {
+			return json({ error: 'Source index already exists', success: false }, { status: 400 });
 		}
 
 		const newSourceIndex = await createSourceIndex(db, { url, label });

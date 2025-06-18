@@ -12,7 +12,7 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { SourceIndex } from '$lib/types/source-index';
-	import { Database, Edit, Trash2 } from '@lucide/svelte';
+	import { Database, Edit, Plus, Trash2 } from '@lucide/svelte';
 
 	import { toast } from 'svelte-sonner';
 
@@ -48,11 +48,8 @@
 				Manage the source indexes used to discover and cluster nodes from the Murmurations network.
 			</p>
 		</div>
-		<Button>
-			<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"
-				></path>
-			</svg>
+		<Button href="/admin/source-indexes/create">
+			<Plus class="size-4" />
 			Add Source Index
 		</Button>
 	</div>
