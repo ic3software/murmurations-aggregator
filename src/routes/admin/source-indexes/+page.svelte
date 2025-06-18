@@ -88,7 +88,11 @@
 							</TableCell>
 							<TableCell class="text-center">
 								<div class="flex justify-center gap-2">
-									<Button variant="outline" size="sm">
+									<Button
+										variant="outline"
+										size="sm"
+										href={`/admin/source-indexes/${sourceIndex.id}/edit`}
+									>
 										<Edit class="size-4" />
 										Edit
 									</Button>

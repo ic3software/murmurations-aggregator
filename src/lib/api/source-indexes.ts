@@ -8,6 +8,9 @@ import type {
 export const getSourceIndexes = async (customFetch?: typeof fetch) =>
 	request<undefined, SourceIndex[]>('/api/source-indexes', 'GET', undefined, customFetch);
 
+export const getSourceIndexById = async (id: number, customFetch?: typeof fetch) =>
+	request<undefined, SourceIndex>(`/api/source-indexes/${id}`, 'GET', undefined, customFetch);
+
 export const createSourceIndex = async (data: SourceIndexInsert, customFetch?: typeof fetch) =>
 	request<SourceIndexInsert, SourceIndex>('/api/source-indexes', 'POST', data, customFetch, true);
 
