@@ -15,7 +15,8 @@
 
 	let formData = $state<SourceIndexUpdateInput>({
 		url: data.sourceIndex?.url ?? '',
-		label: data.sourceIndex?.label ?? ''
+		label: data.sourceIndex?.label ?? '',
+		libraryUrl: data.sourceIndex?.libraryUrl ?? ''
 	});
 
 	let isSubmitting = $state(false);
@@ -121,11 +122,23 @@
 							id="url"
 							type="url"
 							bind:value={formData.url}
-							placeholder="https://example.com/api/index"
+							placeholder="https://index.example.com/v2/nodes"
 							required
 							disabled={isSubmitting}
 						/>
 						<p class="text-sm text-muted-foreground">The URL endpoint for the source index API</p>
+					</div>
+
+					<div class="space-y-2">
+						<Label for="libraryUrl">Library URL</Label>
+						<Input
+							id="libraryUrl"
+							type="url"
+							bind:value={formData.libraryUrl}
+							placeholder="https://library.example.com/v2/schemas"
+							disabled={isSubmitting}
+						/>
+						<p class="text-sm text-muted-foreground">The URL endpoint for the library API</p>
 					</div>
 
 					<div class="flex gap-3 pt-4">

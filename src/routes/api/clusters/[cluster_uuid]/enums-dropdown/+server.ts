@@ -1,5 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { getCluster } from '$lib/server/models/clusters';
+import { getSourceIndexByUrl } from '$lib/server/models/source-indexes';
 import type { DropdownField, SchemaData, SchemaProperty } from '$lib/types/enum-dropdown';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -26,8 +27,15 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 		return json({ error: 'Missing schema parameter in query_url' }, { status: 400 });
 	}
 
+	// Get the source index
+	const sourceIndex = await getSourceIndexByUrl(db, cluster.indexUrl);
+
+	if (!sourceIndex) {
+		return json({ error: 'Source index not found' }, { status: 404 });
+	}
+
 	// Get the schema JSON
-	const schemaUrl = `https://test-library.murmurations.network/v2/schemas/${schema}`;
+	const schemaUrl = `${sourceIndex?.libraryUrl}/schemas/${schema}`;
 	const res = await fetch(schemaUrl);
 	if (!res.ok) {
 		return json({ error: 'Failed to fetch schema' }, { status: 500 });

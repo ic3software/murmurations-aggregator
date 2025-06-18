@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "007c8165-530f-410b-a10f-206b57455208",
+  "id": "7ec770cd-c9d8-4a0a-bc49-b30fd080807f",
   "prevId": "414049e5-7f4c-4526-af37-4f99e190f923",
   "tables": {
     "clusters": {
@@ -416,6 +416,13 @@
         },
         "label": {
           "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "library_url": {
+          "name": "library_url",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

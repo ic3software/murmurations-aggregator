@@ -53,7 +53,7 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Invalid source index ID', success: false }, { status: 400 });
 		}
 
-		const { url, label } = body as SourceIndexUpdateInput;
+		const { url, label, libraryUrl } = body as SourceIndexUpdateInput;
 
 		const existingSourceIndex = await getSourceIndexByUrl(db, url);
 
@@ -64,6 +64,7 @@ export const PUT: RequestHandler = async ({
 		const updateData: SourceIndexDbUpdateInput = {
 			url,
 			label,
+			libraryUrl,
 			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
 

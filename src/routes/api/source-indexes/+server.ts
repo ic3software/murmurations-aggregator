@@ -37,9 +37,9 @@ export const POST: RequestHandler = async ({
 
 		const { db, body } = authResult.data;
 
-		const { url, label } = body as SourceIndexInsert;
+		const { url, label, libraryUrl } = body as SourceIndexInsert;
 
-		if (!url || !label) {
+		if (!url || !label || !libraryUrl) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
@@ -49,7 +49,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Source index already exists', success: false }, { status: 400 });
 		}
 
-		const newSourceIndex = await createSourceIndex(db, { url, label });
+		const newSourceIndex = await createSourceIndex(db, { url, label, libraryUrl });
 
 		return json({ data: newSourceIndex, success: true }, { status: 201 });
 	} catch (error) {

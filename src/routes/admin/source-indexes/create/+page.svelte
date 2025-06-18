@@ -11,7 +11,8 @@
 
 	let formData = $state<SourceIndexCreateInput>({
 		url: '',
-		label: ''
+		label: '',
+		libraryUrl: ''
 	});
 
 	let isSubmitting = $state(false);
@@ -24,6 +25,11 @@
 
 		if (!formData.label.trim()) {
 			toast.error('Label is required');
+			return;
+		}
+
+		if (!formData.libraryUrl.trim()) {
+			toast.error('Library URL is required');
 			return;
 		}
 
@@ -90,11 +96,24 @@
 						id="url"
 						type="url"
 						bind:value={formData.url}
-						placeholder="https://example.com/api/index"
+						placeholder="https://index.example.com/v2/nodes"
 						required
 						disabled={isSubmitting}
 					/>
 					<p class="text-sm text-muted-foreground">The URL endpoint for the source index API</p>
+				</div>
+
+				<div class="space-y-2">
+					<Label for="libraryUrl">Library URL</Label>
+					<Input
+						id="libraryUrl"
+						type="url"
+						bind:value={formData.libraryUrl}
+						placeholder="https://library.example.com/v2/schemas"
+						required
+						disabled={isSubmitting}
+					/>
+					<p class="text-sm text-muted-foreground">The URL endpoint for the library API</p>
 				</div>
 
 				<div class="flex gap-3 pt-4">

@@ -74,6 +74,7 @@
 					<TableRow>
 						<TableHead>Label</TableHead>
 						<TableHead>URL</TableHead>
+						<TableHead>Library URL</TableHead>
 						<TableHead class="text-center">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -85,6 +86,9 @@
 							</TableCell>
 							<TableCell>
 								{sourceIndex.url}
+							</TableCell>
+							<TableCell>
+								{sourceIndex.libraryUrl || '-'}
 							</TableCell>
 							<TableCell class="text-center">
 								<div class="flex justify-center gap-2">

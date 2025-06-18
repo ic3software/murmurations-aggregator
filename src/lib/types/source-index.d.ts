@@ -6,6 +6,9 @@ export type SourceIndexInsert = typeof sourceIndexes.$inferInsert;
 
 export type SourceIndexCreateInput = Omit<SourceIndexInsert, 'id' | 'createdAt' | 'updatedAt'>;
 
-export type SourceIndexUpdateInput = Pick<SourceIndex, 'url' | 'label'>;
+export type SourceIndexUpdateInput = Pick<SourceIndex, 'url' | 'label' | 'libraryUrl'>;
 
-export type SourceIndexDbUpdateInput = Pick<SourceIndex, 'url' | 'label' | 'updatedAt'>;
+export type SourceIndexDbUpdateInput = Pick<
+	SourceIndex,
+	'url' | 'label' | 'libraryUrl' | 'updatedAt'
+>;

@@ -97,6 +97,7 @@ export const sourceIndexes = sqliteTable('source_indexes', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	url: text('url').unique().notNull(),
 	label: text('label').notNull(),
+	libraryUrl: text('library_url').notNull(),
 	createdAt: integer('created_at', { mode: 'number' })
 		.notNull()
 		.default(sql`(unixepoch())`),
