@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { createCluster } from '$lib/api/clusters';
 	import { createNode } from '$lib/api/nodes';
+	import * as Accordion from '$lib/components/ui/accordion';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Command from '$lib/components/ui/command';
@@ -223,59 +224,75 @@
 							A familiar name to make it easy for you to identify
 						</p>
 					</div>
-
-					<p class="leading-7">
-						Use <a
-							href="https://latlong.net"
-							target="_blank"
-							class="font-medium text-primary underline underline-offset-4">LatLong.net</a
-						> to pick a location, enter coordinates with decimals (e.g., 48.86124)
-					</p>
-
-					<div class="grid gap-2">
-						<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
-						<Input
-							type="number"
-							min="-90"
-							max="90"
-							step="0.000001"
-							id="cluster-center-latitude"
-							bind:value={clusterCenterLatitude}
-							class="w-full"
-							placeholder="Enter latitude"
-						/>
-					</div>
-
-					<div class="grid gap-2">
-						<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
-						<Input
-							type="number"
-							min="-180"
-							max="180"
-							step="0.000001"
-							id="cluster-center-longitude"
-							bind:value={clusterCenterLongitude}
-							class="w-full"
-							placeholder="Enter longitude"
-						/>
-					</div>
-
-					<div class="grid gap-2">
-						<Label for="cluster-scale">Cluster Scale</Label>
-						<Input
-							type="number"
-							min="1"
-							max="18"
-							step="1"
-							id="cluster-scale"
-							bind:value={clusterScale}
-							class="w-full"
-							placeholder="Enter cluster scale"
-						/>
-						<p class="text-sm text-muted-foreground">1 = the entire globe, 18 = maximum zoom in</p>
-					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Cluster Advanced Settings -->
+		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-xs">
+			<Accordion.Root type="single" class="w-full">
+				<Accordion.Item value="cluster-advanced-settings" class="border-none">
+					<Accordion.Trigger class="text-left hover:no-underline pb-4">
+						<h3 class="text-2xl font-semibold leading-none tracking-tight">
+							Cluster Advanced Settings
+						</h3>
+					</Accordion.Trigger>
+					<Accordion.Content class="space-y-4 pt-0">
+						<p class="leading-7 text-sm text-muted-foreground">
+							Use <a
+								href="https://latlong.net"
+								target="_blank"
+								class="font-medium text-primary underline underline-offset-4">LatLong.net</a
+							> to pick a location, enter coordinates with decimals (e.g., 48.86124)
+						</p>
+
+						<div class="grid gap-2">
+							<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
+							<Input
+								type="number"
+								min="-90"
+								max="90"
+								step="0.000001"
+								id="cluster-center-latitude"
+								bind:value={clusterCenterLatitude}
+								class="w-full"
+								placeholder="Enter latitude"
+							/>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
+							<Input
+								type="number"
+								min="-180"
+								max="180"
+								step="0.000001"
+								id="cluster-center-longitude"
+								bind:value={clusterCenterLongitude}
+								class="w-full"
+								placeholder="Enter longitude"
+							/>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="cluster-scale">Cluster Scale</Label>
+							<Input
+								type="number"
+								min="1"
+								max="18"
+								step="1"
+								id="cluster-scale"
+								bind:value={clusterScale}
+								class="w-full"
+								placeholder="Enter cluster scale"
+							/>
+							<p class="text-sm text-muted-foreground">
+								1 = the entire globe, 18 = maximum zoom in
+							</p>
+						</div>
+					</Accordion.Content>
+				</Accordion.Item>
+			</Accordion.Root>
 		</div>
 
 		<!-- Node Selection -->
