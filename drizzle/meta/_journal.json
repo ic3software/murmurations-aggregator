@@ -15,6 +15,13 @@
       "when": 1749147817924,
       "tag": "0001_fixed_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1750227206281,
+      "tag": "0002_regular_black_bolt",
+      "breakpoints": true
     }
   ]
 }

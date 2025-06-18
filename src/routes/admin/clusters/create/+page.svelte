@@ -24,10 +24,7 @@
 
 	let { data }: PageProps = $props();
 
-	const sourceIndexOptions = [
-		{ value: 'https://index.murmurations.network/v2/nodes', label: 'Production Index' },
-		{ value: 'https://test-index.murmurations.network/v2/nodes', label: 'Test Index' }
-	];
+	const sourceIndexOptions = data?.sourceIndexes ?? [];
 
 	const schemaOptions = [
 		{ value: 'organizations_schema-v1.0.0', label: 'An Organization' },
@@ -41,7 +38,7 @@
 	let clusterCenterLatitude = $state(0);
 	let clusterCenterLongitude = $state(0);
 	let clusterScale = $state(5);
-	let sourceIndex = $state(sourceIndexOptions[0].value);
+	let sourceIndex = $state(sourceIndexOptions[0].url);
 	let schema = $state(schemaOptions[0].value);
 	let name = $state('');
 	let latitude = $state(0);
@@ -65,7 +62,7 @@
 	let loadingProgress = $state(0);
 
 	const sourceIndexTriggerContent = $derived(
-		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
+		sourceIndexOptions.find((option) => option.url === sourceIndex)?.label ??
 			'Select a source index'
 	);
 
@@ -297,9 +294,8 @@
 							<Select.Content>
 								<Select.Group>
 									<Select.GroupHeading>Source Index</Select.GroupHeading>
-									{#each sourceIndexOptions as option (option.value)}
-										<Select.Item value={option.value} label={option.label}
-											>{option.label}</Select.Item
+									{#each sourceIndexOptions as option (option.url)}
+										<Select.Item value={option.url} label={option.label}>{option.label}</Select.Item
 										>
 									{/each}
 								</Select.Group>

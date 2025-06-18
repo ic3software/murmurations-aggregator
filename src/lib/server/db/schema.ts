@@ -93,6 +93,18 @@ export const loginTokens = sqliteTable('login_tokens', {
 		.default(sql`(unixepoch())`)
 });
 
+export const sourceIndexes = sqliteTable('source_indexes', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	url: text('url').unique().notNull(),
+	label: text('label').notNull(),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
 	publicKeys: many(publicKeys),
 	emails: many(emails),
