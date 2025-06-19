@@ -20,14 +20,42 @@ export const GET: RequestHandler = async ({
 		const page = Math.max(Number(url.searchParams.get('page') || 1), 1);
 		const limit = Math.max(Number(url.searchParams.get('limit') || 12), 1);
 		const offset = (page - 1) * limit;
+		const nameSearch = url.searchParams.get('name') || undefined;
+		const tagsSearch = url.searchParams.get('tags') || undefined;
+		const sort = url.searchParams.get('sort') as 'name-asc' | 'name-desc' | undefined;
 
-		const totalCount = await getPublishedNodeCount(db, clusterUuid);
+		// Get dynamic filters for enum dropdowns
+		const enumFilters: Record<string, string> = {};
+		url.searchParams.forEach((value, key) => {
+			if (!['name', 'tags', 'page', 'limit', 'sort'].includes(key)) {
+				const trimmed = value.trim();
+				if (trimmed !== '') {
+					enumFilters[key] = trimmed;
+				}
+			}
+		});
 
-		const nodes = await getPublishedNodes(db, clusterUuid, limit, offset);
+		const totalCount = await getPublishedNodeCount(
+			db,
+			clusterUuid,
+			nameSearch,
+			tagsSearch,
+			enumFilters
+		);
+		const nodes = await getPublishedNodes(
+			db,
+			clusterUuid,
+			limit,
+			offset,
+			nameSearch,
+			tagsSearch,
+			sort,
+			enumFilters
+		);
 
 		if (!nodes || nodes.length === 0) {
 			return json(
-				{ error: 'No nodes found for the given cluster_uuid', success: false },
+				{ error: 'No nodes found for the given criteria', success: false },
 				{ status: 404 }
 			);
 		}

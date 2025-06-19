@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { createCluster } from '$lib/api/clusters';
+	import { getCountries } from '$lib/api/countries';
 	import { createNode } from '$lib/api/nodes';
+	import { getSchemas } from '$lib/api/schemas';
+	import * as Accordion from '$lib/components/ui/accordion';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Command from '$lib/components/ui/command';
@@ -24,25 +27,18 @@
 
 	let { data }: PageProps = $props();
 
-	const sourceIndexOptions = [
-		{ value: 'https://index.murmurations.network/v2/nodes', label: 'Production Index' },
-		{ value: 'https://test-index.murmurations.network/v2/nodes', label: 'Test Index' }
-	];
+	const sourceIndexOptions = data?.sourceIndexes ?? [];
 
-	const schemaOptions = [
-		{ value: 'organizations_schema-v1.0.0', label: 'An Organization' },
-		{ value: 'people_schema-v0.1.0', label: 'A Person' },
-		{ value: 'offers_wants_prototype-v0.0.2', label: 'An Offer or Want' }
-	];
+	const schemaOptions = $state(data?.schemas ?? []);
 
-	const countryOptions = data?.countries ?? [];
+	const countryOptions = $state(data?.countries ?? []);
 
 	let clusterName = $state('');
 	let clusterCenterLatitude = $state(0);
 	let clusterCenterLongitude = $state(0);
 	let clusterScale = $state(5);
-	let sourceIndex = $state(sourceIndexOptions[0].value);
-	let schema = $state(schemaOptions[0].value);
+	let sourceIndex = $state(sourceIndexOptions[0].url);
+	let schema = $state(schemaOptions[0]?.value || '');
 	let name = $state('');
 	let latitude = $state(0);
 	let longitude = $state(0);
@@ -63,15 +59,74 @@
 
 	let loadingNodes = $state(false);
 	let loadingProgress = $state(0);
+	let loadingSchemas = $state(false);
+	let loadingCountries = $state(false);
 
 	const sourceIndexTriggerContent = $derived(
-		sourceIndexOptions.find((option) => option.value === sourceIndex)?.label ??
+		sourceIndexOptions.find((option) => option.url === sourceIndex)?.label ??
 			'Select a source index'
 	);
 
 	const schemaTriggerContent = $derived(
 		schemaOptions.find((option) => option.value === schema)?.label ?? 'Select a schema'
 	);
+
+	async function handleSourceIndexChange(newSourceIndex: string) {
+		sourceIndex = newSourceIndex;
+
+		const selectedOption = sourceIndexOptions.find((option) => option.url === newSourceIndex);
+		const libraryURL = selectedOption?.libraryUrl ?? '';
+
+		schema = '';
+		country = '';
+
+		await Promise.all([loadSchemasForIndex(libraryURL), loadCountriesForIndex(libraryURL)]);
+	}
+
+	async function loadSchemasForIndex(libraryURL: string) {
+		loadingSchemas = true;
+		try {
+			const { data: schemas } = await getSchemas(`${libraryURL}/schemas`);
+			schemaOptions.length = 0;
+			schemaOptions.push(
+				...schemas.map((schema: { name: string }) => ({
+					value: schema.name,
+					label: schema.name
+				}))
+			);
+			schema = schemaOptions[0]?.value ?? '';
+		} catch (error) {
+			console.error('Error loading schemas:', error);
+			toast.error('Failed to load schemas for the selected index');
+		} finally {
+			loadingSchemas = false;
+		}
+	}
+
+	async function loadCountriesForIndex(libraryURL: string) {
+		loadingCountries = true;
+		try {
+			const rawCountries = await getCountries(`${libraryURL}/countries`);
+			countryOptions.length = 0;
+			countryOptions.push(
+				...Object.entries(rawCountries).map(([key, names]) => ({
+					value: key,
+					label: Array.isArray(names)
+						? (names[1] || names[0])
+								.split(' ')
+								.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+								.join(' ')
+						: ''
+				}))
+			);
+			countrySearchResults = [...countryOptions];
+		} catch (error) {
+			console.error('Error loading countries:', error);
+			toast.error('Failed to load countries for the selected index');
+		} finally {
+			loadingCountries = false;
+		}
+	}
 
 	function searchCountries(query: string) {
 		countrySearchResults = countryOptions.filter((option) =>
@@ -226,59 +281,75 @@
 							A familiar name to make it easy for you to identify
 						</p>
 					</div>
-
-					<p class="leading-7">
-						Use <a
-							href="https://latlong.net"
-							target="_blank"
-							class="font-medium text-primary underline underline-offset-4">LatLong.net</a
-						> to pick a location, enter coordinates with decimals (e.g., 48.86124)
-					</p>
-
-					<div class="grid gap-2">
-						<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
-						<Input
-							type="number"
-							min="-90"
-							max="90"
-							step="0.000001"
-							id="cluster-center-latitude"
-							bind:value={clusterCenterLatitude}
-							class="w-full"
-							placeholder="Enter latitude"
-						/>
-					</div>
-
-					<div class="grid gap-2">
-						<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
-						<Input
-							type="number"
-							min="-180"
-							max="180"
-							step="0.000001"
-							id="cluster-center-longitude"
-							bind:value={clusterCenterLongitude}
-							class="w-full"
-							placeholder="Enter longitude"
-						/>
-					</div>
-
-					<div class="grid gap-2">
-						<Label for="cluster-scale">Cluster Scale</Label>
-						<Input
-							type="number"
-							min="1"
-							max="18"
-							step="1"
-							id="cluster-scale"
-							bind:value={clusterScale}
-							class="w-full"
-							placeholder="Enter cluster scale"
-						/>
-						<p class="text-sm text-muted-foreground">1 = the entire globe, 18 = maximum zoom in</p>
-					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- Cluster Advanced Settings -->
+		<div class="rounded-lg border bg-card p-6 text-card-foreground shadow-xs">
+			<Accordion.Root type="single" class="w-full">
+				<Accordion.Item value="cluster-advanced-settings" class="border-none">
+					<Accordion.Trigger class="text-left hover:no-underline pb-4">
+						<h3 class="text-2xl font-semibold leading-none tracking-tight">
+							Cluster Advanced Settings
+						</h3>
+					</Accordion.Trigger>
+					<Accordion.Content class="space-y-4 pt-0">
+						<p class="leading-7 text-sm text-muted-foreground">
+							Use <a
+								href="https://latlong.net"
+								target="_blank"
+								class="font-medium text-primary underline underline-offset-4">LatLong.net</a
+							> to pick a location, enter coordinates with decimals (e.g., 48.86124)
+						</p>
+
+						<div class="grid gap-2">
+							<Label for="cluster-center-latitude">Cluster Center Latitude</Label>
+							<Input
+								type="number"
+								min="-90"
+								max="90"
+								step="0.000001"
+								id="cluster-center-latitude"
+								bind:value={clusterCenterLatitude}
+								class="w-full"
+								placeholder="Enter latitude"
+							/>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="cluster-center-longitude">Cluster Center Longitude</Label>
+							<Input
+								type="number"
+								min="-180"
+								max="180"
+								step="0.000001"
+								id="cluster-center-longitude"
+								bind:value={clusterCenterLongitude}
+								class="w-full"
+								placeholder="Enter longitude"
+							/>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="cluster-scale">Cluster Scale</Label>
+							<Input
+								type="number"
+								min="1"
+								max="18"
+								step="1"
+								id="cluster-scale"
+								bind:value={clusterScale}
+								class="w-full"
+								placeholder="Enter cluster scale"
+							/>
+							<p class="text-sm text-muted-foreground">
+								1 = the entire globe, 18 = maximum zoom in
+							</p>
+						</div>
+					</Accordion.Content>
+				</Accordion.Item>
+			</Accordion.Root>
 		</div>
 
 		<!-- Node Selection -->
@@ -290,16 +361,20 @@
 				<div class="grid gap-4">
 					<div class="grid gap-2">
 						<Label for="source-index">Source Index</Label>
-						<Select.Root type="single" name="sourceIndex" bind:value={sourceIndex}>
+						<Select.Root
+							type="single"
+							name="sourceIndex"
+							bind:value={sourceIndex}
+							onValueChange={handleSourceIndexChange}
+						>
 							<Select.Trigger class="w-full">
 								{sourceIndexTriggerContent}
 							</Select.Trigger>
 							<Select.Content>
 								<Select.Group>
 									<Select.GroupHeading>Source Index</Select.GroupHeading>
-									{#each sourceIndexOptions as option (option.value)}
-										<Select.Item value={option.value} label={option.label}
-											>{option.label}</Select.Item
+									{#each sourceIndexOptions as option (option.url)}
+										<Select.Item value={option.url} label={option.label}>{option.label}</Select.Item
 										>
 									{/each}
 								</Select.Group>
@@ -312,9 +387,9 @@
 
 					<div class="grid gap-2">
 						<Label for="schema">Schema</Label>
-						<Select.Root type="single" name="schema" bind:value={schema}>
+						<Select.Root type="single" name="schema" bind:value={schema} disabled={loadingSchemas}>
 							<Select.Trigger class="w-full">
-								{schemaTriggerContent}
+								{loadingSchemas ? 'Loading schemas...' : schemaTriggerContent}
 							</Select.Trigger>
 							<Select.Content>
 								<Select.Group>
@@ -441,8 +516,13 @@
 													{...props}
 													role="combobox"
 													aria-expanded={countrySearchOpen}
+													disabled={loadingCountries}
 												>
-													{country ? country : 'Select a country'}
+													{loadingCountries
+														? 'Loading countries...'
+														: country
+															? country
+															: 'Select a country'}
 													<ChevronsUpDown class="opacity-50" />
 												</Button>
 											{/snippet}
