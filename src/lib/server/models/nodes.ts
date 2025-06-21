@@ -40,6 +40,39 @@ export async function getPublishedNodes(
 
 	return await query.limit(limit).offset(offset).all();
 }
+export async function getPublishedMapNodes(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	nameSearch?: string,
+	tagsSearch?: string,
+	sort?: 'name-asc' | 'name-desc',
+	enumFilters?: Record<string, string>
+) {
+	const whereClause = and(
+		buildSearchCondition(clusterUuid, nameSearch, tagsSearch, enumFilters),
+		sql`json_extract(${nodes.data}, '$.geolocation.lat') IS NOT NULL`,
+		sql`json_extract(${nodes.data}, '$.geolocation.lon') IS NOT NULL`
+	);
+
+	let query;
+	if (sort === 'name-asc') {
+		query = db
+			.select()
+			.from(nodes)
+			.where(whereClause)
+			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) ASC`);
+	} else if (sort === 'name-desc') {
+		query = db
+			.select()
+			.from(nodes)
+			.where(whereClause)
+			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) DESC`);
+	} else {
+		query = db.select().from(nodes).where(whereClause);
+	}
+
+	return await query.all();
+}
 
 export async function getPublishedNodeCount(
 	db: DrizzleD1Database,

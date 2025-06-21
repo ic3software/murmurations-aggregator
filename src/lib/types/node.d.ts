@@ -26,3 +26,9 @@ export type NodeDbUpdateInput = Pick<
 	| 'hasUpdated'
 	| 'updatedAt'
 >;
+
+export type MapNode = {
+	id: number;
+	lat: number;
+	lon: number;
+};
