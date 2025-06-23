@@ -5,11 +5,12 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
-	import { Map, Marker, Popup, TileLayer } from '$lib/svelte-leaflet';
+	import { Map, MarkerCluster, TileLayer } from '$lib/svelte-leaflet';
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { DropdownField } from '$lib/types/enum-dropdown';
 	import type { MapNode } from '$lib/types/node';
 	import { AlertCircle, ArrowLeft, Search, Tag } from '@lucide/svelte';
+	import L, { MarkerClusterGroup } from 'leaflet';
 
 	import { untrack } from 'svelte';
 
@@ -23,6 +24,7 @@
 	let tagSearch: string = $state(data?.tagSearch ?? '');
 	let enumsDropdown: DropdownField[] = $state(data?.enumsDropdown ?? []);
 	let enumFilters: Record<string, string> = $state(data?.enumFilters ?? {});
+	let clusterInstance: MarkerClusterGroup | undefined = $state();
 
 	function getDropdownTriggerContent(dropdown: DropdownField, fieldName: string) {
 		const selectedValue = enumFilters[fieldName];
@@ -51,7 +53,7 @@
 			}
 		}
 
-		goto(`?${query.toString()}`);
+		goto(`?${query.toString()}`, { replaceState: true, noScroll: true });
 
 		if (cluster?.clusterUuid) {
 			const { data: mapNodes } = await getPublishedMapNodes(
@@ -62,6 +64,18 @@
 				fetch
 			);
 			nodes = mapNodes;
+
+			// Clear + Add markers manually
+			if (clusterInstance) {
+				clusterInstance.clearLayers();
+
+				mapNodes.forEach((node) => {
+					const marker = L.marker([node.lat, node.lon], {
+						title: String(node.id)
+					}).bindPopup(`<strong>${node.id}</strong>`);
+					clusterInstance?.addLayer(marker);
+				});
+			}
 		}
 	}
 
@@ -174,16 +188,7 @@
 							}}
 						>
 							<TileLayer url={'https://tile.openstreetmap.org/{z}/{x}/{y}.png'} />
-							{#each nodes as node}
-								<Marker latLng={[node.lat, node.lon]}>
-									<Popup
-										latLng={[node.lat, node.lon]}
-										options={{
-											content: String(node.id)
-										}}
-									/>
-								</Marker>
-							{/each}
+							<MarkerCluster bind:instance={clusterInstance} />
 						</Map>
 					</div>
 				</CardContent>

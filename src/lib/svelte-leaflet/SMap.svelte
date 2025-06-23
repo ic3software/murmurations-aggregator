@@ -9,7 +9,7 @@
 	import { onDestroy, onMount, setContext, type Snippet } from 'svelte';
 
 	import type { LeafletContextInterface } from './types';
-	import { Compare, EventBridge } from './utils/index';
+	import { Compare, EventBridge } from './utils';
 
 	// @ts-expect-error: Leaflet instance method names are not fully typed
 	delete Icon.Default.prototype._getIconUrl;

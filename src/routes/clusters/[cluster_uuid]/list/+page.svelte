@@ -87,7 +87,7 @@
 			}
 		}
 
-		goto(`?${query.toString()}`);
+		goto(`?${query.toString()}`, { replaceState: true, noScroll: true });
 
 		if (cluster?.clusterUuid) {
 			const res = await getPublishedNodes(
