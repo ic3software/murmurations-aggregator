@@ -96,7 +96,7 @@
 			if (clusterInstance) {
 				clusterInstance.clearLayers();
 
-				mapNodes.forEach((node) => {
+				mapNodes?.forEach((node) => {
 					const marker = L.marker([node.lat, node.lon], {
 						title: String(node.id)
 					}).bindPopup(createPopupContent(node));
@@ -207,7 +207,7 @@
 		<Card>
 			{#if nodes?.length && nodes.length > 0}
 				<CardContent class="p-0">
-					<div style="width:100%;height:700px;">
+					<div class="relative z-0 w-full h-[700px]">
 						<Map
 							options={{
 								center: [46.603354, 1.888334],
