@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { DomEvent, Layer, Map } from 'leaflet';
 
 import { isFunction } from './equal';
@@ -8,7 +9,7 @@ export class EventBridge<T extends Layer | Map> {
 	constructor(instance: T) {
 		this.instance = instance;
 	}
-	addEvents(events: Record<string, DomEvent.EventHandlerFn> = {}) {
+	addEvents(events: Record<string, any> = {}) {
 		try {
 			Object.entries(events).forEach(([key, value]) => {
 				if (key.startsWith('on') && key.length > 2 && isFunction(value)) {
