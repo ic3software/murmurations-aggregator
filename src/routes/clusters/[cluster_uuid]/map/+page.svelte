@@ -35,6 +35,33 @@
 		return selectedOption?.label ?? `All ${dropdown.title}`;
 	}
 
+	function createPopupContent(node: MapNode): string {
+		let content = `<div class="min-w-[200px] font-sans break-words">`;
+
+		if (node.primaryUrl && node.primaryUrl.trim()) {
+			content += `<div class="mb-2">
+			<strong>URL:</strong>
+			<a href="${node.primaryUrl}" target="_blank" rel="noopener noreferrer" 
+			   class="text-blue-700 underline break-words">
+				${node.primaryUrl}
+			</a>
+		</div>`;
+		}
+
+		if (node.profileUrl && node.profileUrl.trim()) {
+			content += `<div class="mb-2">
+			<strong>Source:</strong>
+			<a href="${node.profileUrl}" target="_blank" rel="noopener noreferrer" 
+			   class="text-blue-700 underline break-words">
+				${node.profileUrl}
+			</a>
+		</div>`;
+		}
+
+		content += `</div>`;
+		return content;
+	}
+
 	$effect(() => {
 		untrack(() => {
 			reloadData();
@@ -72,7 +99,7 @@
 				mapNodes.forEach((node) => {
 					const marker = L.marker([node.lat, node.lon], {
 						title: String(node.id)
-					}).bindPopup(`<strong>${node.id}</strong>`);
+					}).bindPopup(createPopupContent(node));
 					clusterInstance?.addLayer(marker);
 				});
 			}
