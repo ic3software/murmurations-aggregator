@@ -20,7 +20,6 @@ export const GET: RequestHandler = async ({
 
 		const nameSearch = url.searchParams.get('name') || undefined;
 		const tagsSearch = url.searchParams.get('tags') || undefined;
-		const sort = url.searchParams.get('sort') as 'name-asc' | 'name-desc' | undefined;
 
 		// Get dynamic filters for enum dropdowns
 		const enumFilters: Record<string, string> = {};
@@ -33,14 +32,7 @@ export const GET: RequestHandler = async ({
 			}
 		});
 
-		const nodes = await getPublishedMapNodes(
-			db,
-			clusterUuid,
-			nameSearch,
-			tagsSearch,
-			sort,
-			enumFilters
-		);
+		const nodes = await getPublishedMapNodes(db, clusterUuid, nameSearch, tagsSearch, enumFilters);
 
 		if (!nodes || nodes.length === 0) {
 			return json(

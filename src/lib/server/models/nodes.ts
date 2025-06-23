@@ -45,7 +45,6 @@ export async function getPublishedMapNodes(
 	clusterUuid: string,
 	nameSearch?: string,
 	tagsSearch?: string,
-	sort?: 'name-asc' | 'name-desc',
 	enumFilters?: Record<string, string>
 ) {
 	const whereClause = and(
@@ -54,24 +53,7 @@ export async function getPublishedMapNodes(
 		sql`json_extract(${nodes.data}, '$.geolocation.lon') IS NOT NULL`
 	);
 
-	let query;
-	if (sort === 'name-asc') {
-		query = db
-			.select()
-			.from(nodes)
-			.where(whereClause)
-			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) ASC`);
-	} else if (sort === 'name-desc') {
-		query = db
-			.select()
-			.from(nodes)
-			.where(whereClause)
-			.orderBy(sql`LOWER(json_extract(${nodes.data}, '$.name')) DESC`);
-	} else {
-		query = db.select().from(nodes).where(whereClause);
-	}
-
-	return await query.all();
+	return await db.select().from(nodes).where(whereClause).all();
 }
 
 export async function getPublishedNodeCount(
