@@ -8,10 +8,10 @@
 	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select';
 	import * as Table from '$lib/components/ui/table';
-	import { fetchProfiles } from '$lib/profile-utils';
-	import { checkProfileAuthority, processProfile } from '$lib/profile-utils';
-	import { toCamelCase } from '$lib/string-case-utils';
 	import type { Node, NodeUpdateInput } from '$lib/types/node';
+	import { fetchProfiles } from '$lib/utils/profile';
+	import { checkProfileAuthority, processProfile } from '$lib/utils/profile';
+	import { toCamelCase } from '$lib/utils/string-case';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
 	import { onMount } from 'svelte';

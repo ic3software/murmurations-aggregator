@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatDate } from '$lib/date';
+	import { formatDate } from '$lib/utils/date';
 
 	import type { PageData } from './$types';
 
