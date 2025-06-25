@@ -114,6 +114,19 @@
 	function hasActiveFilters() {
 		return nameSearch.trim() || tagSearch.trim() || Object.values(enumFilters).some((v) => v);
 	}
+
+	function isValidUrl(value: string): boolean {
+		try {
+			const url = new URL(value);
+			return url.protocol === 'http:' || url.protocol === 'https:';
+		} catch {
+			return false;
+		}
+	}
+
+	function isValidEmail(value: string): boolean {
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+	}
 </script>
 
 {#if !cluster}
@@ -309,6 +322,22 @@
 																						<span class="text-muted-foreground font-mono text-xs"
 																							>{JSON.stringify(subValue)}</span
 																						>
+																					{:else if typeof subValue === 'string'}
+																						{#if isValidUrl(subValue)}
+																							<a
+																								href={subValue}
+																								target="_blank"
+																								rel="noopener noreferrer"
+																								class="underline break-words">{subValue}</a
+																							>
+																						{:else if isValidEmail(subValue)}
+																							<a
+																								href={`mailto:${subValue}`}
+																								class="underline break-words">{subValue}</a
+																							>
+																						{:else}
+																							<span class="text-muted-foreground">{subValue}</span>
+																						{/if}
 																					{:else}
 																						<span class="text-muted-foreground">{subValue}</span>
 																					{/if}
@@ -346,12 +375,40 @@
 																<span class="text-muted-foreground font-mono text-xs"
 																	>{JSON.stringify(subValue)}</span
 																>
+															{:else if typeof subValue === 'string'}
+																{#if isValidUrl(subValue)}
+																	<a
+																		href={subValue}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		class="underline break-words">{subValue}</a
+																	>
+																{:else if isValidEmail(subValue)}
+																	<a href={`mailto:${subValue}`} class="underline break-words"
+																		>{subValue}</a
+																	>
+																{:else}
+																	<span class="text-muted-foreground">{subValue}</span>
+																{/if}
 															{:else}
 																<span class="text-muted-foreground">{subValue}</span>
 															{/if}
 														</li>
 													{/each}
 												</ul>
+											{:else if typeof value === 'string'}
+												{#if isValidUrl(value)}
+													<a
+														href={value}
+														target="_blank"
+														rel="noopener noreferrer"
+														class="underline break-words">{value}</a
+													>
+												{:else if isValidEmail(value)}
+													<a href={`mailto:${value}`} class="underline break-words">{value}</a>
+												{:else}
+													<span class="text-muted-foreground">{value}</span>
+												{/if}
 											{:else}
 												<span class="text-muted-foreground">{value}</span>
 											{/if}
