@@ -78,6 +78,9 @@ importers:
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^5.2.2
         version: 5.2.2(prettier-plugin-svelte@3.3.3(prettier@3.5.3)(svelte@5.28.2))(prettier@3.5.3)(svelte@5.28.2)
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       '@types/leaflet':
         specifier: ^1.9.18
         version: 1.9.18
