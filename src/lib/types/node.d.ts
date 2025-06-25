@@ -31,6 +31,5 @@ export type MapNode = {
 	id: number;
 	lat: number;
 	lon: number;
-	profileUrl: string;
 	primaryUrl: string;
 };

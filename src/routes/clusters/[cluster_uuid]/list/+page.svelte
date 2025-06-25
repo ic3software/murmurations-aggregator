@@ -10,6 +10,7 @@
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { DropdownField } from '$lib/types/enum-dropdown';
 	import type { Node } from '$lib/types/node';
+	import { isValidEmail, isValidUrl } from '$lib/utils/validators';
 	import { AlertCircle, ArrowLeft, Database, Search, Tag } from '@lucide/svelte';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
@@ -113,19 +114,6 @@
 
 	function hasActiveFilters() {
 		return nameSearch.trim() || tagSearch.trim() || Object.values(enumFilters).some((v) => v);
-	}
-
-	function isValidUrl(value: string): boolean {
-		try {
-			const url = new URL(value);
-			return url.protocol === 'http:' || url.protocol === 'https:';
-		} catch {
-			return false;
-		}
-	}
-
-	function isValidEmail(value: string): boolean {
-		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 	}
 </script>
 

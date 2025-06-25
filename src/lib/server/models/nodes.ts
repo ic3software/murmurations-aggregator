@@ -78,6 +78,20 @@ export async function getNode(db: DrizzleD1Database, clusterUuid: string, profil
 		.limit(1);
 }
 
+export async function getPublishedNodeById(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	nodeId: number
+) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId), eq(nodes.status, 'published'))
+		)
+		.limit(1);
+}
+
 export async function getNodeById(db: DrizzleD1Database, clusterUuid: string, nodeId: number) {
 	return await db
 		.select()

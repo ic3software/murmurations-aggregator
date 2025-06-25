@@ -48,12 +48,12 @@
 		</div>`;
 		}
 
-		if (node.profileUrl && node.profileUrl.trim()) {
+		if (node.id) {
 			content += `<div class="mb-2">
 			<strong>Source:</strong>
-			<a href="${node.profileUrl}" target="_blank" rel="noopener noreferrer" 
+			<a href="/clusters/${cluster.clusterUuid}/nodes/${node.id}" target="_blank" rel="noopener noreferrer" 
 			   class="text-blue-700 underline break-words">
-				${node.profileUrl}
+				Click to view node details
 			</a>
 		</div>`;
 		}

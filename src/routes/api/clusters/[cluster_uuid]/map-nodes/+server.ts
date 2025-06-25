@@ -47,7 +47,6 @@ export const GET: RequestHandler = async ({
 				id: node.id,
 				lat: data?.geolocation?.lat,
 				lon: data?.geolocation?.lon,
-				profileUrl: node.profileUrl ?? '',
 				primaryUrl: data?.primary_url ?? ''
 			};
 		});

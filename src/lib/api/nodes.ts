@@ -54,6 +54,14 @@ export const getPublishedMapNodes = (
 		customFetch
 	);
 
+export const getPublishedNode = (clusterUuid: string, nodeId: string, customFetch?: typeof fetch) =>
+	request<undefined, Node>(
+		`/api/clusters/${clusterUuid}/nodes/${nodeId}`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
 export const updateNodeStatus = (
 	clusterUuid: string,
 	nodeId: number,

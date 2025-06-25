@@ -3,11 +3,11 @@
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { validateEmail } from '$lib/validate-email';
+	import { isValidEmail } from '$lib/utils/validators';
 	import { AlertCircle, CheckCircle } from '@lucide/svelte';
 
 	let email = $state('');
-	let validEmail = $derived(validateEmail(email));
+	let validEmail = $derived(isValidEmail(email));
 	let successMessage = $state('');
 	let errorMessage = $state('');
 	let isLoading = $state(false);
