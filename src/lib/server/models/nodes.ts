@@ -100,6 +100,16 @@ export async function getNodeById(db: DrizzleD1Database, clusterUuid: string, no
 		.limit(1);
 }
 
+export async function getDistinctLinkedSchemas(db: DrizzleD1Database, clusterUuid: string) {
+	const result = await db
+		.select({ schema: sql`DISTINCT json_each.value` })
+		.from(sql`nodes, json_each(json_extract(nodes.data, '$.linked_schemas'))`)
+		.where(eq(nodes.clusterUuid, clusterUuid))
+		.all();
+
+	return result.map((row) => row.schema);
+}
+
 export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promise<Node> {
 	const result = await db.insert(nodes).values(node).returning().run();
 	return result.results[0] as Node;

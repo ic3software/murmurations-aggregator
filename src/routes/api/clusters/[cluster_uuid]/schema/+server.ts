@@ -1,8 +1,10 @@
 import { getDB } from '$lib/server/db';
 import { getCluster } from '$lib/server/models/clusters';
+import { getDistinctLinkedSchemas } from '$lib/server/models/nodes';
 import { getSourceIndexByUrl } from '$lib/server/models/source-indexes';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
+import type { JSONSchema7 } from 'json-schema';
 
 export const GET: RequestHandler = async ({
 	params,
@@ -29,24 +31,30 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Source index not found', success: false }, { status: 404 });
 		}
 
-		const queryUrl = new URL(cluster.queryUrl, 'http://localhost');
-		const schema = queryUrl.searchParams.get('schema');
+		const linkedSchemas = await getDistinctLinkedSchemas(db, clusterUuid);
 
-		if (!schema) {
-			return json({ error: 'Schema not found in query URL', success: false }, { status: 400 });
+		if (linkedSchemas.length === 0) {
+			return json({ error: 'No linked schemas found', success: false }, { status: 404 });
 		}
 
-		const schemaUrl = `${sourceIndex.libraryUrl}/schemas/${schema}`;
-		const response = await fetch(schemaUrl, {
-			headers: {
-				'Content-Type': 'application/json'
+		const fetchedSchemas: JSONSchema7[] = [];
+
+		for (const schemaName of linkedSchemas) {
+			const schemaUrl = `${sourceIndex.libraryUrl}/schemas/${schemaName}`;
+			const response = await fetch(schemaUrl, {
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			if (!response.ok) {
+				console.error(`Failed to fetch schema: ${schemaName}`);
+				continue;
 			}
-		});
-		const schemaData = await response.json();
 
-		if (!response.ok) {
-			return json({ error: 'Failed to fetch schema', success: false }, { status: 500 });
+			const schema: JSONSchema7 = await response.json();
+			fetchedSchemas.push(schema);
 		}
+
+		const schemaData = mergeSchemas(fetchedSchemas);
 
 		return json({ data: schemaData, success: true }, { status: 200 });
 	} catch (error) {
@@ -54,3 +62,28 @@ export const GET: RequestHandler = async ({
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
 	}
 };
+
+function mergeSchemas(schemas: JSONSchema7[]): JSONSchema7 {
+	const merged: JSONSchema7 = {
+		type: 'object',
+		properties: {},
+		required: []
+	};
+
+	for (const schema of schemas) {
+		if (schema.properties) {
+			for (const [key, value] of Object.entries(schema.properties)) {
+				if (!merged.properties![key]) {
+					merged.properties![key] = value;
+				}
+			}
+		}
+
+		if (schema.required) {
+			const requiredSet = new Set([...merged.required!, ...schema.required]);
+			merged.required = [...requiredSet];
+		}
+	}
+
+	return merged;
+}
