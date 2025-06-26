@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getPublishedNodes } from '$lib/api/nodes';
+	import NodeDetail from '$lib/components/nodes/NodeDetail.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
@@ -10,10 +11,10 @@
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { DropdownField } from '$lib/types/enum-dropdown';
 	import type { Node } from '$lib/types/node';
-	import { isValidEmail, isValidUrl } from '$lib/utils/validators';
 	import { AlertCircle, ArrowLeft, Database, Search, Tag } from '@lucide/svelte';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import type { JSONSchema7 } from 'json-schema';
 
 	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
@@ -30,6 +31,7 @@
 	let sort: 'name-asc' | 'name-desc' | 'default' = $state(data?.sort ?? 'default');
 	let enumsDropdown: DropdownField[] = $state(data?.enumsDropdown ?? []);
 	let enumFilters: Record<string, string> = $state(data?.enumFilters ?? {});
+	let schema: JSONSchema7 | null = $state(data?.schema ?? null);
 
 	const isDesktop = new MediaQuery('(min-width: 768px)');
 
@@ -259,151 +261,7 @@
 						{/if}
 
 						<CardContent class="space-y-3">
-							{#each Object.entries(nodeData) as [key, value]}
-								{#if key !== 'image' && key !== 'name'}
-									<div class="space-y-1">
-										<div class="flex items-center gap-2">
-											<h4 class="text-sm font-medium text-foreground">{key}</h4>
-										</div>
-										<div class="text-sm">
-											{#if Array.isArray(value)}
-												{#if value.length === 1 && typeof value[0] !== 'object'}
-													<span class="text-muted-foreground">{value[0]}</span>
-												{:else}
-													<ul class="ml-4 space-y-1 list-disc">
-														{#each value as item}
-															<li class="text-muted-foreground">
-																{#if typeof item === 'object' && item !== null}
-																	{#if Array.isArray(item)}
-																		<ul class="ml-4 mt-1 list-disc space-y-1">
-																			{#each item as subItem}
-																				<li class="text-xs">
-																					{typeof subItem === 'object' && subItem !== null
-																						? JSON.stringify(subItem)
-																						: subItem}
-																				</li>
-																			{/each}
-																		</ul>
-																	{:else}
-																		<ul class="ml-4 mt-1 list-disc space-y-1">
-																			{#each Object.entries(item) as [subKey, subValue]}
-																				<li class="text-xs">
-																					<span class="font-medium text-foreground">{subKey}:</span>
-																					{#if Array.isArray(subValue)}
-																						{#if subValue.length === 1 && typeof subValue[0] !== 'object'}
-																							<span class="text-muted-foreground"
-																								>{subValue[0]}</span
-																							>
-																						{:else}
-																							<ul class="ml-4 mt-1 list-disc space-y-1">
-																								{#each subValue as subSubItem}
-																									<li class="text-muted-foreground">
-																										{typeof subSubItem === 'object' &&
-																										subSubItem !== null
-																											? JSON.stringify(subSubItem)
-																											: subSubItem}
-																									</li>
-																								{/each}
-																							</ul>
-																						{/if}
-																					{:else if typeof subValue === 'object' && subValue !== null}
-																						<span class="text-muted-foreground font-mono text-xs"
-																							>{JSON.stringify(subValue)}</span
-																						>
-																					{:else if typeof subValue === 'string'}
-																						{#if isValidUrl(subValue)}
-																							<a
-																								href={subValue}
-																								target="_blank"
-																								rel="noopener noreferrer"
-																								class="underline break-words">{subValue}</a
-																							>
-																						{:else if isValidEmail(subValue)}
-																							<a
-																								href={`mailto:${subValue}`}
-																								class="underline break-words">{subValue}</a
-																							>
-																						{:else}
-																							<span class="text-muted-foreground">{subValue}</span>
-																						{/if}
-																					{:else}
-																						<span class="text-muted-foreground">{subValue}</span>
-																					{/if}
-																				</li>
-																			{/each}
-																		</ul>
-																	{/if}
-																{:else}
-																	{item}
-																{/if}
-															</li>
-														{/each}
-													</ul>
-												{/if}
-											{:else if typeof value === 'object' && value !== null}
-												<ul class="ml-4 space-y-1 list-disc">
-													{#each Object.entries(value) as [subKey, subValue]}
-														<li class="text-xs">
-															<span class="font-medium text-foreground">{subKey}:</span>
-															{#if Array.isArray(subValue)}
-																{#if subValue.length === 1 && typeof subValue[0] !== 'object'}
-																	<span class="text-muted-foreground">{subValue[0]}</span>
-																{:else}
-																	<ul class="ml-4 mt-1 list-disc space-y-1">
-																		{#each subValue as subSubItem}
-																			<li class="text-muted-foreground">
-																				{typeof subSubItem === 'object' && subSubItem !== null
-																					? JSON.stringify(subSubItem)
-																					: subSubItem}
-																			</li>
-																		{/each}
-																	</ul>
-																{/if}
-															{:else if typeof subValue === 'object' && subValue !== null}
-																<span class="text-muted-foreground font-mono text-xs"
-																	>{JSON.stringify(subValue)}</span
-																>
-															{:else if typeof subValue === 'string'}
-																{#if isValidUrl(subValue)}
-																	<a
-																		href={subValue}
-																		target="_blank"
-																		rel="noopener noreferrer"
-																		class="underline break-words">{subValue}</a
-																	>
-																{:else if isValidEmail(subValue)}
-																	<a href={`mailto:${subValue}`} class="underline break-words"
-																		>{subValue}</a
-																	>
-																{:else}
-																	<span class="text-muted-foreground">{subValue}</span>
-																{/if}
-															{:else}
-																<span class="text-muted-foreground">{subValue}</span>
-															{/if}
-														</li>
-													{/each}
-												</ul>
-											{:else if typeof value === 'string'}
-												{#if isValidUrl(value)}
-													<a
-														href={value}
-														target="_blank"
-														rel="noopener noreferrer"
-														class="underline break-words">{value}</a
-													>
-												{:else if isValidEmail(value)}
-													<a href={`mailto:${value}`} class="underline break-words">{value}</a>
-												{:else}
-													<span class="text-muted-foreground">{value}</span>
-												{/if}
-											{:else}
-												<span class="text-muted-foreground">{value}</span>
-											{/if}
-										</div>
-									</div>
-								{/if}
-							{/each}
+							<NodeDetail {nodeData} {schema} />
 						</CardContent>
 					</Card>
 				{/each}

@@ -1,5 +1,6 @@
 import { getCluster, getEnumsDropdown } from '$lib/api/clusters';
 import { getPublishedNodes } from '$lib/api/nodes';
+import { getSchema } from '$lib/api/schemas';
 
 import type { PageLoad } from './$types';
 
@@ -36,6 +37,7 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 	);
 
 	const { data: enumsDropdown } = await getEnumsDropdown(clusterUuid, fetch);
+	const { data: schema } = await getSchema(clusterUuid, fetch);
 
 	return {
 		title: cluster?.name || 'Nodes List',
@@ -46,6 +48,7 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 		nameSearch,
 		tagSearch,
 		sort,
-		enumFilters
+		enumFilters,
+		schema
 	};
 };
