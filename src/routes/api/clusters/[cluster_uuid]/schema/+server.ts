@@ -37,23 +37,12 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'No linked schemas found', success: false }, { status: 404 });
 		}
 
-		const fetchedSchemas: JSONSchema7[] = [];
+		const schemaPromises = linkedSchemas.map((schema) =>
+			fetchSchema(schema, sourceIndex.libraryUrl, fetch)
+		);
 
-		for (const schemaName of linkedSchemas) {
-			const schemaUrl = `${sourceIndex.libraryUrl}/schemas/${schemaName}`;
-			const response = await fetch(schemaUrl, {
-				headers: { 'Content-Type': 'application/json' }
-			});
-
-			if (!response.ok) {
-				console.error(`Failed to fetch schema: ${schemaName}`);
-				continue;
-			}
-
-			const schema: JSONSchema7 = await response.json();
-			fetchedSchemas.push(schema);
-		}
-
+		const results = await Promise.all(schemaPromises);
+		const fetchedSchemas = results.filter((schema): schema is JSONSchema7 => schema !== null);
 		const schemaData = mergeSchemas(fetchedSchemas);
 
 		return json({ data: schemaData, success: true }, { status: 200 });
@@ -86,4 +75,26 @@ function mergeSchemas(schemas: JSONSchema7[]): JSONSchema7 {
 	}
 
 	return merged;
+}
+
+async function fetchSchema(
+	schemaName: string,
+	baseUrl: string,
+	fetchFn: typeof fetch
+): Promise<JSONSchema7 | null> {
+	const schemaUrl = `${baseUrl}/schemas/${schemaName}`;
+	try {
+		const response = await fetchFn(schemaUrl, {
+			headers: { 'Content-Type': 'application/json' }
+		});
+		if (!response.ok) {
+			console.error(`Failed to fetch schema: ${schemaName}`);
+			return null;
+		}
+		const schema: JSONSchema7 = await response.json();
+		return schema;
+	} catch (err) {
+		console.error(`Error fetching schema ${schemaName}:`, err);
+		return null;
+	}
 }
