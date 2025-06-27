@@ -18,7 +18,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
 	import type { PageLoginToken } from '$lib/types/token';
-	import { validateEmail } from '$lib/validate-email';
+	import { isValidEmail } from '$lib/utils/validators';
 	import type { Page } from '@sveltejs/kit';
 
 	import { onMount } from 'svelte';
@@ -46,7 +46,7 @@
 	}
 
 	let email = $state('');
-	let validEmail = $derived(validateEmail(email));
+	let validEmail = $derived(isValidEmail(email));
 	let emailList = $state<string[]>([]);
 	let currentPublicKey = $state<string>('');
 	let publicKeyList = $state<string[]>([]);
@@ -58,7 +58,7 @@
 
 	async function handleAddEmail() {
 		if (!email) return;
-		if (!validateEmail(email)) {
+		if (!isValidEmail(email)) {
 			toast.error('Invalid email address');
 			return;
 		}

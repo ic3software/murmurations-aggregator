@@ -1,5 +1,5 @@
 import { request } from '$lib/api/request';
-import type { Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
+import type { MapNode, Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
 
 export const createNode = (
 	clusterUuid: string,
@@ -35,6 +35,28 @@ export const getPublishedNodes = (
 ) =>
 	request<undefined, Node[]>(
 		`/api/clusters/${clusterUuid}/published-nodes?page=${page}&name=${nameSearch}&tags=${tagsSearch}&sort=${sort}&${new URLSearchParams(enumFilters).toString()}`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
+export const getPublishedMapNodes = (
+	clusterUuid: string,
+	nameSearch: string,
+	tagsSearch: string,
+	enumFilters: Record<string, string>,
+	customFetch?: typeof fetch
+) =>
+	request<undefined, MapNode[]>(
+		`/api/clusters/${clusterUuid}/map-nodes?name=${nameSearch}&tags=${tagsSearch}&${new URLSearchParams(enumFilters).toString()}`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
+export const getPublishedNode = (clusterUuid: string, nodeId: string, customFetch?: typeof fetch) =>
+	request<undefined, Node>(
+		`/api/clusters/${clusterUuid}/nodes/${nodeId}`,
 		'GET',
 		undefined,
 		customFetch

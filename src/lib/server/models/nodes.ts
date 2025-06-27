@@ -40,6 +40,21 @@ export async function getPublishedNodes(
 
 	return await query.limit(limit).offset(offset).all();
 }
+export async function getPublishedMapNodes(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	nameSearch?: string,
+	tagsSearch?: string,
+	enumFilters?: Record<string, string>
+) {
+	const whereClause = and(
+		buildSearchCondition(clusterUuid, nameSearch, tagsSearch, enumFilters),
+		sql`json_extract(${nodes.data}, '$.geolocation.lat') IS NOT NULL`,
+		sql`json_extract(${nodes.data}, '$.geolocation.lon') IS NOT NULL`
+	);
+
+	return await db.select().from(nodes).where(whereClause).all();
+}
 
 export async function getPublishedNodeCount(
 	db: DrizzleD1Database,
@@ -63,12 +78,39 @@ export async function getNode(db: DrizzleD1Database, clusterUuid: string, profil
 		.limit(1);
 }
 
+export async function getPublishedNodeById(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	nodeId: number
+) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId), eq(nodes.status, 'published'))
+		)
+		.limit(1);
+}
+
 export async function getNodeById(db: DrizzleD1Database, clusterUuid: string, nodeId: number) {
 	return await db
 		.select()
 		.from(nodes)
 		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 		.limit(1);
+}
+
+export async function getDistinctLinkedSchemas(
+	db: DrizzleD1Database,
+	clusterUuid: string
+): Promise<string[]> {
+	const result = await db
+		.select({ schema: sql`DISTINCT json_each.value` })
+		.from(sql`nodes, json_each(json_extract(nodes.data, '$.linked_schemas'))`)
+		.where(eq(nodes.clusterUuid, clusterUuid))
+		.all();
+
+	return result.map((row) => row.schema as string);
 }
 
 export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promise<Node> {
@@ -172,7 +214,17 @@ function buildSearchCondition(
 	if (enumFilters) {
 		for (const [field, value] of Object.entries(enumFilters)) {
 			const jsonPath = `$.${field}`;
-			conditions.push(sql`json_extract(${nodes.data}, ${jsonPath}) = ${value}`);
+			// Generally, the value in data's JSON is a string, but it might be an array, so we need to check if the value exists in the array
+			conditions.push(
+				sql`(
+					EXISTS (
+						SELECT 1 FROM json_each(json_extract(${nodes.data}, ${jsonPath}))
+						WHERE json_each.value = ${value}
+					)
+					OR
+					json_extract(${nodes.data}, ${jsonPath}) = ${value}
+				)`
+			);
 		}
 	}
 

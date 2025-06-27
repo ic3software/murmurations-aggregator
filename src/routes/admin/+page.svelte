@@ -5,7 +5,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { formatDate } from '$lib/date';
+	import { formatDate } from '$lib/utils/date';
 	import { CircleAlert } from '@lucide/svelte';
 	import type { Page } from '@sveltejs/kit';
 

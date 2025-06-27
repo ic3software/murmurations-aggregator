@@ -13,10 +13,10 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select';
-	import { fetchProfiles, processProfile } from '$lib/profile-utils';
 	import type { ClusterCreateInput } from '$lib/types/cluster';
 	import type { NodeCreateInput } from '$lib/types/node';
 	import { cn } from '$lib/utils';
+	import { fetchProfiles, processProfile } from '$lib/utils/profile';
 	import { Check, ChevronsUpDown } from '@lucide/svelte';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 

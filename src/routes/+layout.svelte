@@ -43,7 +43,9 @@
 		<div class="container mx-auto px-4 py-4">
 			<header class="mb-8">
 				<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
-					{siteName}
+					<a href="/" class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+						{siteName}
+					</a>
 				</h1>
 			</header>
 

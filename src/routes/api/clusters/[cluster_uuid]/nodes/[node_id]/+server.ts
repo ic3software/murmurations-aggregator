@@ -1,9 +1,40 @@
 import { getDB } from '$lib/server/db';
-import { deleteNode, updateNode } from '$lib/server/models/nodes';
+import { deleteNode, getPublishedNodeById, updateNode } from '$lib/server/models/nodes';
 import type { NodeDbUpdateInput } from '$lib/types/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
+
+export const GET: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
+	params
+}) => {
+	try {
+		const db = getDB(platform.env);
+		const clusterUuid = params.cluster_uuid;
+		const nodeId = params.node_id;
+
+		// Validate input
+		if (!clusterUuid || !nodeId) {
+			return json({ error: 'Missing cluster_uuid or node_id', success: false }, { status: 400 });
+		}
+
+		if (!Number.isInteger(parseInt(nodeId))) {
+			return json({ error: 'Invalid node_id', success: false }, { status: 400 });
+		}
+
+		const node = await getPublishedNodeById(db, clusterUuid, parseInt(nodeId));
+
+		if (!node) {
+			return json({ error: 'Node not found', success: false }, { status: 404 });
+		}
+
+		return json({ data: node[0], success: true }, { status: 200 });
+	} catch (error) {
+		console.error('Error processing GET request:', error);
+		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
+	}
+};
 
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
