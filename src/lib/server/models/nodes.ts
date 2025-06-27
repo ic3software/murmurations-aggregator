@@ -214,7 +214,17 @@ function buildSearchCondition(
 	if (enumFilters) {
 		for (const [field, value] of Object.entries(enumFilters)) {
 			const jsonPath = `$.${field}`;
-			conditions.push(sql`json_extract(${nodes.data}, ${jsonPath}) = ${value}`);
+			// Generally, the value in data's JSON is a string, but it might be an array, so we need to check if the value exists in the array
+			conditions.push(
+				sql`(
+					EXISTS (
+						SELECT 1 FROM json_each(json_extract(${nodes.data}, ${jsonPath}))
+						WHERE json_each.value = ${value}
+					)
+					OR
+					json_extract(${nodes.data}, ${jsonPath}) = ${value}
+				)`
+			);
 		}
 	}
 
