@@ -1,4 +1,5 @@
 import { getDB } from '$lib/server/db';
+import { getClusterSchema, insertClusterSchema } from '$lib/server/models/cluster-schemas';
 import { getCluster } from '$lib/server/models/clusters';
 import { getDistinctLinkedSchemas } from '$lib/server/models/nodes';
 import { getSourceIndexByUrl } from '$lib/server/models/source-indexes';
@@ -17,6 +18,12 @@ export const GET: RequestHandler = async ({
 
 		if (!clusterUuid) {
 			return json({ error: 'Invalid cluster UUID', success: false }, { status: 400 });
+		}
+
+		// Check if schema exists in db
+		const clusterSchema = await getClusterSchema(db, clusterUuid);
+		if (clusterSchema) {
+			return json({ data: JSON.parse(clusterSchema.schemaJson), success: true }, { status: 200 });
 		}
 
 		const cluster = await getCluster(db, clusterUuid);
@@ -44,6 +51,9 @@ export const GET: RequestHandler = async ({
 		const results = await Promise.all(schemaPromises);
 		const fetchedSchemas = results.filter((schema): schema is JSONSchema7 => schema !== null);
 		const schemaData = mergeSchemas(fetchedSchemas);
+
+		// Insert schema into db
+		await insertClusterSchema(db, clusterUuid, schemaData);
 
 		return json({ data: schemaData, success: true }, { status: 200 });
 	} catch (error) {
