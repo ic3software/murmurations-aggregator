@@ -1,6 +1,6 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
-import { getUserIdByPublicKey } from '$lib/server/models/publicKey';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { emailCapability } from '$lib/ucan/capabilities/email';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';

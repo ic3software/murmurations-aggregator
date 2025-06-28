@@ -1,8 +1,8 @@
 import { getDB } from '$lib/server/db';
-import { getClusterSchema, insertClusterSchema } from '$lib/server/models/cluster-schemas';
-import { getCluster } from '$lib/server/models/clusters';
-import { getDistinctLinkedSchemas } from '$lib/server/models/nodes';
-import { getSourceIndexByUrl } from '$lib/server/models/source-indexes';
+import { getCluster } from '$lib/server/models/cluster';
+import { getClusterSchema, insertClusterSchema } from '$lib/server/models/cluster-schema';
+import { getDistinctLinkedSchemas } from '$lib/server/models/node';
+import { getSourceIndexByUrl } from '$lib/server/models/source-index';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import type { JSONSchema7 } from 'json-schema';

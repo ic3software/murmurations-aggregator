@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { createNode, getNode, getNodes } from '$lib/server/models/nodes';
+import { createNode, getNode, getNodes } from '$lib/server/models/node';
 import type { NodeInsert } from '$lib/types/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';

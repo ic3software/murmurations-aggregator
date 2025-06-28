@@ -5,7 +5,7 @@ import {
 	getSourceIndexById,
 	getSourceIndexByUrl,
 	updateSourceIndex
-} from '$lib/server/models/source-indexes';
+} from '$lib/server/models/source-index';
 import type { SourceIndexDbUpdateInput, SourceIndexUpdateInput } from '$lib/types/source-index';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';

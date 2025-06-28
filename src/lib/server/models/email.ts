@@ -1,7 +1,6 @@
+import { emails } from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
-
-import { emails } from '../db/schema';
 
 export async function getEmailsByUserId(db: DrizzleD1Database, userId: number) {
 	return await db

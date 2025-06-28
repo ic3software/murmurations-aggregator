@@ -1,5 +1,5 @@
 import { request } from '$lib/api/request';
-import type { PublicKey } from '$lib/types/key';
+import type { PublicKey } from '$lib/types/public-key';
 
 export const getPublicKeys = (customFetch?: typeof fetch) =>
 	request<undefined, { publicKeys: PublicKey[]; currentPublicKey: string }>(

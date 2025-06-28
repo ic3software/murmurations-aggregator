@@ -3,7 +3,7 @@ import {
 	deleteLoginToken,
 	getTokensByUserId,
 	insertLoginToken
-} from '$lib/server/models/loginTokens';
+} from '$lib/server/models/login-token';
 import { generateLoginToken } from '$lib/server/utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';

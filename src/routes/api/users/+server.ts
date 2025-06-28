@@ -1,5 +1,5 @@
 import { authenticateRequest } from '$lib/server/auth';
-import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/publicKey';
+import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/public-key';
 import { doesNameExist, getByUserId, getUserIdByName, insertUser } from '$lib/server/models/user';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
