@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { createCluster, getClusters } from '$lib/server/models/clusters';
+import { createCluster, getClusters } from '$lib/server/models/cluster';
 import type { ClusterInsert, ClusterPublic } from '$lib/types/cluster';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';

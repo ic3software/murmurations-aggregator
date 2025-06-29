@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { getPublishedNodeCount, getPublishedNodes } from '$lib/server/models/nodes';
+import { getPublishedNodeCount, getPublishedNodes } from '$lib/server/models/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';

@@ -4,7 +4,7 @@ import {
 	createSourceIndex,
 	getSourceIndexByUrl,
 	getSourceIndexes
-} from '$lib/server/models/source-indexes';
+} from '$lib/server/models/source-index';
 import type { SourceIndex, SourceIndexInsert } from '$lib/types/source-index';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';

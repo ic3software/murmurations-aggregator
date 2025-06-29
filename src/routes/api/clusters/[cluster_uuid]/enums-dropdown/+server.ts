@@ -1,6 +1,6 @@
 import { getDB } from '$lib/server/db';
-import { getCluster } from '$lib/server/models/clusters';
-import { getSourceIndexByUrl } from '$lib/server/models/source-indexes';
+import { getCluster } from '$lib/server/models/cluster';
+import { getSourceIndexByUrl } from '$lib/server/models/source-index';
 import type { DropdownField, SchemaData, SchemaProperty } from '$lib/types/enum-dropdown';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';

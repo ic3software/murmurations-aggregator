@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { deleteNode, getPublishedNodeById, updateNode } from '$lib/server/models/nodes';
+import { deleteNode, getPublishedNodeById, updateNode } from '$lib/server/models/node';
 import type { NodeDbUpdateInput } from '$lib/types/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';

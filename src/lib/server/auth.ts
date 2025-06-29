@@ -1,6 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { verifySignature } from '$lib/server/db/crypto.server';
-import { getUserIdByPublicKey } from '$lib/server/models/publicKey';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { isValidBase58btc } from '$lib/utils/base58btc';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';

@@ -1,7 +1,6 @@
+import { publicKeys } from '$lib/server/db/schema';
 import { and, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
-
-import { publicKeys } from '../db/schema';
 
 export async function getUserIdByPublicKey(db: DrizzleD1Database, publicKey: string) {
 	return await db

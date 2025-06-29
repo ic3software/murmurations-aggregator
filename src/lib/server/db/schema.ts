@@ -3,7 +3,7 @@ import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const clusters = sqliteTable('clusters', {
 	id: integer('id').primaryKey().notNull(),
-	clusterUuid: text('cluster_uuid').notNull(),
+	clusterUuid: text('cluster_uuid').notNull().unique(),
 	name: text('name').notNull(),
 	indexUrl: text('index_url').notNull(),
 	queryUrl: text('query_url').notNull(),
@@ -11,6 +11,23 @@ export const clusters = sqliteTable('clusters', {
 	centerLon: real('center_lon').default(1.888334).notNull(),
 	scale: integer('scale').default(5).notNull(),
 	lastUpdated: integer('last_updated', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+export const clusterSchemas = sqliteTable('cluster_schemas', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	clusterUuid: text('cluster_uuid')
+		.notNull()
+		.references(() => clusters.clusterUuid, { onDelete: 'cascade' }),
+	schemaJson: text('schema_json').notNull(),
+	fetchedAt: integer('fetched_at', { mode: 'number' })
 		.notNull()
 		.default(sql`(unixepoch())`),
 	createdAt: integer('created_at', { mode: 'number' })
@@ -105,6 +122,13 @@ export const sourceIndexes = sqliteTable('source_indexes', {
 		.notNull()
 		.default(sql`(unixepoch())`)
 });
+
+export const clusterSchemasRelations = relations(clusterSchemas, ({ one }) => ({
+	cluster: one(clusters, {
+		fields: [clusterSchemas.clusterUuid],
+		references: [clusters.clusterUuid]
+	})
+}));
 
 export const usersRelations = relations(users, ({ many }) => ({
 	publicKeys: many(publicKeys),

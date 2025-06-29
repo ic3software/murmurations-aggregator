@@ -1,11 +1,11 @@
 import { authenticateRequest } from '$lib/server/auth';
-import { deleteLoginToken, isTokenValidAndGetUserId } from '$lib/server/models/loginTokens';
+import { deleteLoginToken, isTokenValidAndGetUserId } from '$lib/server/models/login-token';
 import {
 	deletePublicKey,
 	getPublicKeysByUserId,
 	getUserIdByPublicKey,
 	insertPublicKey
-} from '$lib/server/models/publicKey';
+} from '$lib/server/models/public-key';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';

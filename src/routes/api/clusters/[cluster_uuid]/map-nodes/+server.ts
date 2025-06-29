@@ -1,5 +1,5 @@
 import { getDB } from '$lib/server/db';
-import { getPublishedMapNodes } from '$lib/server/models/nodes';
+import { getPublishedMapNodes } from '$lib/server/models/node';
 import type { MapNode } from '$lib/types/node';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
