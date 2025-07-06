@@ -25,7 +25,9 @@ export default ts.config(
 	},
 	{
 		files: ['**/*.svelte'],
-
+		rules: {
+			'svelte/valid-compile': 'off'
+		},
 		languageOptions: {
 			parserOptions: {
 				parser: ts.parser
