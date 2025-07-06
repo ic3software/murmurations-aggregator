@@ -25,6 +25,7 @@
 	import { parseRef } from '$lib/utils/parser';
 
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import { get } from 'svelte/store';
 
 	import DynamicForm from './DynamicForm.svelte';
@@ -80,6 +81,21 @@
 
 	function resetSchemas(): void {
 		schemasReset();
+	}
+
+	async function copyJsonToClipboard(): Promise<void> {
+		try {
+			const jsonString = JSON.stringify(
+				{ linked_schemas: schemasSelected, ...currentProfile },
+				null,
+				2
+			);
+			await navigator.clipboard.writeText(jsonString);
+			toast.success('JSON copied to clipboard!');
+		} catch (err) {
+			console.error('Failed to copy JSON:', err);
+			toast.error('Failed to copy JSON to clipboard');
+		}
 	}
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
@@ -304,7 +320,7 @@
 						</CardContent>
 					</Card>
 
-					<div class="flex justify-center mb-6">
+					<div class="flex justify-center gap-4 mb-6">
 						<Button
 							onclick={() => (profilePreview = false)}
 							disabled={isSubmitting}
@@ -312,6 +328,14 @@
 							class="font-semibold"
 						>
 							Continue Editing
+						</Button>
+						<Button
+							onclick={copyJsonToClipboard}
+							disabled={isSubmitting}
+							variant="secondary"
+							class="font-semibold"
+						>
+							Copy JSON
 						</Button>
 					</div>
 
