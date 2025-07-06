@@ -191,7 +191,16 @@
 				console.log('Profile updated to index with node_id:', data?.node_id);
 			} else {
 				// Post profile URL to index and get node_id
-				const { data } = await postIndex(currentCuid);
+				const { data, error } = await postIndex(currentCuid);
+
+				if (error) {
+					profilePreview = false;
+					profileEditorErrorOccurred(
+						error || 'Unknown error occurred while posting profile to index'
+					);
+					resetSchemas();
+					return;
+				}
 
 				// Update profile with node_id in DB
 				const { success } = await updateProfileNodeId(currentCuid, data?.node_id);

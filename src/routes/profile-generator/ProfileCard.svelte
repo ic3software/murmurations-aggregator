@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { getIndexStatus } from '$lib/api/profiles';
 	import { deleteIndex, deleteProfile } from '$lib/api/profiles';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Separator } from '$lib/components/ui/separator';
 	import { dbStatus } from '$lib/stores/db-status';
@@ -40,6 +42,7 @@
 	let errorMessage: string = $state('');
 	let statusVariant: 'default' | 'secondary' | 'destructive' | 'outline' = $state('default');
 	let isDbOnline: boolean = $state(get(dbStatus));
+	let dialogOpen: boolean = $state(false);
 
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
@@ -95,12 +98,6 @@
 		}
 	}
 
-	function handleDelete(): void {
-		if (confirm('Are you sure you want to delete this profile?')) {
-			handleDeleteProfile();
-		}
-	}
-
 	async function handleDeleteProfile(): Promise<void> {
 		try {
 			await deleteProfile(cuid);
@@ -108,6 +105,7 @@
 				await deleteIndex(node_id);
 			}
 			profileUpdated();
+			dialogOpen = false;
 		} catch (err) {
 			console.error('Error deleting profile:', err);
 		}
@@ -167,16 +165,33 @@
 					<Edit class="h-4 w-4" />
 					Modify
 				</Button>
-				<Button
-					onclick={handleDelete}
-					size="sm"
-					variant="outline"
-					class="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-transparent"
-					disabled={!!errorMessage || !isDbOnline}
-				>
-					<Trash2 class="h-4 w-4" />
-					Delete
-				</Button>
+				<AlertDialog.Root bind:open={dialogOpen}>
+					<AlertDialog.Trigger
+						class={buttonVariants({
+							variant: 'outline',
+							size: 'sm'
+						}) +
+							' flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-transparent'}
+						disabled={!!errorMessage || !isDbOnline}
+					>
+						<Trash2 class="h-4 w-4" />
+						Delete
+					</AlertDialog.Trigger>
+					<AlertDialog.Content>
+						<AlertDialog.Header>
+							<AlertDialog.Title>Delete Profile</AlertDialog.Title>
+						</AlertDialog.Header>
+						<AlertDialog.Description>
+							<p>
+								Are you sure you want to delete the profile: {title}?
+							</p>
+						</AlertDialog.Description>
+						<AlertDialog.Footer>
+							<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+							<AlertDialog.Action onclick={handleDeleteProfile}>Continue</AlertDialog.Action>
+						</AlertDialog.Footer>
+					</AlertDialog.Content>
+				</AlertDialog.Root>
 			</div>
 		</CardContent>
 	</Card>
