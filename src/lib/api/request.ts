@@ -2,6 +2,7 @@ import { exportPublicKey, signRequest } from '$lib/crypto';
 import { generateKeyPair, getKey, storeKeys } from '$lib/crypto';
 import type { Meta } from '$lib/types/api';
 import type { Keypair } from '$lib/types/keypair';
+import type { ValidationError } from '$lib/types/profile';
 
 let keypair: Keypair | null = null;
 
@@ -11,7 +12,14 @@ export async function request<TBody, TResponse>(
 	body?: TBody,
 	customFetch: typeof fetch = fetch,
 	signed = false
-): Promise<{ data: TResponse; success: boolean; message?: string; error?: string; meta?: Meta }> {
+): Promise<{
+	data: TResponse;
+	success: boolean;
+	message?: string;
+	error?: string;
+	meta?: Meta;
+	errors?: ValidationError[];
+}> {
 	try {
 		const headers: HeadersInit = {
 			'Content-Type': 'application/json'
@@ -51,7 +59,8 @@ export async function request<TBody, TResponse>(
 				success: false,
 				message: json?.message,
 				error: json?.error,
-				meta: json?.meta
+				meta: json?.meta,
+				errors: json?.errors
 			};
 		}
 

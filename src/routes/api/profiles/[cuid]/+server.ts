@@ -1,6 +1,7 @@
+import { validateProfile } from '$lib/api/profiles';
 import { getDB } from '$lib/server/db';
 import { deleteProfile, getProfileByCuid, updateProfile } from '$lib/server/models/profiles';
-import type { ProfileDbUpdateInput } from '$lib/types/profile';
+import type { ProfileDbUpdateInput, ProfileObject } from '$lib/types/profile';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
@@ -50,13 +51,10 @@ export const PATCH: RequestHandler = async ({
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		// const validationResponse = await validateProfile(profile);
-		// if (!validationResponse.success) {
-		// 	if (typeof validationResponse.errors === 'string') {
-		// 		return jsonError(validationResponse.errors, 500);
-		// 	}
-		// 	return json({ success: false, errors: validationResponse.errors }, { status: 422 });
-		// }
+		const validationResult = await validateProfile(JSON.parse(profile) as ProfileObject);
+		if (validationResult.errors) {
+			return json({ errors: validationResult.errors, success: false }, { status: 422 });
+		}
 
 		const db = getDB(platform.env);
 		const profileUpdate: ProfileDbUpdateInput = {

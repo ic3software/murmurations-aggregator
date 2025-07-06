@@ -12,7 +12,7 @@
 	let { schemas, currentProfile }: Props = $props();
 </script>
 
-<div class="m-4 flex flex-col text-left">
+<div class="space-y-6">
 	{#each Object.entries(schemas.properties) as [name, field]}
 		{#if name === 'linked_schemas'}
 			<input type="hidden" name="linked_schemas" value={schemas?.metadata?.schema} />

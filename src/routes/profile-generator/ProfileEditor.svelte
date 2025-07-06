@@ -1,10 +1,28 @@
 <script lang="ts">
+	import {
+		createProfile,
+		postIndex,
+		updateProfile,
+		updateProfileNodeId,
+		validateProfile
+	} from '$lib/api/profiles';
+	import { Alert, AlertDescription } from '$lib/components/ui/alert';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent } from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import { dbStatus } from '$lib/stores/db-status';
-	import type { ProfileInsert, ProfileObject } from '$lib/types/profile';
+	import type {
+		Profile,
+		ProfileCreateInput,
+		ProfileObject,
+		ProfileUpdateInput,
+		ValidationError
+	} from '$lib/types/profile';
 	import type { Schema } from '$lib/types/schema';
 	import { generateSchemaInstance } from '$lib/utils/generator';
 	import { parseRef } from '$lib/utils/parser';
-	import { createId } from '@paralleldrive/cuid2';
 
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
@@ -96,31 +114,15 @@
 
 			currentProfile = generateSchemaInstance(schemas, formDataObject);
 
-			const response = await fetch('/profile-generator/validate', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(currentProfile)
-			});
+			const { errors } = await validateProfile(currentProfile);
 
-			const data = await response.json();
-			if (response.status === 422) {
-				validationErrors = data?.errors?.map(
+			if (errors) {
+				validationErrors = errors?.map(
 					(error: { title: string; detail: string; source?: { pointer?: string } }) => {
 						const pointer = error.source?.pointer || 'Unknown source';
 						return `${error.title}: ${error.detail} (Source: ${pointer})`;
 					}
 				);
-				// Scroll to the top of the page if there are validation errors
-				if (validationErrors.length > 0) {
-					scrollToTop();
-				}
-			} else if (response.status !== 200) {
-				serviceError =
-					typeof data.errors === 'string'
-						? data.errors
-						: `Unexpected response status: ${response.status}`;
 				scrollToTop();
 			} else {
 				validationErrors = [];
@@ -140,29 +142,31 @@
 		const title = formData.get('title') as string;
 
 		try {
-			const cuid = currentCuid || createId();
-			const profileToSave: ProfileInsert = {
-				cuid,
-				linkedSchemas: JSON.stringify(schemasSelected),
-				profile: JSON.stringify(currentProfile),
-				title,
-				lastUpdated: Date.now(),
-				nodeId: ''
+			let result: { data: Profile; success: boolean; errors?: ValidationError[] } = {
+				data: {} as Profile,
+				success: false,
+				errors: []
 			};
+			if (currentCuid) {
+				const profileToUpdate: ProfileUpdateInput = {
+					profile: JSON.stringify(currentProfile),
+					title,
+					lastUpdated: Math.floor(new Date().getTime() / 1000)
+				};
+				result = await updateProfile(currentCuid, profileToUpdate);
+			} else {
+				const profileToSave: ProfileCreateInput = {
+					linkedSchemas: JSON.stringify(schemasSelected),
+					profile: JSON.stringify(currentProfile),
+					title,
+					lastUpdated: Math.floor(new Date().getTime() / 1000),
+					nodeId: ''
+				};
+				result = await createProfile(profileToSave);
+			}
 
-			const method = currentCuid ? 'PATCH' : 'POST';
-
-			const response = await fetch(`/profile-generator${currentCuid ? `/${cuid}` : ''}`, {
-				method,
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(profileToSave)
-			});
-
-			if (response.status === 422) {
-				const data = await response.json();
-				validationErrors = data?.errors.map(
+			if (result.errors) {
+				validationErrors = result.errors.map(
 					(error: { source?: { pointer?: string }; title: string; detail: string }) => {
 						const pointer = error.source?.pointer || 'Unknown source';
 						return `${error.title}: ${error.detail} (Source: ${pointer})`;
@@ -176,42 +180,22 @@
 				return;
 			}
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				console.log('errorData', errorData);
-				throw errorData.error || 'Error saving profile';
-			}
-
-			const result = await response.json();
 			if (result.success) {
 				console.log('Profile saved successfully!');
 			} else {
 				throw new Error('Unknown error occurred while saving profile');
 			}
 
-			if (currentCuid) {
-				const node_id = await postProfileToIndex(cuid);
-				console.log('Profile updated to index with node_id:', node_id);
+			if (result?.data?.cuid) {
+				const { data } = await postIndex(result.data.cuid);
+				console.log('Profile updated to index with node_id:', data?.node_id);
 			} else {
 				// Post profile URL to index and get node_id
-				const node_id = await postProfileToIndex(cuid);
+				const { data } = await postIndex(currentCuid);
 
 				// Update profile with node_id in DB
-				const updateNodeIdResponse = await fetch(`/profile-generator/${cuid}/update-node-id`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ profile_cuid: cuid, node_id })
-				});
-
-				if (!updateNodeIdResponse.ok) {
-					const updateNodeIdErrorData = await updateNodeIdResponse.json();
-					throw new Error(updateNodeIdErrorData.error || 'Error updating node_id');
-				}
-
-				const updateNodeIdResult = await updateNodeIdResponse.json();
-				if (updateNodeIdResult.success) {
+				const { success } = await updateProfileNodeId(currentCuid, data?.node_id);
+				if (success) {
 					console.log('Profile updated with node_id successfully');
 				} else {
 					throw new Error('Unknown error occurred while updating node_id');
@@ -230,122 +214,118 @@
 		profileUpdated();
 		isSubmitting = false;
 	}
-
-	async function postProfileToIndex(cuid: string): Promise<string> {
-		try {
-			const response = await fetch(`/profile-generator/index/${cuid}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || 'Error posting profile to index');
-			}
-
-			const result = await response.json();
-			return result.node_id;
-		} catch (err) {
-			console.error('Error posting profile to index:', err);
-			throw err;
-		}
-	}
 </script>
 
 <div class="md:basis-2/3 md:order-first">
 	{#if validationErrors.length > 0}
-		<div class="variant-filled-error m-4 py-2 px-4 rounded-md text-left">
-			<p class="font-medium">There were errors in your submission:</p>
-			<ul class="list-disc list-inside">
-				{#each validationErrors as error}
-					<li>{error}</li>
-				{/each}
-			</ul>
-		</div>
+		<Alert variant="destructive" class="mb-4">
+			<AlertDescription>
+				<p class="font-medium">There were errors in your submission:</p>
+				<ul class="list-disc list-inside mt-2">
+					{#each validationErrors as error}
+						<li>{error}</li>
+					{/each}
+				</ul>
+			</AlertDescription>
+		</Alert>
 	{/if}
-	<div class="card variant-ghost-primary m-4 p-4" bind:this={top}>
-		{#if serviceError != ''}
-			<div class="variant-filled-error py-2 px-4 rounded-md">
-				{serviceError}
-			</div>
-		{/if}
 
-		{#if !profilePreview}
-			<div class="font-medium mb-4">Editing profile with the following schemas</div>
+	<div bind:this={top}>
+		<Card>
+			<CardContent class="p-6">
+				{#if serviceError != ''}
+					<Alert variant="destructive" class="mb-6">
+						<AlertDescription>
+							{serviceError}
+						</AlertDescription>
+					</Alert>
+				{/if}
 
-			{#each schemasSelected as schema}
-				<span class="badge variant-ghost-primary font-medium text-sm mx-4 mb-2">{schema}</span>
-			{/each}
+				{#if !profilePreview}
+					<div class="font-medium text-foreground mb-4">
+						Editing profile with the following schemas
+					</div>
 
-			<form onsubmit={handleSubmit}>
-				<div class="m-4 flex flex-col text-left">
-					{#if schemas !== null}
-						<DynamicForm {schemas} {currentProfile} />
-					{/if}
-				</div>
-				<div class="flex justify-around mt-0">
-					<button
-						type="submit"
-						class="btn font-semibold md:btn-lg variant-filled-primary"
-						disabled={isSubmitting}
+					<div class="flex flex-wrap gap-2 mb-6">
+						{#each schemasSelected as schema}
+							<Badge variant="secondary" class="font-medium">{schema}</Badge>
+						{/each}
+					</div>
+
+					<form onsubmit={handleSubmit}>
+						<div class="mb-6">
+							{#if schemas !== null}
+								<DynamicForm {schemas} {currentProfile} />
+							{/if}
+						</div>
+						<div class="flex gap-4 justify-center">
+							<Button type="submit" disabled={isSubmitting} class="font-semibold">
+								{#if isSubmitting}
+									Loading...
+								{:else}
+									Validate
+								{/if}
+							</Button>
+							<Button
+								type="button"
+								variant="secondary"
+								onclick={resetSchemas}
+								class="font-semibold"
+							>
+								Reset
+							</Button>
+						</div>
+					</form>
+				{/if}
+
+				{#if profilePreview}
+					<Alert
+						class="mb-6 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"
 					>
-						{#if isSubmitting}
-							Loading...
-						{:else}
-							Validate
-						{/if}
-					</button>
-					<button
-						type="button"
-						onclick={resetSchemas}
-						class="btn font-semibold md:btn-lg variant-filled-secondary">Reset</button
-					>
-				</div>
-			</form>
-		{/if}
+						<AlertDescription class="font-medium">The profile is valid</AlertDescription>
+					</Alert>
 
-		{#if profilePreview}
-			<div class="font-medium text-lg mb-4 mx-4 variant-filled-success py-2 px-4 rounded-md">
-				The profile is valid
-			</div>
+					<Card class="mb-6 bg-muted">
+						<CardContent class="p-4">
+							<pre class="text-sm whitespace-pre-wrap break-all">{JSON.stringify(
+									{ linked_schemas: schemasSelected, ...currentProfile },
+									null,
+									2
+								)}</pre>
+						</CardContent>
+					</Card>
 
-			<div class="m-4 bg-primary-300 dark:bg-primary-900 rounded-xl px-4 py-2">
-				<pre class="text-sm text-left whitespace-pre-wrap break-all">{JSON.stringify(
-						{ linked_schemas: schemasSelected, ...currentProfile },
-						null,
-						2
-					)}</pre>
-			</div>
-			<div class="flex justify-around mt-4 md:mt-8">
-				<button
-					onclick={() => (profilePreview = false)}
-					disabled={isSubmitting}
-					class="btn font-semibold md:btn-lg variant-filled-primary">Continue Editing</button
-				>
-			</div>
-			<form onsubmit={saveAndPostProfile}>
-				<div class="mt-4 md:mt-8">
-					<div class="m-4 flex flex-col text-left">
-						<label>
-							<div class="my-2 dark:text-white">Title:</div>
-							<input
-								class="w-full dark:bg-gray-700 dark:text-white"
-								name="title"
+					<div class="flex justify-center mb-6">
+						<Button
+							onclick={() => (profilePreview = false)}
+							disabled={isSubmitting}
+							variant="outline"
+							class="font-semibold"
+						>
+							Continue Editing
+						</Button>
+					</div>
+
+					<form onsubmit={saveAndPostProfile} class="space-y-6">
+						<div class="space-y-2">
+							<Label for="title" class="text-sm font-medium">Title</Label>
+							<Input
 								id="title"
+								name="title"
 								type="text"
 								value={currentTitle}
 								required
+								class="w-full"
 							/>
-						</label>
-					</div>
-				</div>
-				<button
-					class="btn font-semibold md:btn-lg variant-filled-primary"
-					disabled={!isDbOnline || isSubmitting}>Save & Post</button
-				>
-			</form>
-		{/if}
+						</div>
+						<div class="flex justify-center">
+							<Button type="submit" disabled={!isDbOnline || isSubmitting} class="font-semibold">
+								Save & Post
+							</Button>
+						</div>
+					</form>
+				{/if}
+			</CardContent>
+		</Card>
 	</div>
 </div>

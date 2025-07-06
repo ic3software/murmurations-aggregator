@@ -69,7 +69,7 @@
 					title: profile.title ?? '',
 					node_id: profile.nodeId ?? '',
 					status: 'received',
-					last_updated: new Date(profile.lastUpdated).toLocaleString(),
+					last_updated: new Date(profile.lastUpdated * 1000).toLocaleString(),
 					schemas: profile.linkedSchemas ? JSON.parse(profile.linkedSchemas) : []
 				}));
 			} else {
@@ -108,7 +108,7 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-	<div class="container mx-auto p-4">
+	<div class="container mx-auto">
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 			<!-- BEGIN: List of user-generated profiles -->
 			<div class="md:col-span-1 space-y-4 overflow-auto">

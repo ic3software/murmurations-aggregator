@@ -1,7 +1,8 @@
+import { PUBLIC_LIBRARY_URL } from '$env/static/public';
 import type { RetrievedSchema, Schema } from '$lib/types/schema';
 
 export const parseRef = async (schemaName: string | string[]): Promise<Schema | null> => {
-	const url = `profile-generator/schemas`;
+	const url = `${PUBLIC_LIBRARY_URL}/v2/schemas`;
 
 	const schemaNames = Array.isArray(schemaName)
 		? schemaName

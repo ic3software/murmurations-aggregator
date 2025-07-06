@@ -37,7 +37,7 @@ export type ProfileInsert = typeof profiles.$inferInsert;
 
 export type ProfileCreateInput = Omit<
 	ProfileInsert,
-	'id' | 'cuid' | 'createdAt' | 'updatedAt' | 'lastUpdated'
+	'id' | 'userId' | 'cuid' | 'createdAt' | 'updatedAt'
 >;
 
 export type ProfileUpdateInput = Pick<Profile, 'title' | 'profile' | 'lastUpdated'>;

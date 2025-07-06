@@ -1,4 +1,15 @@
 <script lang="ts">
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import type { ProfileArray, ProfileObject, ProfileValue } from '$lib/types/profile';
 	import type { Field } from '$lib/types/schema';
 
@@ -74,18 +85,22 @@
 	}
 </script>
 
-<div class="my-2">
+<div class="space-y-4">
 	{#if field.type === 'string' && field.enum}
-		<label for={name}>
+		<div class="space-y-2">
 			{#if !hideTitle}
-				<div class="my-2 font-bold">
-					{field.title}:{#if requiredFields.includes(fieldName)}
-						<span class="ml-1 text-red-500">*</span>{/if}
+				<div class="flex items-center gap-2">
+					<Label for={name} class="text-sm font-medium">
+						{field.title}
+					</Label>
+					{#if requiredFields.includes(fieldName)}
+						<Badge variant="destructive" class="text-[10px] px-1.5 py-0.5 h-4">Required</Badge>
+					{/if}
 				</div>
 			{/if}
 			{#if isParentArray}
 				<select
-					class="w-full bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+					class="flex h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 					id={name}
 					{name}
 					required={isParentRequired && requiredFields.includes(fieldName)}
@@ -98,7 +113,7 @@
 				</select>
 			{:else}
 				<select
-					class="w-full bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 					id={name}
 					{name}
 					required={isParentRequired && requiredFields.includes(fieldName)}
@@ -110,20 +125,23 @@
 					{/each}
 				</select>
 			{/if}
-			{#if !hideDescription}
-				<div class="text-sm text-gray-500 dark:text-gray-400">{field.description}</div>
+			{#if !hideDescription && field.description}
+				<p class="text-sm text-muted-foreground">{field.description}</p>
 			{/if}
-		</label>
+		</div>
 	{:else if field.type === 'string'}
-		<label for={name}>
+		<div class="space-y-2">
 			{#if !hideTitle}
-				<div class="my-2 font-bold">
-					{field.title}:{#if requiredFields.includes(fieldName)}
-						<span class="ml-1 text-red-500">*</span>{/if}
+				<div class="flex items-center gap-2">
+					<Label for={name} class="text-sm font-medium">
+						{field.title}
+					</Label>
+					{#if requiredFields.includes(fieldName)}
+						<Badge variant="destructive" class="text-[10px] px-1.5 py-0.5 h-4">Required</Badge>
+					{/if}
 				</div>
 			{/if}
-			<input
-				class="w-full bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+			<Input
 				type="text"
 				id={name}
 				{name}
@@ -131,21 +149,25 @@
 				maxlength={field.maxLength}
 				pattern={field.pattern}
 				value={fieldValue[fieldName]}
+				class="w-full"
 			/>
-			{#if !hideDescription}
-				<div class="text-sm text-gray-500 dark:text-gray-400">{field.description}</div>
+			{#if !hideDescription && field.description}
+				<p class="text-sm text-muted-foreground">{field.description}</p>
 			{/if}
-		</label>
+		</div>
 	{:else if field.type === 'number'}
-		<label for={name}>
+		<div class="space-y-2">
 			{#if !hideTitle}
-				<div class="my-2 font-bold">
-					{field.title}:{#if requiredFields.includes(fieldName)}
-						<span class="ml-1 text-red-500">*</span>{/if}
+				<div class="flex items-center gap-2">
+					<Label for={name} class="text-sm font-medium">
+						{field.title}
+					</Label>
+					{#if requiredFields.includes(fieldName)}
+						<Badge variant="destructive" class="text-[10px] px-1.5 py-0.5 h-4">Required</Badge>
+					{/if}
 				</div>
 			{/if}
-			<input
-				class="w-full bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+			<Input
 				type="number"
 				step="any"
 				id={name}
@@ -154,11 +176,12 @@
 				min={field.minimum}
 				max={field.maximum}
 				bind:value={fieldValue[fieldName]}
+				class="w-full"
 			/>
-			{#if !hideDescription}
-				<div class="text-sm text-gray-500 dark:text-gray-400">{field.description}</div>
+			{#if !hideDescription && field.description}
+				<p class="text-sm text-muted-foreground">{field.description}</p>
 			{/if}
-		</label>
+		</div>
 	{:else if field.type === 'array' && field.items}
 		{#if field.items.type === 'string' && field.items.enum}
 			<FormField
@@ -171,57 +194,79 @@
 				bind:fieldValue
 			/>
 		{:else}
-			<fieldset class="px-4 py-0 border-4 border-dotted border-gray-500">
-				<legend class="my-2 px-1 font-bold">
-					{field.title}{#if requiredFields.includes(fieldName)}
-						<span class="ml-1 text-red-500">*</span>{/if}
-				</legend>
-				<div class="text-sm text-gray-500 dark:text-gray-400">{field.description}</div>
-				{#each $items as item, index (item)}
-					<FormField
-						name={`${name}[${index}]`}
-						{fieldName}
-						field={field.items}
-						hideTitle={true}
-						hideDescription={field.items.type !== 'object'}
-						{requiredFields}
-						isParentRequired={requiredFields.includes(fieldName)}
-						bind:fieldValue={$items[index] as ProfileObject}
-					/>
-					<button
-						type="button"
-						class="btn-xs rounded-md text-xs font-bold md:btn-sm md:text-sm variant-filled-secondary mt-2 mb-4 py-1 px-2"
-						onclick={() => removeItem(index)}>-</button
-					>
-				{/each}
-				<button
-					type="button"
-					class="btn-xs rounded-md text-xs font-bold md:btn-sm md:text-sm variant-filled-primary ml-2 py-1 px-2"
-					onclick={addItem}>+</button
-				>
-			</fieldset>
+			<Card class="border-dashed border-2">
+				<CardHeader class="pb-3">
+					<div class="flex items-center gap-2">
+						<CardTitle class="text-base font-medium">
+							{field.title}
+						</CardTitle>
+						{#if requiredFields.includes(fieldName)}
+							<Badge variant="destructive" class="text-[10px] px-1.5 py-0.5 h-4">Required</Badge>
+						{/if}
+					</div>
+					{#if field.description}
+						<CardDescription class="text-sm">{field.description}</CardDescription>
+					{/if}
+				</CardHeader>
+				<CardContent class="space-y-4">
+					{#each $items as item, index (item)}
+						<div class="space-y-2 p-4 border rounded-lg">
+							<FormField
+								name={`${name}[${index}]`}
+								{fieldName}
+								field={field.items}
+								hideTitle={true}
+								hideDescription={field.items.type !== 'object'}
+								{requiredFields}
+								isParentRequired={requiredFields.includes(fieldName)}
+								bind:fieldValue={$items[index] as ProfileObject}
+							/>
+							<Button
+								type="button"
+								variant="destructive"
+								size="sm"
+								onclick={() => removeItem(index)}
+								class="mt-2 text-xs"
+							>
+								Remove
+							</Button>
+						</div>
+					{/each}
+					<Button type="button" variant="outline" size="sm" onclick={addItem} class="w-full">
+						Add Item
+					</Button>
+				</CardContent>
+			</Card>
 		{/if}
 	{:else if field.type === 'object' && field.properties}
-		<fieldset class="px-4 py-0 border-4 border-dotted border-gray-500">
+		<Card class="border-dashed border-2">
 			{#if !hideTitle}
-				<legend class="my-2 px-1 font-bold"
-					>{field.title}{#if requiredFields.includes(fieldName)}
-						<span class="ml-1 text-red-500">*</span>{/if}</legend
-				>
+				<CardHeader class="pb-3">
+					<div class="flex items-center gap-2">
+						<CardTitle class="text-base font-medium">
+							{field.title}
+						</CardTitle>
+						{#if requiredFields.includes(fieldName)}
+							<Badge variant="destructive" class="text-[10px] px-1.5 py-0.5 h-4">Required</Badge>
+						{/if}
+					</div>
+					{#if !hideDescription && field.description}
+						<CardDescription class="text-sm">{field.description}</CardDescription>
+					{/if}
+				</CardHeader>
 			{/if}
-			{#if !hideDescription && field.description}
-				<div class="text-sm text-gray-500 dark:text-gray-400">{field.description}</div>
-			{/if}
-			{#each Object.entries(field.properties) as [key, value]}
-				<FormField
-					name={name + '.' + key}
-					fieldName={key}
-					field={value}
-					requiredFields={field.required}
-					isParentRequired={requiredFields.includes(fieldName)}
-					bind:fieldValue
-				/>
-			{/each}
-		</fieldset>
+			<CardContent class="space-y-4">
+				{#each Object.entries(field.properties) as [key, value]}
+					<FormField
+						name={name + '.' + key}
+						fieldName={key}
+						field={value}
+						requiredFields={field.required}
+						isParentRequired={requiredFields.includes(fieldName)}
+						bind:fieldValue
+					/>
+				{/each}
+			</CardContent>
+		</Card>
 	{/if}
 </div>

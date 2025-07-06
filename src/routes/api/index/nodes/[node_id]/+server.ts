@@ -1,4 +1,4 @@
-import { PUBLIC_INDEX_URL } from '$env/static/public';
+import { PUBLIC_INDEX_URL, PUBLIC_TOOLS_URL } from '$env/static/public';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -36,24 +36,25 @@ export const POST: RequestHandler = async ({ params }) => {
 			return json({ error: 'Missing node_id', success: false }, { status: 400 });
 		}
 
+		const profileUrl = `${PUBLIC_TOOLS_URL}/profiles/${node_id}`;
+
 		const response = await fetch(`${PUBLIC_INDEX_URL}/v2/nodes`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ node_id })
+			body: JSON.stringify({ profile_url: profileUrl })
 		});
 
+		const data = await response.json();
 		if (!response.ok) {
-			const errorData = await response.json();
 			return json(
-				{ error: errorData.error || 'Error posting profile to index' },
+				{ error: data.error || 'Error posting profile to index', success: false },
 				{ status: response.status }
 			);
 		}
 
-		const result = await response.json();
-		return json({ data: result?.data?.node_id, success: true }, { status: 200 });
+		return json({ data: data?.data, success: true }, { status: 200 });
 	} catch (err) {
 		console.error('Error posting profile to index:', err);
 		return json(
