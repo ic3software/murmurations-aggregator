@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
 	import { Toaster } from '$lib/components/ui/sonner';
 
 	import { onMount } from 'svelte';
@@ -48,6 +49,40 @@
 					</a>
 				</h1>
 			</header>
+
+			<div class="mb-6">
+				<Menubar>
+					<MenubarMenu value="home">
+						<MenubarTrigger>
+							<a href="/">Home</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="profile-generator">
+						<MenubarTrigger>
+							<a href="/profile-generator">Profile Generator</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="batch-importer">
+						<MenubarTrigger>
+							<a href="/batch-importer">Batch Importer</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="index-explorer">
+						<MenubarTrigger>
+							<a href="/index-explorer">Index Explorer</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="index-updater">
+						<MenubarTrigger>
+							<a href="/index-updater">Index Updater</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+				</Menubar>
+			</div>
 
 			{@render children()}
 		</div>

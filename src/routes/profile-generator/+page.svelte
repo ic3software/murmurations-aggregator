@@ -2,9 +2,12 @@
 	import { getProfile, getProfiles } from '$lib/api/profiles';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Card, CardContent } from '$lib/components/ui/card';
+	import { dbStatus } from '$lib/stores/db-status';
 	import type { Profile, ProfileCardType, ProfileObject } from '$lib/types/profile';
 	import type { BasicSchema } from '$lib/types/schema';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+
+	import { onMount } from 'svelte';
 
 	import type { PageData } from './$types';
 	import ProfileCard from './ProfileCard.svelte';
@@ -23,6 +26,24 @@
 	let currentProfile: ProfileObject = $state({});
 	let currentTitle: string = $state('');
 	let currentCuid: string = $state('');
+	let isDbOnline: boolean = $state(true);
+	let isLoggedIn: boolean = $state(true);
+
+	// Subscribe to dbStatus changes
+	dbStatus.subscribe((value) => (isDbOnline = value));
+
+	onMount(async () => {
+		if (isLoggedIn) {
+			await fetchProfiles();
+		}
+	});
+
+	// Fetch profiles when dbStatus is online and user is logged in
+	$effect(() => {
+		if (isDbOnline && isLoggedIn) {
+			fetchProfiles();
+		}
+	});
 
 	function handleSchemasSelected(schemas: string[]): void {
 		schemasSelected = schemas;
@@ -51,6 +72,9 @@
 					last_updated: new Date(profile.lastUpdated).toLocaleString(),
 					schemas: profile.linkedSchemas ? JSON.parse(profile.linkedSchemas) : []
 				}));
+			} else {
+				isLoggedIn = false;
+				profileErrorMessage = 'Failed to fetch profiles, please try again later';
 			}
 		} catch (err) {
 			console.error('Error fetching profiles:', err);
@@ -92,17 +116,26 @@
 					<Card>
 						<CardContent class="p-6">
 							<div class="space-y-4">
-								<p class="font-medium text-foreground">
-									Create a profile by selecting a schema from the list.
-								</p>
-								<p class="font-medium text-foreground">
-									<a
-										href="https://docs.murmurations.network/guides/create-a-profile.html#_2-hosted-by-our-profile-generator"
-										target="_blank"
-										class="text-primary hover:text-primary/80 underline"
-										>See our documentation for details</a
-									>
-								</p>
+								{#if !$dbStatus}
+									<p class="font-medium text-foreground">
+										Unable to connect to the database, Unable to load profiles
+									</p>
+								{:else if !isLoggedIn}
+									<p class="font-medium text-foreground">
+										Login first if you want to save your profile here, or just create a profile by
+										selecting a schema from the list.
+									</p>
+									<p class="font-medium text-foreground pt-4">
+										<a
+											href="https://docs.murmurations.network/guides/create-a-profile.html#_2-hosted-by-our-profile-generator"
+											target="_blank"
+											class="text-primary hover:text-primary/80 underline"
+											>See our documentation for details</a
+										>
+									</p>
+								{:else}
+									<p class="font-medium text-foreground">No saved profiles found</p>
+								{/if}
 							</div>
 						</CardContent>
 					</Card>
