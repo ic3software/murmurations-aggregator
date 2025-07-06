@@ -148,7 +148,7 @@
 				required={isParentRequired && requiredFields.includes(fieldName)}
 				maxlength={field.maxLength}
 				pattern={field.pattern}
-				value={fieldValue[fieldName]}
+				bind:value={fieldValue[fieldName]}
 				class="w-full"
 			/>
 			{#if !hideDescription && field.description}
