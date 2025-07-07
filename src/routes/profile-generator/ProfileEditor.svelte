@@ -12,6 +12,7 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { isLoggedIn } from '$lib/stores/auth';
 	import { dbStatus } from '$lib/stores/db-status';
 	import type {
 		Profile,
@@ -153,6 +154,12 @@
 		isSubmitting = true;
 		serviceError = '';
 
+		if (!$isLoggedIn) {
+			toast.error('Please log in first.');
+			isSubmitting = false;
+			return;
+		}
+
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
 		const title = formData.get('title') as string;
@@ -207,23 +214,31 @@
 				console.log('Profile updated to index with node_id:', data?.node_id);
 			} else {
 				// Post profile URL to index and get node_id
-				const { data, error } = await postIndex(currentCuid);
+				const { data, errors } = await postIndex(currentCuid);
 
-				if (error) {
+				if (errors) {
 					profilePreview = false;
-					profileEditorErrorOccurred(
-						error || 'Unknown error occurred while posting profile to index'
-					);
+					const errorMessages = Array.isArray(errors)
+						? errors
+								.map(
+									(error: { title: string; detail: string }) => `${error.title}: ${error.detail}`
+								)
+								.join(', ')
+						: 'Unknown error occurred while posting profile to index';
+					profileEditorErrorOccurred(errorMessages);
 					resetSchemas();
 					return;
 				}
 
 				// Update profile with node_id in DB
-				const { success } = await updateProfileNodeId(currentCuid, data?.node_id);
+				const { success, error: updateError } = await updateProfileNodeId(
+					currentCuid,
+					data?.node_id
+				);
 				if (success) {
 					console.log('Profile updated with node_id successfully');
 				} else {
-					throw new Error('Unknown error occurred while updating node_id');
+					throw new Error(updateError || 'Unknown error occurred while updating node_id');
 				}
 			}
 
