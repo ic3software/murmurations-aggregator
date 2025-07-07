@@ -11,6 +11,7 @@
 	import { Clock, Database, Edit, Trash2 } from '@lucide/svelte';
 	import { createQuery, QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 
+	import { toast } from 'svelte-sonner';
 	import { get } from 'svelte/store';
 
 	const queryClient = new QueryClient();
@@ -22,7 +23,6 @@
 		status: string;
 		last_updated: string;
 		schemas: string[];
-		profileErrorOccurred: (error: string | null) => void;
 		profileUpdated: () => void;
 		profileModify: (cuid: string) => Promise<void>;
 	}
@@ -34,7 +34,6 @@
 		status,
 		last_updated,
 		schemas,
-		profileErrorOccurred,
 		profileUpdated,
 		profileModify
 	}: Props = $props();
@@ -69,15 +68,10 @@
 			const { data, error } = await getIndexStatus(node_id);
 			if (data?.status) {
 				errorMessage = '';
-				profileErrorOccurred(null);
 				return data.status ?? 'unknown';
 			} else {
-				if (error) {
-					errorMessage = error;
-				} else {
-					errorMessage = `Unknown error occurred. Please try again in a few minutes.`;
-				}
-				profileErrorOccurred(errorMessage);
+				errorMessage = error || 'Unknown error occurred. Please try again in a few minutes.';
+				toast.error(errorMessage);
 				return 'unknown';
 			}
 		} catch (err) {
@@ -106,8 +100,10 @@
 			}
 			profileUpdated();
 			dialogOpen = false;
+			toast.success('Profile deleted successfully');
 		} catch (err) {
 			console.error('Error deleting profile:', err);
+			toast.error('Error deleting profile: ' + err);
 		}
 	}
 

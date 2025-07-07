@@ -38,7 +38,6 @@
 		currentCuid: string;
 		schemasReset: () => void;
 		profileUpdated: () => void;
-		profileEditorErrorOccurred: (error: string | null) => void;
 	}
 
 	let {
@@ -47,8 +46,7 @@
 		currentTitle = '',
 		currentCuid = '',
 		schemasReset,
-		profileUpdated,
-		profileEditorErrorOccurred
+		profileUpdated
 	}: Props = $props();
 
 	let profilePreview: boolean = $state(false);
@@ -68,10 +66,9 @@
 	// Use parseRef to retrieve the schema based on schemasSelected
 	onMount(async () => {
 		try {
-			profileEditorErrorOccurred(null);
 			schemas = await parseRef(schemasSelected);
 		} catch (err) {
-			profileEditorErrorOccurred(err as string | null);
+			toast.error(err as string);
 			resetSchemas();
 		}
 	});
@@ -144,6 +141,7 @@
 			} else {
 				validationErrors = [];
 				profilePreview = true;
+				toast.success('Profile is valid');
 			}
 		}
 		isSubmitting = false;
@@ -204,20 +202,14 @@
 			}
 
 			if (result.success) {
-				console.log('Profile saved successfully!');
+				toast.success('Profile saved successfully!');
 			} else {
 				throw new Error('Unknown error occurred while saving profile');
 			}
 
 			if (result?.data?.cuid) {
-				const { data } = await postIndex(result.data.cuid);
-				console.log('Profile updated to index with node_id:', data?.node_id);
-			} else {
-				// Post profile URL to index and get node_id
-				const { data, errors } = await postIndex(currentCuid);
-
+				const { data, errors } = await postIndex(result.data.cuid);
 				if (errors) {
-					profilePreview = false;
 					const errorMessages = Array.isArray(errors)
 						? errors
 								.map(
@@ -225,30 +217,42 @@
 								)
 								.join(', ')
 						: 'Unknown error occurred while posting profile to index';
-					profileEditorErrorOccurred(errorMessages);
-					resetSchemas();
-					return;
+					toast.error('Posting profile to index failed: ' + errorMessages);
 				}
+				console.log('Profile updated to index with node_id:', data?.node_id);
+			} else {
+				// Post profile URL to index and get node_id
+				const { data, errors } = await postIndex(currentCuid);
 
-				// Update profile with node_id in DB
-				const { success, error: updateError } = await updateProfileNodeId(
-					currentCuid,
-					data?.node_id
-				);
-				if (success) {
-					console.log('Profile updated with node_id successfully');
+				if (errors) {
+					const errorMessages = Array.isArray(errors)
+						? errors
+								.map(
+									(error: { title: string; detail: string }) => `${error.title}: ${error.detail}`
+								)
+								.join(', ')
+						: 'Unknown error occurred while posting profile to index';
+					toast.error('Posting profile to index failed: ' + errorMessages);
 				} else {
-					throw new Error(updateError || 'Unknown error occurred while updating node_id');
+					// Update profile with node_id in DB
+					const { success, error: updateError } = await updateProfileNodeId(
+						currentCuid,
+						data?.node_id
+					);
+					if (success) {
+						console.log('Profile updated with node_id successfully');
+					} else {
+						throw new Error(updateError || 'Unknown error occurred while updating node_id');
+					}
 				}
 			}
 
 			// Reset to initial state
 			profilePreview = false;
-			profileEditorErrorOccurred(null);
 			resetSchemas();
 		} catch (err) {
 			console.error('Error saving and posting profile:', err);
-			profileEditorErrorOccurred(err as string | null);
+			toast.error(err as string);
 		}
 
 		profileUpdated();
@@ -319,12 +323,6 @@
 				{/if}
 
 				{#if profilePreview}
-					<Alert
-						class="mb-6 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"
-					>
-						<AlertDescription class="font-medium">The profile is valid</AlertDescription>
-					</Alert>
-
 					<Card class="mb-6 bg-muted">
 						<CardContent class="p-4">
 							<pre class="text-sm whitespace-pre-wrap break-all">{JSON.stringify(

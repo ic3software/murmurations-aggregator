@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { getProfile, getProfiles } from '$lib/api/profiles';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { isLoggedIn } from '$lib/stores/auth';
 	import { dbStatus } from '$lib/stores/db-status';
@@ -9,6 +8,7 @@
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	import type { PageData } from './$types';
 	import ProfileCard from './ProfileCard.svelte';
@@ -22,8 +22,6 @@
 	// Set selected schema in the parent component
 	let schemasSelected: string[] = $state([]);
 	let profileCards: ProfileCardType[] = $state([]);
-	let profileErrorMessage: string | null = $state(null);
-	let profileEditorErrorMessage: string | null = $state(null);
 	let currentProfile: ProfileObject = $state({});
 	let currentTitle: string = $state('');
 	let currentCuid: string = $state('');
@@ -33,6 +31,10 @@
 	dbStatus.subscribe((value) => (isDbOnline = value));
 
 	onMount(async () => {
+		if (data.errorMessage) {
+			toast.error(data.errorMessage);
+		}
+
 		if ($isLoggedIn) {
 			await fetchProfiles();
 		}
@@ -73,19 +75,11 @@
 					schemas: profile.linkedSchemas ? JSON.parse(profile.linkedSchemas) : []
 				}));
 			} else {
-				profileErrorMessage = 'Failed to fetch profiles, please try again later';
+				toast.error('Failed to fetch profiles, please try again later');
 			}
 		} catch (err) {
 			console.error('Error fetching profiles:', err);
 		}
-	}
-
-	function handleProfileErrorOccurred(error: string | null): void {
-		profileErrorMessage = error;
-	}
-
-	function handleProfileEditorErrorOccurred(error: string | null): void {
-		profileEditorErrorMessage = error;
 	}
 
 	async function handleProfileModify(cuid: string): Promise<void> {
@@ -144,27 +138,12 @@
 						{...profileCard}
 						profileUpdated={handleProfileUpdated}
 						profileModify={handleProfileModify}
-						profileErrorOccurred={handleProfileErrorOccurred}
 					/>
 				{/each}
 			</div>
 			<!-- END: List of user-generated profiles -->
 			<!-- BEGIN: Schema selection box / Create/modify profile input / Profile preview -->
 			<div class="md:col-span-2 space-y-4">
-				{#if profileErrorMessage || profileEditorErrorMessage}
-					<Alert variant="destructive">
-						<AlertDescription>
-							{profileErrorMessage || profileEditorErrorMessage}
-						</AlertDescription>
-					</Alert>
-				{/if}
-				{#if data.errorMessage}
-					<Alert variant="destructive">
-						<AlertDescription>
-							{data.errorMessage}
-						</AlertDescription>
-					</Alert>
-				{/if}
 				{#if schemasSelected.length === 0}
 					<SchemaSelector
 						schemasList={data.schemasList.map((schema: BasicSchema) => schema.name)}
@@ -178,7 +157,6 @@
 						{currentCuid}
 						schemasReset={handleSchemasReset}
 						profileUpdated={handleProfileUpdated}
-						profileEditorErrorOccurred={handleProfileEditorErrorOccurred}
 					/>
 				{/if}
 			</div>
