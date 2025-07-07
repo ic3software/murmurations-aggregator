@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import { initAuth, isLoggedIn } from '$lib/stores/auth';
 
 	import { onMount } from 'svelte';
 
@@ -21,6 +22,8 @@
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
 			document.documentElement.classList.toggle('dark', e.matches);
 		});
+
+		initAuth();
 	});
 </script>
 
@@ -79,6 +82,14 @@
 					<MenubarMenu value="index-updater">
 						<MenubarTrigger>
 							<a href="/index-updater">Index Updater</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu>
+						<MenubarTrigger class="ml-auto">
+							{#if !$isLoggedIn}
+								<a href="/admin/register">Login</a>
+							{/if}
 						</MenubarTrigger>
 					</MenubarMenu>
 				</Menubar>

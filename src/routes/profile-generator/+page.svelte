@@ -2,6 +2,7 @@
 	import { getProfile, getProfiles } from '$lib/api/profiles';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Card, CardContent } from '$lib/components/ui/card';
+	import { isLoggedIn } from '$lib/stores/auth';
 	import { dbStatus } from '$lib/stores/db-status';
 	import type { Profile, ProfileCardType, ProfileObject } from '$lib/types/profile';
 	import type { BasicSchema } from '$lib/types/schema';
@@ -27,20 +28,19 @@
 	let currentTitle: string = $state('');
 	let currentCuid: string = $state('');
 	let isDbOnline: boolean = $state(true);
-	let isLoggedIn: boolean = $state(true);
 
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
 
 	onMount(async () => {
-		if (isLoggedIn) {
+		if ($isLoggedIn) {
 			await fetchProfiles();
 		}
 	});
 
 	// Fetch profiles when dbStatus is online and user is logged in
 	$effect(() => {
-		if (isDbOnline && isLoggedIn) {
+		if (isDbOnline && $isLoggedIn) {
 			fetchProfiles();
 		}
 	});
@@ -73,7 +73,6 @@
 					schemas: profile.linkedSchemas ? JSON.parse(profile.linkedSchemas) : []
 				}));
 			} else {
-				isLoggedIn = false;
 				profileErrorMessage = 'Failed to fetch profiles, please try again later';
 			}
 		} catch (err) {
@@ -120,7 +119,7 @@
 									<p class="font-medium text-foreground">
 										Unable to connect to the database, Unable to load profiles
 									</p>
-								{:else if !isLoggedIn}
+								{:else if !$isLoggedIn}
 									<p class="font-medium text-foreground">
 										Login first if you want to save your profile here, or just create a profile by
 										selecting a schema from the list.
