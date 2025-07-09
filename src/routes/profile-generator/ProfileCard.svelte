@@ -113,35 +113,35 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-	<Card class="transition-all duration-200 hover:shadow-md border-gray-200">
+	<Card class="transition-all duration-200 hover:shadow-md border-border">
 		<CardContent class="p-6">
 			<div class="flex items-start justify-between">
 				<div class="flex-1 min-w-0">
 					<div class="flex items-center gap-3 mb-3">
-						<h3 class="text-lg font-semibold text-gray-900">{title}</h3>
+						<h3 class="text-lg font-semibold text-foreground">{title}</h3>
 						<Badge
 							variant={statusVariant}
 							class="text-xs font-medium px-2.5 py-0.5 {statusVariant === 'destructive'
-								? 'bg-red-100 text-red-800 hover:bg-red-100'
+								? 'bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-950'
 								: statusVariant === 'secondary'
-									? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-									: 'bg-green-100 text-green-800 hover:bg-green-100'}"
+									? 'bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-950'
+									: 'bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-950 dark:text-green-300 dark:hover:bg-green-950'}"
 						>
 							{status}
 						</Badge>
 					</div>
 
 					<div class="space-y-2">
-						<div class="flex items-center gap-2 text-sm text-gray-600">
+						<div class="flex items-center gap-2 text-sm text-muted-foreground">
 							<Clock class="h-4 w-4" />
 							<span>{last_updated}</span>
 						</div>
 
 						<div class="space-y-1">
 							{#each schemas as schema}
-								<div class="flex items-center gap-2 text-sm text-gray-600">
+								<div class="flex items-center gap-2 text-sm text-muted-foreground">
 									<Database class="h-4 w-4" />
-									<span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{schema}</span>
+									<span class="font-mono text-xs bg-muted px-2 py-1 rounded">{schema}</span>
 								</div>
 							{/each}
 						</div>
@@ -155,7 +155,7 @@
 				<Button
 					onclick={handleModify}
 					size="sm"
-					class="flex items-center gap-2 bg-gray-900 hover:bg-gray-800"
+					class="flex items-center gap-2"
 					disabled={!!errorMessage || !isDbOnline}
 				>
 					<Edit class="h-4 w-4" />
@@ -167,7 +167,7 @@
 							variant: 'outline',
 							size: 'sm'
 						}) +
-							' flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 bg-transparent'}
+							' flex items-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30 bg-transparent'}
 						disabled={!!errorMessage || !isDbOnline}
 					>
 						<Trash2 class="h-4 w-4" />
