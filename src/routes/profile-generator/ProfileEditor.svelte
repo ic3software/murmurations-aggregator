@@ -207,43 +207,28 @@
 				throw new Error('Unknown error occurred while saving profile');
 			}
 
-			if (result?.data?.cuid) {
-				const { data, errors } = await postIndex(result.data.cuid);
-				if (errors) {
-					const errorMessages = Array.isArray(errors)
-						? errors
-								.map(
-									(error: { title: string; detail: string }) => `${error.title}: ${error.detail}`
-								)
-								.join(', ')
-						: 'Unknown error occurred while posting profile to index';
-					toast.error('Posting profile to index failed: ' + errorMessages);
-				}
-				console.log('Profile updated to index with node_id:', data?.node_id);
-			} else {
-				// Post profile URL to index and get node_id
-				const { data, errors } = await postIndex(currentCuid);
+			// Post profile URL to index and get node_id
+			const { data, errors } = await postIndex(result.data.cuid);
+			if (errors) {
+				const errorMessages = Array.isArray(errors)
+					? errors
+							.map((error: { title: string; detail: string }) => `${error.title}: ${error.detail}`)
+							.join(', ')
+					: 'Unknown error occurred while posting profile to index';
+				toast.error('Posting profile to index failed: ' + errorMessages);
+			}
+			console.log('Profile updated to index with node_id:', data?.node_id);
 
-				if (errors) {
-					const errorMessages = Array.isArray(errors)
-						? errors
-								.map(
-									(error: { title: string; detail: string }) => `${error.title}: ${error.detail}`
-								)
-								.join(', ')
-						: 'Unknown error occurred while posting profile to index';
-					toast.error('Posting profile to index failed: ' + errorMessages);
+			if (!currentCuid || currentCuid === '') {
+				// Update profile with node_id in DB
+				const { success, error: updateError } = await updateProfileNodeId(
+					currentCuid,
+					data?.node_id
+				);
+				if (success) {
+					console.log('Profile updated with node_id successfully');
 				} else {
-					// Update profile with node_id in DB
-					const { success, error: updateError } = await updateProfileNodeId(
-						currentCuid,
-						data?.node_id
-					);
-					if (success) {
-						console.log('Profile updated with node_id successfully');
-					} else {
-						throw new Error(updateError || 'Unknown error occurred while updating node_id');
-					}
+					throw new Error(updateError || 'Unknown error occurred while updating node_id');
 				}
 			}
 
