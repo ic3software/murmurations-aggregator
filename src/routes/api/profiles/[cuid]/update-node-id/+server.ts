@@ -1,4 +1,4 @@
-import { getDB } from '$lib/server/db';
+import { authenticateRequest } from '$lib/server/auth';
 import { updateProfileNodeId } from '$lib/server/models/profiles';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -10,14 +10,25 @@ export const PUT: RequestHandler = async ({
 }) => {
 	try {
 		const { cuid } = params;
-		const { node_id, user_id } = await request.json();
 
-		if (!cuid || !node_id || !user_id) {
+		const authResult = await authenticateRequest(platform, request, {
+			parseBody: true,
+			requiredUserId: true
+		});
+
+		if (!authResult.success) {
+			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		}
+
+		const { db, body, userId } = authResult.data;
+
+		const { node_id } = body as { node_id: string };
+
+		if (!cuid || !node_id || !userId) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const db = getDB(platform.env);
-		const result = await updateProfileNodeId(db, cuid, user_id, node_id);
+		const result = await updateProfileNodeId(db, cuid, userId, node_id);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Profile not found', success: false }, { status: 404 });
