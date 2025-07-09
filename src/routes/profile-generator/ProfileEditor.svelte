@@ -207,6 +207,10 @@
 				throw new Error('Unknown error occurred while saving profile');
 			}
 
+			if (!result?.data?.cuid) {
+				throw new Error('Profile cuid not found');
+			}
+
 			// Post profile URL to index and get node_id
 			const { data, errors } = await postIndex(result.data.cuid);
 			if (errors) {
@@ -219,7 +223,7 @@
 			}
 			console.log('Profile updated to index with node_id:', data?.node_id);
 
-			if (currentCuid === '' && result?.data?.cuid && data?.node_id) {
+			if (!currentCuid && data?.node_id) {
 				// Update profile with node_id in DB
 				const { success, error: updateError } = await updateProfileNodeId(
 					result.data.cuid,

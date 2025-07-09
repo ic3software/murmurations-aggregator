@@ -92,7 +92,7 @@ export const PATCH: RequestHandler = async ({
 			return json({ error: 'Failed to update profile', success: false }, { status: 404 });
 		}
 
-		return json({ success: true }, { status: 200 });
+		return json({ data: profileUpdate, success: true }, { status: 200 });
 	} catch (err) {
 		console.error(`Profile update failed: ${err}`);
 		return json(
