@@ -219,10 +219,10 @@
 			}
 			console.log('Profile updated to index with node_id:', data?.node_id);
 
-			if (!currentCuid || currentCuid === '') {
+			if (currentCuid === '' && result?.data?.cuid && data?.node_id) {
 				// Update profile with node_id in DB
 				const { success, error: updateError } = await updateProfileNodeId(
-					currentCuid,
+					result.data.cuid,
 					data?.node_id
 				);
 				if (success) {
