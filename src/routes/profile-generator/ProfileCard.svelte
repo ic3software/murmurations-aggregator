@@ -38,7 +38,6 @@
 		profileModify
 	}: Props = $props();
 
-	let errorMessage: string = $state('');
 	let statusVariant: 'default' | 'secondary' | 'destructive' | 'outline' = $state('default');
 	let isDbOnline: boolean = $state(get(dbStatus));
 	let dialogOpen: boolean = $state(false);
@@ -67,11 +66,9 @@
 		try {
 			const { data, error } = await getIndexStatus(node_id);
 			if (data?.status) {
-				errorMessage = '';
 				return data.status ?? 'unknown';
 			} else {
-				errorMessage = error || 'Unknown error occurred. Please try again in a few minutes.';
-				toast.error(errorMessage);
+				toast.error(error || 'Unknown error occurred. Please try again in a few minutes.');
 				return 'unknown';
 			}
 		} catch (err) {
@@ -156,7 +153,7 @@
 					onclick={handleModify}
 					size="sm"
 					class="flex items-center gap-2"
-					disabled={!!errorMessage || !isDbOnline}
+					disabled={!isDbOnline}
 				>
 					<Edit class="h-4 w-4" />
 					Modify
@@ -168,7 +165,7 @@
 							size: 'sm'
 						}) +
 							' flex items-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30 bg-transparent'}
-						disabled={!!errorMessage || !isDbOnline}
+						disabled={!isDbOnline}
 					>
 						<Trash2 class="h-4 w-4" />
 						Delete
