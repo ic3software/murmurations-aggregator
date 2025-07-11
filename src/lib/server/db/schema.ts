@@ -123,6 +123,26 @@ export const sourceIndexes = sqliteTable('source_indexes', {
 		.default(sql`(unixepoch())`)
 });
 
+export const profiles = sqliteTable('profiles', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	cuid: text('cuid').notNull().unique(),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => users.id),
+	linkedSchemas: text('linked_schemas'),
+	title: text('title'),
+	profile: text('profile'),
+	nodeId: text('node_id'),
+	lastUpdated: integer('last_updated', { mode: 'number' }).notNull(),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+// Relations
 export const clusterSchemasRelations = relations(clusterSchemas, ({ one }) => ({
 	cluster: one(clusters, {
 		fields: [clusterSchemas.clusterUuid],

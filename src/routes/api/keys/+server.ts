@@ -55,11 +55,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing token', success: false }, { status: 400 });
 		}
 
-		console.log('token', token);
-
 		const userId = await isTokenValidAndGetUserId(db, token);
-
-		console.log('userId', userId);
 
 		if (!userId) {
 			return json({ error: 'Invalid or expired token', success: false }, { status: 404 });
