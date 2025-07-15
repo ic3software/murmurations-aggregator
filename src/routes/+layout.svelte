@@ -156,7 +156,7 @@
 					<MenubarMenu>
 						<MenubarTrigger class="ml-auto">
 							{#if !$isLoggedIn}
-								<a href="/admin/register">Login</a>
+								<a href="/register">Login</a>
 							{/if}
 						</MenubarTrigger>
 					</MenubarMenu>
