@@ -29,6 +29,9 @@
 		});
 	}
 
+	const hiddenRoutes = ['/login', '/register'];
+	const showMenubar = $derived(!hiddenRoutes.includes(page.url.pathname));
+
 	onMount(() => {
 		// Check system preference
 		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -78,7 +81,7 @@
 
 <Toaster position="top-center" richColors={true} />
 
-{#if !isAdminRoute}
+{#if !isAdminRoute && showMenubar}
 	<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
 		<!-- Status Alerts - Position above everything -->
 		{#if !isOnline}
