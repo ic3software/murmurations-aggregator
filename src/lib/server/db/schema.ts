@@ -142,6 +142,83 @@ export const profiles = sqliteTable('profiles', {
 		.default(sql`(unixepoch())`)
 });
 
+export const roles = sqliteTable('roles', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name').notNull(),
+	description: text('description'),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+export const userRoles = sqliteTable('user_roles', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	roleId: integer('role_id')
+		.notNull()
+		.references(() => roles.id, { onDelete: 'cascade' }),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+export const capabilities = sqliteTable('capabilities', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name').notNull(),
+	action: text('action').notNull(),
+	description: text('description'),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+export const roleCapabilities = sqliteTable('role_capabilities', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	roleId: integer('role_id')
+		.notNull()
+		.references(() => roles.id, { onDelete: 'cascade' }),
+	capabilityId: integer('capability_id')
+		.notNull()
+		.references(() => capabilities.id, { onDelete: 'cascade' }),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	updatedAt: integer('updated_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
+export const delegations = sqliteTable('delegations', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	fromUserId: integer('from_user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	toUserId: integer('to_user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	capabilityId: integer('capability_id')
+		.notNull()
+		.references(() => capabilities.id, { onDelete: 'cascade' }),
+	expiresAt: integer('expires_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	delegationToken: text('delegation_token').notNull(),
+	createdAt: integer('created_at', { mode: 'number' })
+		.notNull()
+		.default(sql`(unixepoch())`)
+});
+
 // Relations
 export const clusterSchemasRelations = relations(clusterSchemas, ({ one }) => ({
 	cluster: one(clusters, {
@@ -153,7 +230,8 @@ export const clusterSchemasRelations = relations(clusterSchemas, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
 	publicKeys: many(publicKeys),
 	emails: many(emails),
-	loginTokens: many(loginTokens)
+	loginTokens: many(loginTokens),
+	roles: many(userRoles)
 }));
 
 export const publicKeysRelations = relations(publicKeys, ({ one }) => ({
@@ -174,5 +252,36 @@ export const loginTokensRelations = relations(loginTokens, ({ one }) => ({
 	user: one(users, {
 		fields: [loginTokens.userId],
 		references: [users.id]
+	})
+}));
+
+export const rolesRelations = relations(roles, ({ many }) => ({
+	userRoles: many(userRoles),
+	roleCapabilities: many(roleCapabilities)
+}));
+
+export const userRolesRelations = relations(userRoles, ({ one }) => ({
+	user: one(users, {
+		fields: [userRoles.userId],
+		references: [users.id]
+	}),
+	role: one(roles, {
+		fields: [userRoles.roleId],
+		references: [roles.id]
+	})
+}));
+
+export const capabilitiesRelations = relations(capabilities, ({ many }) => ({
+	roleCapabilities: many(roleCapabilities)
+}));
+
+export const roleCapabilitiesRelations = relations(roleCapabilities, ({ one }) => ({
+	role: one(roles, {
+		fields: [roleCapabilities.roleId],
+		references: [roles.id]
+	}),
+	capability: one(capabilities, {
+		fields: [roleCapabilities.capabilityId],
+		references: [capabilities.id]
 	})
 }));

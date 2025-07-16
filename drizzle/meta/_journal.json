@@ -36,6 +36,13 @@
       "when": 1751774124011,
       "tag": "0004_brainy_firelord",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1752639300695,
+      "tag": "0005_narrow_satana",
+      "breakpoints": true
     }
   ]
 }
