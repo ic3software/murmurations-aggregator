@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { createUser, getUser } from '$lib/api/users';
+	import { register } from '$lib/api/register';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -12,6 +12,7 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { isLoggedIn, login } from '$lib/stores/auth';
 	import { AlertCircle, Home } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
@@ -20,7 +21,7 @@
 	let errorMessage = $state('');
 	let isRegistering = $state(false);
 
-	async function register() {
+	async function handleRegister() {
 		if (!name.trim()) {
 			errorMessage = 'Please enter your name';
 			return;
@@ -28,12 +29,18 @@
 
 		try {
 			isRegistering = true;
-			const { success, error } = await createUser({ name });
+			const { data, success, error } = await register(name);
+
 			if (!success) {
 				errorMessage = `${error}`;
 				return;
 			}
-			goto('/admin', {
+
+			if (data?.token) {
+				login(data?.token);
+			}
+
+			goto('/', {
 				state: {
 					message:
 						'Your account has been created. Try closing and reopening the browser. You will be logged in automatically!'
@@ -49,17 +56,11 @@
 	}
 
 	onMount(async () => {
-		try {
-			const { success } = await getUser();
-			if (success) {
-				goto('/admin', {
-					state: { message: 'You have already signed in' },
-					replaceState: true
-				});
-			}
-		} catch (error) {
-			errorMessage = 'An unexpected error occurred while verifying login status. Error: ' + error;
-			console.error('Error verifying login status:', error);
+		if ($isLoggedIn) {
+			goto('/', {
+				state: { message: 'You have already signed in' },
+				replaceState: true
+			});
 		}
 	});
 </script>
@@ -94,7 +95,7 @@
 				/>
 			</div>
 
-			<Button class="w-full" onclick={register} disabled={isRegistering || !name.trim()}>
+			<Button class="w-full" onclick={handleRegister} disabled={isRegistering || !name.trim()}>
 				{isRegistering ? 'Creating Account...' : 'Create Account'}
 			</Button>
 
