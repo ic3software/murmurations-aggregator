@@ -51,7 +51,6 @@ CREATE TABLE `user_roles` (
 INSERT INTO `capabilities` (`name`, `action`, `description`)
 VALUES
   ('user', 'READ', 'Read own user information'),
-  ('user', 'READ_ANY', 'Admin query all users'),
   ('user', 'CREATE', 'Create user'),
   ('user', 'UPDATE', 'Update user'),
   ('user', 'DELETE', 'Delete user'),
@@ -60,14 +59,10 @@ VALUES
   ('email', 'CREATE', 'Create email'),
   ('email', 'DELETE', 'Delete email'),
   ('email', 'SEND_RESET_REQUEST', 'Send email reset request'),
-  ('ucan', 'ISSUE', 'Issue UCAN token'),
-  ('ucan', 'VALIDATE', 'Validate UCAN token'),
   ('cluster', 'READ', 'Read cluster'),
   ('cluster', 'CREATE', 'Create cluster'),
   ('cluster', 'UPDATE', 'Update cluster'),
   ('cluster', 'DELETE', 'Delete cluster'),
-  ('cluster-schema', 'READ', 'Read cluster schema'),
-  ('cluster-schema', 'UPDATE', 'Update cluster schema'),
   ('node', 'READ', 'Read node'),
   ('node', 'UPDATE', 'Update node'),
   ('node', 'DELETE', 'Delete node'),

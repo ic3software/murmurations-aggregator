@@ -1,32 +1,41 @@
 import { validateProfile } from '$lib/api/profiles';
+import { removeDidPrefix } from '$lib/crypto';
 import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { createProfile, getProfilesByUserId } from '$lib/server/models/profiles';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import type { ProfileInsert, ProfileObject } from '$lib/types/profile';
+import { verifyUcan } from '$lib/ucan/verify-ucan';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createId } from '@paralleldrive/cuid2';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	platform = { env: { DB: {} as D1Database } },
+	cookies
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: false,
-			requiredUserId: true
-		});
+		const ucanToken = cookies.get('ucan_token');
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
 		}
 
-		const { db, userId } = authResult.data;
+		const publicKey = await verifyUcan(ucanToken);
 
-		if (userId === undefined || isNaN(userId)) {
+		if (publicKey === null) {
 			return json({ error: 'Invalid user ID', success: false }, { status: 400 });
 		}
 
-		const profiles = await getProfilesByUserId(db, userId);
+		const db = getDB(platform.env);
+
+		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const profiles = await getProfilesByUserId(db, userByPublicKey.userId);
 
 		return json({ data: profiles, success: true });
 	} catch (err) {
@@ -34,6 +43,7 @@ export const GET: RequestHandler = async ({
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
 	}
 };
+
 export const POST: RequestHandler = async ({
 	request,
 	platform = { env: { DB: {} as D1Database } }

@@ -108,6 +108,10 @@ export async function exportPublicKey(publicKey: CryptoKey): Promise<string> {
 	}
 }
 
+export function removeDidPrefix(publicKey: string): string {
+	return publicKey.replace('did:key:z', '');
+}
+
 /**
  * Retrieves a stored key pair or generates a new one if none exists.
  */

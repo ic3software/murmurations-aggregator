@@ -5,8 +5,7 @@ export async function request<TBody, TResponse>(
 	url: string,
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
 	body?: TBody,
-	customFetch: typeof fetch = fetch,
-	token?: string
+	customFetch: typeof fetch = fetch
 ): Promise<{
 	data: TResponse;
 	success: boolean;
@@ -22,14 +21,11 @@ export async function request<TBody, TResponse>(
 
 		const requestBody = body !== undefined ? JSON.stringify(body) : undefined;
 
-		if (token) {
-			headers['Authorization'] = `Bearer ${token}`;
-		}
-
 		const response = await customFetch(url, {
 			method,
 			headers,
-			body: requestBody
+			body: requestBody,
+			credentials: 'include'
 		});
 
 		const json = await response.json();
