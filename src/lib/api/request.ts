@@ -1,4 +1,3 @@
-import { logout } from '$lib/stores/auth';
 import type { Meta } from '$lib/types/api';
 import type { ValidationError } from '$lib/types/profile';
 
@@ -36,13 +35,6 @@ export async function request<TBody, TResponse>(
 		const json = await response.json();
 
 		if (!response.ok) {
-			const shouldLogout =
-				response.status === 401 || response.status === 403 || response.status === 422;
-
-			if (shouldLogout) {
-				logout();
-			}
-
 			return {
 				data: null as unknown as TResponse,
 				success: false,

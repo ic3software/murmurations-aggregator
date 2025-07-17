@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { register } from '$lib/api/register';
+	import { register } from '$lib/api/auth-request';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -12,57 +12,57 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { isLoggedIn, login } from '$lib/stores/auth';
+	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import { AlertCircle, Home } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 
-	let name = $state('');
-	let errorMessage = $state('');
-	let isRegistering = $state(false);
+	let { form } = $props();
 
-	async function handleRegister() {
-		if (!name.trim()) {
-			errorMessage = 'Please enter your name';
-			return;
-		}
+	let name = $state('');
+	let isSubmitting = $state(false);
+	/* global CryptoKeyPair */
+	let keypair: CryptoKeyPair | null = $state(null);
+	let error = $state<string | null>(null);
+
+	onMount(async () => {
+		keypair = await getOrCreateKeyPair();
+	});
+
+	async function handleRegister(event: Event) {
+		event.preventDefault();
+
+		if (!keypair || !name.trim()) return;
+
+		isSubmitting = true;
+		error = null;
 
 		try {
-			isRegistering = true;
-			const { data, success, error } = await register(name);
+			const body = { name };
+			const requestBody = JSON.stringify(body);
+			const xTimer = Math.floor(Date.now());
+			const signature = await signRequest(requestBody, keypair.privateKey);
+			const xTimerSignature = await signRequest(xTimer.toString(), keypair.privateKey);
+			const publicKey = await exportPublicKey(keypair.publicKey);
 
-			if (!success) {
-				errorMessage = `${error}`;
+			const {
+				data,
+				success,
+				error: registerError
+			} = await register(name, signature, xTimer.toString(), xTimerSignature, publicKey);
+
+			if (!success || !data?.token) {
+				error = registerError || 'Registration failed';
 				return;
 			}
 
-			if (data?.token) {
-				login(data?.token);
-			}
-
-			goto('/', {
-				state: {
-					message:
-						'Your account has been created. Try closing and reopening the browser. You will be logged in automatically!'
-				},
-				replaceState: true
-			});
-		} catch (error) {
-			console.error('Error during registration:', error);
-			errorMessage = 'An error occurred during registration';
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An unknown error occurred';
 		} finally {
-			isRegistering = false;
+			isSubmitting = false;
 		}
 	}
-
-	onMount(async () => {
-		if ($isLoggedIn) {
-			goto('/', {
-				state: { message: 'You have already signed in' },
-				replaceState: true
-			});
-		}
-	});
 </script>
 
 <div class="flex h-screen items-center justify-center bg-background">
@@ -75,29 +75,35 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent class="space-y-4">
-			{#if errorMessage}
+			{#if form?.error || error}
 				<Alert variant="destructive">
 					<AlertCircle class="h-4 w-4" />
 					<AlertDescription>
-						{errorMessage}
+						{form?.error || error}
 					</AlertDescription>
 				</Alert>
 			{/if}
 
-			<div class="space-y-2">
-				<Label for="username">Username</Label>
-				<Input
-					id="username"
-					type="text"
-					placeholder="Enter your username"
-					bind:value={name}
-					disabled={isRegistering}
-				/>
-			</div>
+			<form onsubmit={handleRegister}>
+				<div class="space-y-4">
+					<div class="space-y-2">
+						<Label for="name">Username</Label>
+						<Input
+							id="name"
+							name="name"
+							type="text"
+							placeholder="Enter your username"
+							bind:value={name}
+							disabled={isSubmitting}
+							required
+						/>
+					</div>
 
-			<Button class="w-full" onclick={handleRegister} disabled={isRegistering || !name.trim()}>
-				{isRegistering ? 'Creating Account...' : 'Create Account'}
-			</Button>
+					<Button class="w-full" type="submit" disabled={isSubmitting || !name.trim() || !keypair}>
+						{isSubmitting ? 'Creating Account...' : 'Create Account'}
+					</Button>
+				</div>
+			</form>
 
 			<Button href="/" class="w-full" variant="outline">
 				<Home class="mr-2 h-4 w-4" />

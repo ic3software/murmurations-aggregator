@@ -107,3 +107,17 @@ export async function exportPublicKey(publicKey: CryptoKey): Promise<string> {
 		throw new Error('Failed to export public key');
 	}
 }
+
+/**
+ * Retrieves a stored key pair or generates a new one if none exists.
+ */
+export async function getOrCreateKeyPair(): Promise<CryptoKeyPair> {
+	const publicKey = await getKey('publicKey');
+	const privateKey = await getKey('privateKey');
+	if (!publicKey || !privateKey) {
+		const keypair = await generateKeyPair();
+		await storeKeys(keypair.publicKey, keypair.privateKey);
+		return keypair;
+	}
+	return { publicKey, privateKey };
+}

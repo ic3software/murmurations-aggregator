@@ -12,7 +12,6 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { isLoggedIn } from '$lib/stores/auth';
 	import { dbStatus } from '$lib/stores/db-status';
 	import type {
 		Profile,
@@ -38,6 +37,7 @@
 		currentCuid: string;
 		schemasReset: () => void;
 		profileUpdated: () => void;
+		user: string | null;
 	}
 
 	let {
@@ -46,7 +46,8 @@
 		currentTitle = '',
 		currentCuid = '',
 		schemasReset,
-		profileUpdated
+		profileUpdated,
+		user
 	}: Props = $props();
 
 	let profilePreview: boolean = $state(false);
@@ -152,7 +153,7 @@
 		isSubmitting = true;
 		serviceError = '';
 
-		if (!$isLoggedIn) {
+		if (!user) {
 			toast.error('Please log in first.');
 			isSubmitting = false;
 			return;

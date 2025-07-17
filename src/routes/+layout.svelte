@@ -1,17 +1,26 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { refreshToken } from '$lib/api/auth-request';
 	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import { initAuth, isLoggedIn } from '$lib/stores/auth';
+	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import { dbStatus } from '$lib/stores/db-status';
 	import { checkDbStatus } from '$lib/utils/check-db-status';
 	import { AlertCircle, WifiOff } from '@lucide/svelte';
 
+	import type { Snippet } from 'svelte';
 	import { onMount } from 'svelte';
 
 	import '../app.css';
 
-	let { children } = $props();
+	interface Props {
+		children: Snippet;
+		data: {
+			user: string | null;
+		};
+	}
+
+	let { children, data }: Props = $props();
 
 	let isDbOnline: boolean = $state(true);
 	let isOnline: boolean = $state(true);
@@ -32,6 +41,9 @@
 	const hiddenRoutes = ['/login', '/register'];
 	const showMenubar = $derived(!hiddenRoutes.includes(page.url.pathname));
 
+	/* global CryptoKeyPair */
+	let keypair: CryptoKeyPair | null = $state(null);
+
 	onMount(() => {
 		// Check system preference
 		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -50,9 +62,6 @@
 		window.addEventListener('online', updateOnlineStatus);
 		window.addEventListener('offline', updateOnlineStatus);
 
-		// Initialize auth
-		initAuth();
-
 		// Check database status if route requires it
 		if (routesWithDbCheck.includes(page.url.pathname)) {
 			checkDbStatus();
@@ -63,6 +72,21 @@
 			window.removeEventListener('online', updateOnlineStatus);
 			window.removeEventListener('offline', updateOnlineStatus);
 		};
+	});
+
+	onMount(async () => {
+		keypair = await getOrCreateKeyPair();
+
+		// Refresh token if user is empty
+		if (!data?.user) {
+			const xTimer = Math.floor(Date.now()).toString();
+			const requestBody = '{}';
+			const signature = await signRequest(requestBody, keypair.privateKey);
+			const xTimerSignature = await signRequest(xTimer, keypair.privateKey);
+			const publicKey = await exportPublicKey(keypair.publicKey);
+
+			refreshToken(signature, xTimer, xTimerSignature, publicKey);
+		}
 	});
 </script>
 
@@ -155,7 +179,7 @@
 
 					<MenubarMenu>
 						<MenubarTrigger class="ml-auto">
-							{#if !$isLoggedIn}
+							{#if !data?.user}
 								<a href="/register">Login</a>
 							{/if}
 						</MenubarTrigger>

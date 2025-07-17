@@ -13,7 +13,8 @@ let keypair: EdKeypair;
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request
+	request,
+	cookies
 }) => {
 	try {
 		if (!PRIVATE_SERVER_KEY) {
@@ -87,6 +88,14 @@ export const POST: RequestHandler = async ({
 		});
 
 		const token = ucans.encode(ucanToken);
+
+		cookies.set('ucan_token', token, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'strict',
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: 60 * 60 * 24
+		});
 
 		return json({ data: { token }, success: true }, { status: 201 });
 	} catch (error) {
