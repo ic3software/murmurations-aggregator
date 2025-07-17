@@ -1,5 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { getNodeById, updateNodeStatus } from '$lib/server/models/node';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -7,9 +8,35 @@ import type { RequestHandler } from '@sveltejs/kit';
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	request
+	request,
+	cookies
 }) => {
 	try {
+		const ucanToken = cookies.get('ucan_token');
+
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/clusters/*/nodes/*/status',
+			'clusters',
+			['PUT']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
 		const db = getDB(platform.env);
 		const clusterUuid = params.cluster_uuid;
 		const nodeId = params.node_id;

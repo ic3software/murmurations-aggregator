@@ -5,7 +5,8 @@ export async function request<TBody, TResponse>(
 	url: string,
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
 	body?: TBody,
-	customFetch: typeof fetch = fetch
+	customFetch: typeof fetch = fetch,
+	withCredentials: boolean = true
 ): Promise<{
 	data: TResponse;
 	success: boolean;
@@ -25,7 +26,7 @@ export async function request<TBody, TResponse>(
 			method,
 			headers,
 			body: requestBody,
-			credentials: 'include'
+			credentials: withCredentials ? 'include' : 'omit'
 		});
 
 		const json = await response.json();

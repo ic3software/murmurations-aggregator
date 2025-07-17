@@ -1,11 +1,11 @@
-import { authenticateRequest } from '$lib/server/auth';
 import { getDB } from '$lib/server/db';
 import {
 	createSourceIndex,
 	getSourceIndexByUrl,
 	getSourceIndexes
 } from '$lib/server/models/source-index';
-import type { SourceIndex, SourceIndexInsert } from '$lib/types/source-index';
+import type { SourceIndex } from '$lib/types/source-index';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -25,24 +25,43 @@ export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Data
 };
 
 export const POST: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
 	request,
-	platform = { env: { DB: {} as D1Database } }
+	cookies
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, { parseBody: true });
-
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
-		}
-
-		const { db, body } = authResult.data;
-
-		const { url, label, libraryUrl } = body as SourceIndexInsert;
+		const { url, label, libraryUrl } = await request.json();
 
 		if (!url || !label || !libraryUrl) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
+		const ucanToken = cookies.get('ucan_token');
+
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/source-indexes',
+			'source-indexes',
+			['POST']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
+		const db = getDB(platform.env);
 		const existingSourceIndex = await getSourceIndexByUrl(db, url);
 
 		if (existingSourceIndex) {

@@ -1,6 +1,5 @@
 import { validateProfile } from '$lib/api/profiles';
 import { removeDidPrefix } from '$lib/crypto';
-import { authenticateRequest } from '$lib/server/auth';
 import { getDB } from '$lib/server/db';
 import { createProfile, getProfilesByUserId } from '$lib/server/models/profiles';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
@@ -32,7 +31,7 @@ export const GET: RequestHandler = async ({
 			publicKey,
 			'api',
 			'/profiles',
-			'profile',
+			'profiles',
 			['GET']
 		);
 
@@ -58,36 +57,48 @@ export const GET: RequestHandler = async ({
 };
 
 export const POST: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
 	request,
-	platform = { env: { DB: {} as D1Database } }
+	cookies
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
-		});
+		const ucanToken = cookies.get('ucan_token');
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
 		}
 
-		const { db, body, userId } = authResult.data;
+		const publicKey = await verifyUcan(ucanToken);
 
-		if (!body) {
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/profiles',
+			'profiles',
+			['POST']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
+		const db = getDB(platform.env);
+		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { linkedSchemas, title, profile, nodeId, lastUpdated } = await request.json();
+
+		if (!linkedSchemas || !title || !profile || !nodeId || !lastUpdated) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
-
-		if (!userId) {
-			return json({ error: 'Missing user ID', success: false }, { status: 400 });
-		}
-
-		const { linkedSchemas, title, profile, nodeId, lastUpdated } = body as {
-			linkedSchemas: string;
-			title: string;
-			profile: string;
-			nodeId: string;
-			lastUpdated: number;
-		};
 
 		// Validate profile
 		const validationResult = await validateProfile(JSON.parse(profile) as ProfileObject);
@@ -98,7 +109,7 @@ export const POST: RequestHandler = async ({
 		const cuid = createId();
 		const profileInsert: ProfileInsert = {
 			cuid,
-			userId,
+			userId: userByPublicKey.userId,
 			lastUpdated,
 			linkedSchemas,
 			title,

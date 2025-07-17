@@ -19,5 +19,6 @@ export const getLibrarySchemas = (customFetch?: typeof fetch) =>
 		`${PUBLIC_LIBRARY_URL}/v2/schemas`,
 		'GET',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);

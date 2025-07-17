@@ -1,32 +1,59 @@
-import { authenticateRequest } from '$lib/server/auth';
+import { removeDidPrefix } from '$lib/crypto';
+import { getDB } from '$lib/server/db';
 import { doesUserIdHaveEmail } from '$lib/server/models/email';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { updateUserEmailReset } from '$lib/server/models/user';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const PATCH: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request
+	request,
+	cookies
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
-		});
+		const ucanToken = cookies.get('ucan_token');
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
 		}
 
-		const { db, userId, body } = authResult.data;
-		const { emailReset } = body as { emailReset: boolean };
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/users/email-reset',
+			'users',
+			['PATCH']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
+		const db = getDB(platform.env);
+
+		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { emailReset } = await request.json();
 
 		if (typeof emailReset !== 'boolean') {
 			return json({ error: 'Invalid emailReset value', success: false }, { status: 400 });
 		}
 
-		const hasEmail = await doesUserIdHaveEmail(db, userId!);
+		const hasEmail = await doesUserIdHaveEmail(db, userByPublicKey.userId);
 		if (!hasEmail) {
 			return json(
 				{ error: 'You need to add an email to your account', success: false },
@@ -34,7 +61,7 @@ export const PATCH: RequestHandler = async ({
 			);
 		}
 
-		await updateUserEmailReset(db, userId!, emailReset);
+		await updateUserEmailReset(db, userByPublicKey.userId, emailReset);
 
 		return json({ success: true }, { status: 200 });
 	} catch (error) {

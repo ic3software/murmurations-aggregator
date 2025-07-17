@@ -12,7 +12,8 @@ export const validateProfile = (profile: ProfileObject, customFetch?: typeof fet
 		`${PUBLIC_INDEX_URL}/v2/validate`,
 		'POST',
 		profile,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const getIndexStatus = (nodeId: string, customFetch?: typeof fetch) =>
@@ -20,7 +21,8 @@ export const getIndexStatus = (nodeId: string, customFetch?: typeof fetch) =>
 		`${PUBLIC_INDEX_URL}/v2/nodes/${nodeId}`,
 		'GET',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const postIndex = (cuid: string, customFetch?: typeof fetch) =>
@@ -28,7 +30,8 @@ export const postIndex = (cuid: string, customFetch?: typeof fetch) =>
 		`/api/index/nodes/${cuid}`,
 		'POST',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const deleteIndex = (nodeId: string, customFetch?: typeof fetch) =>
@@ -36,7 +39,8 @@ export const deleteIndex = (nodeId: string, customFetch?: typeof fetch) =>
 		`${PUBLIC_INDEX_URL}/v2/nodes/${nodeId}`,
 		'DELETE',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const getProfiles = (customFetch?: typeof fetch) =>
