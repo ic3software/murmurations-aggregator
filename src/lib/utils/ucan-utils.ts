@@ -1,5 +1,6 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { PUBLIC_SERVER_DID_KEY } from '$env/static/public';
+import type { UcanCapability } from '$lib/types/ucan';
 import * as ucans from '@ucans/ucans';
 
 export async function verifyUcan(ucanToken: string) {
@@ -20,25 +21,20 @@ export async function verifyUcan(ucanToken: string) {
 
 export async function verifyUcanWithCapabilities(
 	encodedUcan: string,
+	audience: string,
 	scheme: string,
 	hierPart: string,
 	namespace: string,
 	segments: string[]
 ) {
-	if (!PRIVATE_SERVER_KEY) {
-		throw new Error('Server Private Key is not configured');
-	}
-
 	if (!PUBLIC_SERVER_DID_KEY) {
 		throw new Error('Root issuer DID key is not configured');
 	}
 
-	const keypair = ucans.EdKeypair.fromSecretKey(PRIVATE_SERVER_KEY);
-	const serverDidKey = keypair.did();
 	const rootIssuerDidKey = PUBLIC_SERVER_DID_KEY;
 
 	const result = await ucans.verify(encodedUcan, {
-		audience: serverDidKey,
+		audience,
 		requiredCapabilities: [
 			{
 				capability: {
@@ -47,18 +43,17 @@ export async function verifyUcanWithCapabilities(
 				},
 				rootIssuer: rootIssuerDidKey
 			}
-		],
-		isRevoked: async () => false
+		]
 	});
 
 	if (result.ok) {
 		return result.value;
 	} else {
-		throw new Error('Unauthorized: ' + result.error);
+		return false;
 	}
 }
 
-export async function buildUcan(audience: string, lifetimeInSeconds: number) {
+export async function buildUcan(userPublicKey: string, lifetimeInSeconds: number) {
 	if (!PRIVATE_SERVER_KEY) {
 		throw new Error('Server Private Key is not configured');
 	}
@@ -66,8 +61,31 @@ export async function buildUcan(audience: string, lifetimeInSeconds: number) {
 	const keypair = ucans.EdKeypair.fromSecretKey(PRIVATE_SERVER_KEY);
 	const ucanToken = await ucans.build({
 		issuer: keypair,
-		audience,
+		audience: 'did:key:z' + userPublicKey,
 		lifetimeInSeconds
+	});
+
+	return ucans.encode(ucanToken);
+}
+
+export async function buildUcanWithCapabilities(
+	userPublicKey: string,
+	lifetimeInSeconds: number,
+	capabilities: UcanCapability[]
+) {
+	if (!PRIVATE_SERVER_KEY) {
+		throw new Error('Server Private Key is not configured');
+	}
+
+	const keypair = ucans.EdKeypair.fromSecretKey(PRIVATE_SERVER_KEY);
+	const ucanToken = await ucans.build({
+		issuer: keypair,
+		audience: 'did:key:z' + userPublicKey,
+		lifetimeInSeconds,
+		capabilities: capabilities.map((capability) => ({
+			with: { scheme: capability.scheme, hierPart: capability.hierPart },
+			can: { namespace: capability.namespace, segments: capability.segments }
+		}))
 	});
 
 	return ucans.encode(ucanToken);

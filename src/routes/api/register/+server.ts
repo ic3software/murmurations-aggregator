@@ -71,10 +71,7 @@ export const POST: RequestHandler = async ({
 		const insertedUser = await insertUser(db, name);
 		await insertPublicKey(db, insertedUser.id, xPublicKey);
 
-		// Generate UCAN token
-		const userDid = 'did:key:z' + xPublicKey;
-
-		const token = await buildUcan(userDid, 60 * 60);
+		const token = await buildUcan(xPublicKey, 60 * 60);
 
 		cookies.set('ucan_token', token, {
 			path: '/',

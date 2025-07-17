@@ -1,6 +1,10 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
-import { buildUcan } from '$lib/utils/ucan-utils';
+import { getCapabilitiesByIds } from '$lib/server/models/capacity';
+import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capacity';
+import { getRoleIdsByUserId } from '$lib/server/models/user-role';
+import type { UcanCapability } from '$lib/types/ucan';
+import { buildUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 
@@ -25,11 +29,24 @@ export const POST: RequestHandler = async ({
 			return json({ error: authResult.error, success: false }, { status: authResult.status });
 		}
 
-		const { xPublicKey } = authResult.data;
+		const { userId, xPublicKey, db } = authResult.data;
 
-		const userDid = 'did:key:z' + xPublicKey;
+		if (!userId) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
 
-		const token = await buildUcan(userDid, 60 * 60);
+		const roleIds = await getRoleIdsByUserId(db, userId);
+		const capabilityIds = await getCapabilityIdsByRoleIds(db, roleIds);
+		const capabilities = await getCapabilitiesByIds(db, capabilityIds);
+
+		const ucanCapabilities: UcanCapability[] = capabilities.map((capability) => ({
+			scheme: capability.scheme,
+			hierPart: capability.hierPart,
+			namespace: capability.namespace,
+			segments: [capability.segments]
+		}));
+
+		const token = await buildUcanWithCapabilities(xPublicKey, 60 * 60, ucanCapabilities);
 
 		cookies.set('ucan_token', token, {
 			path: '/',

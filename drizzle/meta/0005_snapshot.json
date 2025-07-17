@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "442bc6fa-a8e7-4522-8367-9ed54734137e",
+  "id": "dd5ea249-d0c3-40f7-8ae0-c0d1d3266de0",
   "prevId": "9673643a-19e5-4a6a-a5ab-631f710b18ef",
   "tables": {
     "capabilities": {
@@ -14,25 +14,32 @@
           "notNull": true,
           "autoincrement": true
         },
-        "name": {
-          "name": "name",
+        "scheme": {
+          "name": "scheme",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "action": {
-          "name": "action",
+        "hier_part": {
+          "name": "hier_part",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "description": {
-          "name": "description",
+        "namespace": {
+          "name": "namespace",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "segments": {
+          "name": "segments",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {

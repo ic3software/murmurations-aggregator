@@ -172,9 +172,10 @@ export const userRoles = sqliteTable('user_roles', {
 
 export const capabilities = sqliteTable('capabilities', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	name: text('name').notNull(),
-	action: text('action').notNull(),
-	description: text('description'),
+	scheme: text('scheme').notNull(),
+	hierPart: text('hier_part').notNull(),
+	namespace: text('namespace').notNull(),
+	segments: text('segments').notNull(),
 	createdAt: integer('created_at', { mode: 'number' })
 		.notNull()
 		.default(sql`(unixepoch())`),

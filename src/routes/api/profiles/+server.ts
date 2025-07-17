@@ -5,7 +5,7 @@ import { getDB } from '$lib/server/db';
 import { createProfile, getProfilesByUserId } from '$lib/server/models/profiles';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import type { ProfileInsert, ProfileObject } from '$lib/types/profile';
-import { verifyUcan } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createId } from '@paralleldrive/cuid2';
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -23,8 +23,21 @@ export const GET: RequestHandler = async ({
 
 		const publicKey = await verifyUcan(ucanToken);
 
-		if (publicKey === null) {
-			return json({ error: 'Invalid user ID', success: false }, { status: 400 });
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/profiles',
+			'profile',
+			['GET']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
 		}
 
 		const db = getDB(platform.env);

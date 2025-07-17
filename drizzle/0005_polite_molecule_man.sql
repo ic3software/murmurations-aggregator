@@ -1,8 +1,9 @@
 CREATE TABLE `capabilities` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`name` text NOT NULL,
-	`action` text NOT NULL,
-	`description` text,
+	`scheme` text NOT NULL,
+	`hier_part` text NOT NULL,
+	`namespace` text NOT NULL,
+	`segments` text NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
 );
@@ -48,38 +49,36 @@ CREATE TABLE `user_roles` (
 	FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-INSERT INTO `capabilities` (`name`, `action`, `description`)
+INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`)
 VALUES
-  ('user', 'READ', 'Read own user information'),
-  ('user', 'CREATE', 'Create user'),
-  ('user', 'UPDATE', 'Update user'),
-  ('user', 'DELETE', 'Delete user'),
-  ('user', 'EMAIL_RESET', 'Reset email status'),
-  ('email', 'READ', 'Read email'),
-  ('email', 'CREATE', 'Create email'),
-  ('email', 'DELETE', 'Delete email'),
-  ('email', 'SEND_RESET_REQUEST', 'Send email reset request'),
-  ('cluster', 'READ', 'Read cluster'),
-  ('cluster', 'CREATE', 'Create cluster'),
-  ('cluster', 'UPDATE', 'Update cluster'),
-  ('cluster', 'DELETE', 'Delete cluster'),
-  ('node', 'READ', 'Read node'),
-  ('node', 'UPDATE', 'Update node'),
-  ('node', 'DELETE', 'Delete node'),
-  ('source-index', 'READ', 'Read source index'),
-  ('source-index', 'CREATE', 'Create source index'),
-  ('source-index', 'UPDATE', 'Update source index'),
-  ('source-index', 'DELETE', 'Delete source index'),
-  ('profile', 'READ', 'Read profile'),
-  ('profile', 'CREATE', 'Create profile'),
-  ('profile', 'UPDATE', 'Update profile'),
-  ('profile', 'DELETE', 'Delete profile'),
-  ('key', 'READ', 'Read public key'),
-  ('key', 'CREATE', 'Create public key'),
-  ('key', 'DELETE', 'Delete public key'),
-  ('login-token', 'READ', 'Read login token'),
-  ('login-token', 'CREATE', 'Generate login token'),
-  ('login-token', 'DELETE', 'Delete login token');
+  ('api', '/users', 'user', 'GET'),
+  ('api', '/users', 'user', 'POST'),
+  ('api', '/users', 'user', 'PATCH'),
+  ('api', '/users', 'user', 'DELETE'),
+  ('api', '/emails', 'email', 'GET'),
+  ('api', '/emails', 'email', 'POST'),
+  ('api', '/emails', 'email', 'DELETE'),
+  ('api', '/clusters', 'cluster', 'GET'),
+  ('api', '/clusters', 'cluster', 'POST'),
+  ('api', '/clusters', 'cluster', 'PATCH'),
+  ('api', '/clusters', 'cluster', 'DELETE'),
+  ('api', '/nodes', 'node', 'GET'),
+  ('api', '/nodes', 'node', 'PATCH'),
+  ('api', '/nodes', 'node', 'DELETE'),
+  ('api', '/source-indexes', 'source-index', 'GET'),
+  ('api', '/source-indexes', 'source-index', 'POST'),
+  ('api', '/source-indexes', 'source-index', 'PATCH'),
+  ('api', '/source-indexes', 'source-index', 'DELETE'),
+  ('api', '/profiles', 'profile', 'GET'),
+  ('api', '/profiles', 'profile', 'POST'),
+  ('api', '/profiles', 'profile', 'PATCH'),
+  ('api', '/profiles', 'profile', 'DELETE'),
+  ('api', '/keys', 'key', 'GET'),
+  ('api', '/keys', 'key', 'POST'),
+  ('api', '/keys', 'key', 'DELETE'),
+  ('api', '/login-tokens', 'login-token', 'GET'),
+  ('api', '/login-tokens', 'login-token', 'POST'),
+  ('api', '/login-tokens', 'login-token', 'DELETE');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
