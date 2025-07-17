@@ -51,38 +51,37 @@ CREATE TABLE `user_roles` (
 --> statement-breakpoint
 INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`)
 VALUES
-  INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`) VALUES
-('api', '/clusters', 'clusters', 'POST'),
-('api', '/clusters/*/nodes', 'clusters', 'POST'),
-('api', '/clusters/*/nodes/*', 'clusters', 'PUT'),
-('api', '/clusters/*/nodes/*/status', 'clusters', 'PUT'),
-('api', '/clusters/*/update-timestamp', 'clusters', 'PATCH'),
+  ('api', '/clusters', 'clusters', 'POST'),
+  ('api', '/clusters/*/nodes', 'clusters', 'POST'),
+  ('api', '/clusters/*/nodes/*', 'clusters', 'PUT'),
+  ('api', '/clusters/*/nodes/*/status', 'clusters', 'PUT'),
+  ('api', '/clusters/*/update-timestamp', 'clusters', 'PATCH'),
 
-('api', '/emails', 'emails', 'GET'),
-('api', '/emails', 'emails', 'POST'),
-('api', '/emails', 'emails', 'DELETE'),
-('api', '/emails/send-reset-request', 'emails', 'POST'),
+  ('api', '/emails', 'emails', 'GET'),
+  ('api', '/emails', 'emails', 'POST'),
+  ('api', '/emails', 'emails', 'DELETE'),
+  ('api', '/emails/send-reset-request', 'emails', 'POST'),
 
-('api', '/keys', 'keys', 'GET'),
-('api', '/keys', 'keys', 'POST'),
+  ('api', '/keys', 'keys', 'GET'),
+  ('api', '/keys', 'keys', 'POST'),
 
-('api', '/profiles', 'profiles', 'GET'),
-('api', '/profiles', 'profiles', 'POST'),
-('api', '/profiles/*', 'profiles', 'GET'),
-('api', '/profiles/*', 'profiles', 'PATCH'),
-('api', '/profiles/*', 'profiles', 'DELETE'),
-('api', '/profiles/*/update-node-id', 'profiles', 'PUT'),
+  ('api', '/profiles', 'profiles', 'GET'),
+  ('api', '/profiles', 'profiles', 'POST'),
+  ('api', '/profiles/*', 'profiles', 'GET'),
+  ('api', '/profiles/*', 'profiles', 'PATCH'),
+  ('api', '/profiles/*', 'profiles', 'DELETE'),
+  ('api', '/profiles/*/update-node-id', 'profiles', 'PUT'),
 
-('api', '/source-indexes', 'source-indexes', 'POST'),
-('api', '/source-indexes/*', 'source-indexes', 'PUT'),
-('api', '/source-indexes/*', 'source-indexes', 'DELETE'),
+  ('api', '/source-indexes', 'source-indexes', 'POST'),
+  ('api', '/source-indexes/*', 'source-indexes', 'PUT'),
+  ('api', '/source-indexes/*', 'source-indexes', 'DELETE'),
 
-('api', '/tokens', 'tokens', 'GET'),
-('api', '/tokens', 'tokens', 'POST'),
-('api', '/tokens', 'tokens', 'DELETE'),
+  ('api', '/tokens', 'tokens', 'GET'),
+  ('api', '/tokens', 'tokens', 'POST'),
+  ('api', '/tokens', 'tokens', 'DELETE'),
 
-('api', '/users', 'users', 'GET'),
-('api', '/users/email-reset', 'users', 'PATCH');
+  ('api', '/users', 'users', 'GET'),
+  ('api', '/users/email-reset', 'users', 'PATCH');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
