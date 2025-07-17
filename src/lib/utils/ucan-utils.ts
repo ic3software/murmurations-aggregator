@@ -1,4 +1,5 @@
-import { PRIVATE_SERVER_KEY, PUBLIC_SERVER_DID_KEY } from '$env/static/private';
+import { PRIVATE_SERVER_KEY } from '$env/static/private';
+import { PUBLIC_SERVER_DID_KEY } from '$env/static/public';
 import * as ucans from '@ucans/ucans';
 
 export async function verifyUcan(ucanToken: string) {
@@ -55,4 +56,19 @@ export async function verifyUcanWithCapabilities(
 	} else {
 		throw new Error('Unauthorized: ' + result.error);
 	}
+}
+
+export async function buildUcan(audience: string, lifetimeInSeconds: number) {
+	if (!PRIVATE_SERVER_KEY) {
+		throw new Error('Server Private Key is not configured');
+	}
+
+	const keypair = ucans.EdKeypair.fromSecretKey(PRIVATE_SERVER_KEY);
+	const ucanToken = await ucans.build({
+		issuer: keypair,
+		audience,
+		lifetimeInSeconds
+	});
+
+	return ucans.encode(ucanToken);
 }

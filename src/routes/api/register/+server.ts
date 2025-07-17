@@ -2,14 +2,11 @@ import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
 import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/public-key';
 import { doesNameExist, getUserIdByName, insertUser } from '$lib/server/models/user';
+import { buildUcan } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
-import type { EdKeypair } from '@ucans/ucans';
-import * as ucans from '@ucans/ucans';
 
 import type { RequestHandler } from './$types';
-
-let keypair: EdKeypair;
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
@@ -19,10 +16,6 @@ export const POST: RequestHandler = async ({
 	try {
 		if (!PRIVATE_SERVER_KEY) {
 			return json({ error: 'Server DID is not configured', success: false }, { status: 500 });
-		}
-
-		if (!keypair) {
-			keypair = ucans.EdKeypair.fromSecretKey(PRIVATE_SERVER_KEY);
 		}
 
 		const authResult = await authenticateRequest(platform, request, {
@@ -81,13 +74,7 @@ export const POST: RequestHandler = async ({
 		// Generate UCAN token
 		const userDid = 'did:key:z' + xPublicKey;
 
-		const ucanToken = await ucans.build({
-			issuer: keypair,
-			audience: userDid,
-			lifetimeInSeconds: 60 * 60
-		});
-
-		const token = ucans.encode(ucanToken);
+		const token = await buildUcan(userDid, 60 * 60);
 
 		cookies.set('ucan_token', token, {
 			path: '/',

@@ -1,4 +1,4 @@
-import { verifyUcan } from '$lib/ucan/verify-ucan';
+import { verifyUcan } from '$lib/utils/ucan-utils';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
