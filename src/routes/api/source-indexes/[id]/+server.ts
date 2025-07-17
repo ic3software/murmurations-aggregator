@@ -64,7 +64,7 @@ export const PUT: RequestHandler = async ({
 			ucanToken,
 			publicKey,
 			'api',
-			'/source-indexes',
+			'/source-indexes/*',
 			'source-indexes',
 			['PUT']
 		);
@@ -134,7 +134,7 @@ export const DELETE: RequestHandler = async ({
 			ucanToken,
 			publicKey,
 			'api',
-			'/source-indexes',
+			'/source-indexes/*',
 			'source-indexes',
 			['DELETE']
 		);

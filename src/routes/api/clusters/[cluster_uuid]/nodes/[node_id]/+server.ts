@@ -60,7 +60,7 @@ export const PUT: RequestHandler = async ({
 			ucanToken,
 			publicKey,
 			'api',
-			'/clusters/*/nodes',
+			'/clusters/*/nodes/*',
 			'clusters',
 			['PUT']
 		);
