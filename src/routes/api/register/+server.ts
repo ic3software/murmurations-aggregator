@@ -90,7 +90,7 @@ export const POST: RequestHandler = async ({
 			segments: [capability.segments]
 		}));
 
-		const token = await buildUcanWithCapabilities(xPublicKey, 60 * 60, ucanCapabilities);
+		const token = await buildUcanWithCapabilities(xPublicKey, 10 * 60, ucanCapabilities);
 
 		cookies.set('ucan_token', token, {
 			path: '/',
