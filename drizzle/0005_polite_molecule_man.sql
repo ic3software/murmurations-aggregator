@@ -83,7 +83,12 @@ VALUES
   ('api', '/tokens', 'tokens', 'DELETE'),
 
   ('api', '/users', 'users', 'GET'),
-  ('api', '/users/email-reset', 'users', 'PATCH');
+  ('api', '/users/email-reset', 'users', 'PATCH'),
+
+  ('api', '/admin/roles', 'admin-roles', 'GET'),
+  ('api', '/admin/users', 'admin-users', 'GET'),
+  ('api', '/admin/users/*/roles', 'admin-users', 'GET'),
+  ('api', '/admin/users/*/roles', 'admin-users', 'POST');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
