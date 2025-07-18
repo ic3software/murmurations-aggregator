@@ -87,7 +87,8 @@ VALUES
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
-  ('root', 'Super admin user');
+  ('root', 'Super admin user'),
+  ('User', 'Default user');
 --> statement-breakpoint
 INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
 SELECT 
@@ -95,6 +96,15 @@ SELECT
   id
 FROM capabilities;
 --> statement-breakpoint
+INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
+SELECT 
+  (SELECT id FROM roles WHERE name = 'User'),
+  id
+FROM capabilities
+WHERE namespace = 'profiles';
+--> statement-breakpoint
 INSERT INTO `user_roles` (`user_id`, `role_id`)
 VALUES
-  ((SELECT id FROM users WHERE normalized_name = 'root'), (SELECT id FROM roles WHERE name = 'root'));
+  (1, 1),
+  (2, 2),
+  (3, 2);
