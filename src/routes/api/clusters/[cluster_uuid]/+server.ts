@@ -2,6 +2,7 @@ import { getDB } from '$lib/server/db';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/cluster';
 import { deleteNodes } from '$lib/server/models/node';
 import type { ClusterDbUpdateInput, ClusterPublic } from '$lib/types/cluster';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -36,9 +37,35 @@ export const GET: RequestHandler = async ({
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	request
+	request,
+	cookies
 }) => {
 	try {
+		const ucanToken = cookies.get('ucan_token');
+
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/clusters/*',
+			'clusters',
+			['PUT']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
 		const db = getDB(platform.env);
 		const clusterUuid = params.cluster_uuid;
 
@@ -77,9 +104,35 @@ export const PUT: RequestHandler = async ({
 
 export const DELETE: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	params
+	params,
+	cookies
 }) => {
 	try {
+		const ucanToken = cookies.get('ucan_token');
+
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/clusters/*',
+			'clusters',
+			['PUT']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
 		const db = getDB(platform.env);
 		const clusterUuid = params.cluster_uuid;
 

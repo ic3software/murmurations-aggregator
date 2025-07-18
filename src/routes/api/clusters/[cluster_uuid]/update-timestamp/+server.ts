@@ -1,5 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { updateClusterTimestamp } from '$lib/server/models/cluster';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -7,13 +8,38 @@ import { json } from '@sveltejs/kit';
 export const PATCH: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	request
+	request,
+	cookies
 }) => {
 	try {
+		const ucanToken = cookies.get('ucan_token');
+
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/clusters/*/update-timestamp',
+			'clusters',
+			['PATCH']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
 		const db = getDB(platform.env);
 		const clusterUuid = params.cluster_uuid;
-		const body = await request.json();
-		const { lastUpdated } = body;
+		const { lastUpdated } = await request.json();
 
 		if (!clusterUuid) {
 			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });

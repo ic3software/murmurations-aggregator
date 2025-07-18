@@ -1,9 +1,10 @@
 import { PRIVATE_RESEND_KEY } from '$env/static/private';
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { getUserIdByEmail } from '$lib/server/models/email';
 import { insertLoginToken } from '$lib/server/models/login-token';
 import { getByUserId } from '$lib/server/models/user';
 import { generateLoginToken } from '$lib/server/utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -17,25 +18,42 @@ const resend = new Resend(PRIVATE_RESEND_KEY);
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request
+	request,
+	cookies
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: false
-		});
+		const ucanToken = cookies.get('ucan_token');
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!ucanToken) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
 		}
 
-		const { db, body } = authResult.data;
-		const { email } = body as { email: string };
+		const publicKey = await verifyUcan(ucanToken);
+
+		if (!publicKey) {
+			return json({ error: 'Unauthorized', success: false }, { status: 401 });
+		}
+
+		const isVerified = await verifyUcanWithCapabilities(
+			ucanToken,
+			publicKey,
+			'api',
+			'/emails/send-reset-request',
+			'emails',
+			['POST']
+		);
+
+		if (!isVerified) {
+			return json({ error: 'Permission denied', success: false }, { status: 403 });
+		}
+
+		const { email } = await request.json();
 
 		if (!email) {
 			return json({ error: 'Missing email', success: false }, { status: 400 });
 		}
 
+		const db = getDB(platform.env);
 		const userId = await getUserIdByEmail(db, email.toLowerCase());
 		if (!userId) {
 			return json(

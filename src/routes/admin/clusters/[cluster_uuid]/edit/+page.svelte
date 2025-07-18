@@ -33,13 +33,16 @@
 				scale: clusterScale
 			};
 
-			const response = await updateCluster(data?.cluster?.clusterUuid ?? '', updatedCluster);
+			const { success, error } = await updateCluster(
+				data?.cluster?.clusterUuid ?? '',
+				updatedCluster
+			);
 
-			if (response?.success) {
+			if (success) {
 				toast.success('Cluster updated successfully');
 				goto('/admin');
 			} else {
-				toast.error('Error updating cluster');
+				toast.error(error ?? 'Error updating cluster');
 			}
 		} catch (error) {
 			console.error('Error updating cluster:', error);
