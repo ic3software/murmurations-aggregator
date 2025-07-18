@@ -126,7 +126,7 @@ export const DELETE: RequestHandler = async ({
 			'api',
 			'/clusters/*',
 			'clusters',
-			['PUT']
+			['DELETE']
 		);
 
 		if (!isVerified) {
