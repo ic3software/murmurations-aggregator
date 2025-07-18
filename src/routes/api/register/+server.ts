@@ -2,7 +2,7 @@ import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
 import { getCapabilitiesByIds } from '$lib/server/models/capacity';
 import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/public-key';
-import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capacity';
+import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capability';
 import { doesNameExist, getUserIdByName, insertUser } from '$lib/server/models/user';
 import { getRoleIdsByUserId, insertUserRole } from '$lib/server/models/user-role';
 import type { UcanCapability } from '$lib/types/ucan';

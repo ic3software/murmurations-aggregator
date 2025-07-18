@@ -12,8 +12,22 @@ export const load: PageLoad = async ({ params, fetch }) => {
 			getRoles(fetch)
 		]);
 
+		if (!userRolesData.success) {
+			return {
+				title: 'Edit User',
+				error: userRolesData.error
+			};
+		}
+
+		if (!allRolesData.success) {
+			return {
+				title: 'Edit User',
+				error: allRolesData.error
+			};
+		}
+
 		return {
-			userRoles: userRolesData.success ? userRolesData.data : [],
+			userRoles: userRolesData.data,
 			allRoles: allRolesData.success ? allRolesData.data : [],
 			userId
 		};

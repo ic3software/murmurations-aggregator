@@ -1,7 +1,7 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
 import { getCapabilitiesByIds } from '$lib/server/models/capacity';
-import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capacity';
+import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capability';
 import { getRoleIdsByUserId } from '$lib/server/models/user-role';
 import type { UcanCapability } from '$lib/types/ucan';
 import { buildUcanWithCapabilities } from '$lib/utils/ucan-utils';

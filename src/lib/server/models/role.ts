@@ -1,4 +1,5 @@
 import { roles } from '$lib/server/db/schema';
+import type { RoleInsert } from '$lib/types/role';
 import { inArray } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
@@ -21,4 +22,8 @@ export async function checkRoleIdsExist(
 		.all();
 
 	return result.length === roleIds.length;
+}
+
+export async function createRole(db: DrizzleD1Database, role: RoleInsert) {
+	return await db.insert(roles).values(role).returning();
 }

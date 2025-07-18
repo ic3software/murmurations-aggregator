@@ -1,5 +1,8 @@
 import { getDB } from '$lib/server/db';
-import { createRole, getRoles } from '$lib/server/models/role';
+import {
+	getCapabilityIdsByRoleId,
+	updateRoleCapabilities
+} from '$lib/server/models/role-capability';
 import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
@@ -8,8 +11,15 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
+	params,
 	cookies
 }) => {
+	const userId = params.id;
+
+	if (!userId) {
+		return json({ error: 'User ID is required', success: false }, { status: 400 });
+	}
+
 	try {
 		const ucanToken = cookies.get('ucan_token');
 
@@ -27,7 +37,7 @@ export const GET: RequestHandler = async ({
 			ucanToken,
 			publicKey,
 			'api',
-			'/admin/roles',
+			`/admin/roles/*/capabilities`,
 			'admin-roles',
 			['GET']
 		);
@@ -38,20 +48,33 @@ export const GET: RequestHandler = async ({
 
 		const db = getDB(platform.env);
 
-		const allRoles = await getRoles(db);
+		const roleIds = await getCapabilityIdsByRoleId(db, Number(userId));
 
-		return json({ data: allRoles, success: true }, { status: 200 });
+		return json(
+			{
+				data: roleIds,
+				success: true
+			},
+			{ status: 200 }
+		);
 	} catch (error) {
-		console.error('Error fetching roles:', error);
+		console.error('Error fetching user role:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
 	}
 };
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	cookies,
-	request
+	request,
+	params,
+	cookies
 }) => {
+	const roleId = params.id;
+
+	if (!roleId) {
+		return json({ error: 'Role ID is required', success: false }, { status: 400 });
+	}
+
 	try {
 		const ucanToken = cookies.get('ucan_token');
 
@@ -69,7 +92,7 @@ export const POST: RequestHandler = async ({
 			ucanToken,
 			publicKey,
 			'api',
-			'/admin/roles',
+			`/admin/roles/*/capabilities`,
 			'admin-roles',
 			['POST']
 		);
@@ -78,42 +101,24 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Permission denied', success: false }, { status: 403 });
 		}
 
-		const { name, description } = await request.json();
+		const { capability_ids } = await request.json();
 
-		if (
-			!name ||
-			typeof name !== 'string' ||
-			!name.trim() ||
-			!description ||
-			typeof description !== 'string' ||
-			!description.trim()
-		) {
-			return json(
-				{ error: 'Role name and description are required', success: false },
-				{ status: 400 }
-			);
+		if (!Array.isArray(capability_ids)) {
+			return json({ error: 'capability_ids must be an array', success: false }, { status: 400 });
 		}
 
 		const db = getDB(platform.env);
 
-		// Check if role with this name already exists
-		const existingRoles = await getRoles(db);
-		const roleExists = existingRoles.some(
-			(role) => role.name.toLowerCase() === name.trim().toLowerCase()
+		await updateRoleCapabilities(db, Number(roleId), capability_ids);
+
+		return json(
+			{
+				success: true
+			},
+			{ status: 200 }
 		);
-
-		if (roleExists) {
-			return json({ error: 'Role with this name already exists', success: false }, { status: 409 });
-		}
-
-		await createRole(db, {
-			name: name.trim(),
-			description: description?.trim() || null
-		});
-
-		return json({ success: true }, { status: 201 });
 	} catch (error) {
-		console.error('Error creating role:', error);
+		console.error('Error updating role capabilities:', error);
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
 	}
 };

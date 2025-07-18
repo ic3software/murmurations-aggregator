@@ -44,6 +44,18 @@
 						<a href="/admin/users">Users</a>
 					</MenubarTrigger>
 				</MenubarMenu>
+
+				<MenubarMenu value="roles">
+					<MenubarTrigger>
+						<a href="/admin/roles">Roles</a>
+					</MenubarTrigger>
+				</MenubarMenu>
+
+				<MenubarMenu value="capabilities">
+					<MenubarTrigger>
+						<a href="/admin/capabilities">Capabilities</a>
+					</MenubarTrigger>
+				</MenubarMenu>
 			</Menubar>
 		</div>
 

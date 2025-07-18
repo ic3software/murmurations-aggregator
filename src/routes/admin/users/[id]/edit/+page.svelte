@@ -11,6 +11,8 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	const userId = data.userId ?? 0;
+	const allRoles = data.allRoles ?? [];
 
 	let selectedRoleIds = $state(new Set(data.userRoles));
 	let isLoading = $state(false);
@@ -27,7 +29,7 @@
 	async function handleSave() {
 		isLoading = true;
 		try {
-			const result = await updateUserRoles(data.userId, Array.from(selectedRoleIds));
+			const result = await updateUserRoles(userId, Array.from(selectedRoleIds));
 
 			if (result.success) {
 				toast.success('User roles updated successfully');
@@ -56,7 +58,7 @@
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium">Available Roles</h3>
 			<div class="grid gap-4">
-				{#each data.allRoles as role}
+				{#each allRoles as role}
 					<div class="flex items-center space-x-2">
 						<Checkbox
 							id="role-{role.id}"
