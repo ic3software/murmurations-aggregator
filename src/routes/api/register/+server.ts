@@ -1,6 +1,6 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
-import { getCapabilitiesByIds } from '$lib/server/models/capacity';
+import { getCapabilitiesByIds } from '$lib/server/models/capability';
 import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/public-key';
 import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capability';
 import { doesNameExist, getUserIdByName, insertUser } from '$lib/server/models/user';
