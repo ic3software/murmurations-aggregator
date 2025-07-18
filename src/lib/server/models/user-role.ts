@@ -1,4 +1,4 @@
-import { userRoles } from '$lib/server/db/schema';
+import { roles, userRoles } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
@@ -10,4 +10,18 @@ export async function getRoleIdsByUserId(db: DrizzleD1Database, userId: number) 
 		.all();
 
 	return result.map((row) => row.roleId);
+}
+
+export async function insertUserRole(db: DrizzleD1Database, userId: number, roleName: string) {
+	const roleId = await getRoleIdByName(db, roleName);
+	await db.insert(userRoles).values({ userId, roleId });
+}
+
+export async function getRoleIdByName(db: DrizzleD1Database, roleName: string) {
+	const result = await db
+		.select({ id: roles.id })
+		.from(roles)
+		.where(eq(roles.name, roleName))
+		.all();
+	return result[0]?.id;
 }

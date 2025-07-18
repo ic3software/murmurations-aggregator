@@ -1,8 +1,12 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import { authenticateRequest } from '$lib/server/auth';
+import { getCapabilitiesByIds } from '$lib/server/models/capacity';
 import { getUserIdByPublicKey, insertPublicKey } from '$lib/server/models/public-key';
+import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capacity';
 import { doesNameExist, getUserIdByName, insertUser } from '$lib/server/models/user';
-import { buildUcan } from '$lib/utils/ucan-utils';
+import { getRoleIdsByUserId, insertUserRole } from '$lib/server/models/user-role';
+import type { UcanCapability } from '$lib/types/ucan';
+import { buildUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 
@@ -71,7 +75,22 @@ export const POST: RequestHandler = async ({
 		const insertedUser = await insertUser(db, name);
 		await insertPublicKey(db, insertedUser.id, xPublicKey);
 
-		const token = await buildUcan(xPublicKey, 60 * 60);
+		// Insert default role for user
+		await insertUserRole(db, insertedUser.id, 'User');
+
+		// Get capabilities for user
+		const roleIds = await getRoleIdsByUserId(db, insertedUser.id);
+		const capabilityIds = await getCapabilityIdsByRoleIds(db, roleIds);
+		const capabilities = await getCapabilitiesByIds(db, capabilityIds);
+
+		const ucanCapabilities: UcanCapability[] = capabilities.map((capability) => ({
+			scheme: capability.scheme,
+			hierPart: capability.hierPart,
+			namespace: capability.namespace,
+			segments: [capability.segments]
+		}));
+
+		const token = await buildUcanWithCapabilities(xPublicKey, 60 * 60, ucanCapabilities);
 
 		cookies.set('ucan_token', token, {
 			path: '/',
