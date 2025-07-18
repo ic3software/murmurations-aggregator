@@ -31,7 +31,7 @@
 <div class="space-y-4">
 	<div class="flex justify-between items-center">
 		<h1 class="text-2xl font-bold">Capabilities Management</h1>
-		<Button href="/admin/capabilities/new">
+		<Button href="/admin/capabilities/create">
 			<Plus class="mr-2 h-4 w-4" />
 			Add New Capability
 		</Button>

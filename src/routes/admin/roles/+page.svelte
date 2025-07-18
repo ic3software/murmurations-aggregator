@@ -31,7 +31,7 @@
 <div class="space-y-4">
 	<div class="flex justify-between items-center">
 		<h1 class="text-2xl font-bold">Roles Management</h1>
-		<Button href="/admin/roles/new">
+		<Button href="/admin/roles/create">
 			<Plus class="mr-2 h-4 w-4" />
 			Add New Role
 		</Button>

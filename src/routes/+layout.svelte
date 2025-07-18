@@ -85,7 +85,11 @@
 			const xTimerSignature = await signRequest(xTimer, keypair.privateKey);
 			const publicKey = await exportPublicKey(keypair.publicKey);
 
-			refreshToken(signature, xTimer, xTimerSignature, publicKey);
+			const { success } = await refreshToken(signature, xTimer, xTimerSignature, publicKey);
+
+			if (success) {
+				window.location.reload();
+			}
 		}
 	});
 </script>

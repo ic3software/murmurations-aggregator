@@ -95,7 +95,16 @@ VALUES
   ('api', '/admin/roles/*/capabilities', 'admin-roles', 'POST'),
 
   ('api', '/admin/capabilities', 'admin-capabilities', 'GET'),
-  ('api', '/admin/capabilities', 'admin-capabilities', 'POST');
+  ('api', '/admin/capabilities', 'admin-capabilities', 'POST'),
+
+  ('page', '/', 'admin', 'GET'),
+  ('page', '/clusters', 'admin', 'GET'),
+  ('page', '/emails', 'admin', 'GET'),
+  ('page', '/profile', 'admin', 'GET'),
+  ('page', '/source-indexes', 'admin', 'GET'),  
+  ('page', '/users', 'admin', 'GET'),
+  ('page', '/roles', 'admin', 'GET'),
+  ('page', '/capabilities', 'admin', 'GET');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
@@ -116,7 +125,7 @@ FROM capabilities
 WHERE namespace = 'profiles';
 --> statement-breakpoint
 INSERT INTO `user_roles` (`user_id`, `role_id`)
-VALUES
-  (1, 1),
-  (2, 2),
-  (3, 2);
+SELECT 
+  id,
+  1
+FROM users;
