@@ -52,6 +52,8 @@ CREATE TABLE `user_roles` (
 INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`)
 VALUES
   ('api', '/clusters', 'clusters', 'POST'),
+  ('api', '/clusters/*', 'clusters', 'PUT'),
+  ('api', '/clusters/*', 'clusters', 'DELETE'),
   ('api', '/clusters/*/nodes', 'clusters', 'POST'),
   ('api', '/clusters/*/nodes/*', 'clusters', 'PUT'),
   ('api', '/clusters/*/nodes/*/status', 'clusters', 'PUT'),
