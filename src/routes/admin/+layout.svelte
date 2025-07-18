@@ -38,6 +38,12 @@
 						<a href="/admin/source-indexes">Source Config</a>
 					</MenubarTrigger>
 				</MenubarMenu>
+
+				<MenubarMenu value="users">
+					<MenubarTrigger>
+						<a href="/admin/users">Users</a>
+					</MenubarTrigger>
+				</MenubarMenu>
 			</Menubar>
 		</div>
 

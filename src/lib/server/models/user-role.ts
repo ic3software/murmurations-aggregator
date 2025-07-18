@@ -25,3 +25,12 @@ export async function getRoleIdByName(db: DrizzleD1Database, roleName: string) {
 		.all();
 	return result[0]?.id;
 }
+
+export async function updateUserRoles(db: DrizzleD1Database, userId: number, roleIds: number[]) {
+	await db.delete(userRoles).where(eq(userRoles.userId, userId)).run();
+
+	if (roleIds.length > 0) {
+		const values = roleIds.map((roleId) => ({ userId, roleId }));
+		await db.insert(userRoles).values(values).run();
+	}
+}

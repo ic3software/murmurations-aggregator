@@ -1,4 +1,4 @@
-import { users } from '$lib/server/db/schema';
+import { roles, userRoles, users } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 
@@ -37,4 +37,40 @@ export async function updateUserEmailReset(
 	emailReset: boolean
 ) {
 	return await db.update(users).set({ emailReset }).where(eq(users.id, userId)).run();
+}
+
+export async function getUsersWithRoleNames(db: DrizzleD1Database) {
+	const rows = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			normalizedName: users.normalizedName,
+			emailReset: users.emailReset,
+			createdAt: users.createdAt,
+			roleName: roles.name
+		})
+		.from(users)
+		.leftJoin(userRoles, eq(users.id, userRoles.userId))
+		.leftJoin(roles, eq(userRoles.roleId, roles.id))
+		.all();
+
+	const map = new Map();
+
+	rows.forEach((row) => {
+		if (!map.has(row.id)) {
+			map.set(row.id, {
+				id: row.id,
+				name: row.name,
+				normalizedName: row.normalizedName,
+				emailReset: row.emailReset,
+				createdAt: row.createdAt,
+				roles: []
+			});
+		}
+		if (row.roleName) {
+			map.get(row.id).roles.push(row.roleName);
+		}
+	});
+
+	return Array.from(map.values());
 }

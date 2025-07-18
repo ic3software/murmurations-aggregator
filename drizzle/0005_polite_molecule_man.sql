@@ -87,12 +87,12 @@ VALUES
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
-  ('root', 'Super admin user'),
+  ('Root', 'Super admin user'),
   ('User', 'Default user');
 --> statement-breakpoint
 INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
 SELECT 
-  (SELECT id FROM roles WHERE name = 'root'),
+  (SELECT id FROM roles WHERE name = 'Root'),
   id
 FROM capabilities;
 --> statement-breakpoint
