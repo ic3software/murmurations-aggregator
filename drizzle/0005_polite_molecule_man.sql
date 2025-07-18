@@ -85,10 +85,17 @@ VALUES
   ('api', '/users', 'users', 'GET'),
   ('api', '/users/email-reset', 'users', 'PATCH'),
 
-  ('api', '/admin/roles', 'admin-roles', 'GET'),
   ('api', '/admin/users', 'admin-users', 'GET'),
   ('api', '/admin/users/*/roles', 'admin-users', 'GET'),
-  ('api', '/admin/users/*/roles', 'admin-users', 'POST');
+  ('api', '/admin/users/*/roles', 'admin-users', 'POST'),
+
+  ('api', '/admin/roles', 'admin-roles', 'GET'),
+  ('api', '/admin/roles', 'admin-roles', 'POST'),
+  ('api', '/admin/roles/*/capabilities', 'admin-roles', 'GET'),
+  ('api', '/admin/roles/*/capabilities', 'admin-roles', 'POST'),
+
+  ('api', '/admin/capabilities', 'admin-capabilities', 'GET'),
+  ('api', '/admin/capabilities', 'admin-capabilities', 'POST');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
