@@ -1,12 +1,33 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { Alert, AlertTitle } from '$lib/components/ui/alert';
 	import { formatDate } from '$lib/utils/date';
+	import { CircleAlert } from '@lucide/svelte';
+	import type { Page } from '@sveltejs/kit';
 
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
+	interface CustomPageState extends Page {
+		state: {
+			message?: string;
+		};
+	}
+
+	let typedPage = page as unknown as CustomPageState;
+
 	const { clusters } = data;
 </script>
+
+{#if typedPage?.state?.message}
+	<Alert class="mb-6">
+		<CircleAlert class="size-4" />
+		<AlertTitle>
+			{typedPage.state.message}
+		</AlertTitle>
+	</Alert>
+{/if}
 
 <div class="mb-8">
 	<h2 class="text-2xl font-bold text-slate-900 dark:text-slate-50">All Clusters</h2>

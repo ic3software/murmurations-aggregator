@@ -163,11 +163,9 @@
 	}
 
 	function copyLinkToClipboard(token: string) {
-		navigator.clipboard
-			.writeText(`${window.location.origin}/admin/login?token=${token}`)
-			.then(() => {
-				toast.success('Link copied!');
-			});
+		navigator.clipboard.writeText(`${window.location.origin}/login?token=${token}`).then(() => {
+			toast.success('Link copied!');
+		});
 	}
 
 	async function handleDeletePublicKey(publicKey: string) {
@@ -334,7 +332,7 @@
 				</p>
 				<p>Click the button below to create an account.</p>
 				<Button>
-					<a href="/admin/register">Register</a>
+					<a href="/register">Register</a>
 				</Button>
 			</CardContent>
 		</Card>

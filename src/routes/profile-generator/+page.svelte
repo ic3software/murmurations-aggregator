@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getProfile, getProfiles } from '$lib/api/profiles';
 	import { Card, CardContent } from '$lib/components/ui/card';
-	import { isLoggedIn } from '$lib/stores/auth';
 	import { dbStatus } from '$lib/stores/db-status';
 	import type { Profile, ProfileCardType, ProfileObject } from '$lib/types/profile';
 	import type { BasicSchema } from '$lib/types/schema';
@@ -27,6 +26,8 @@
 	let currentCuid: string = $state('');
 	let isDbOnline: boolean = $state(true);
 
+	const user = data?.user;
+
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
 
@@ -35,14 +36,14 @@
 			toast.error(data.errorMessage);
 		}
 
-		if ($isLoggedIn) {
+		if (user) {
 			await fetchProfiles();
 		}
 	});
 
 	// Fetch profiles when dbStatus is online and user is logged in
 	$effect(() => {
-		if (isDbOnline && $isLoggedIn) {
+		if (isDbOnline && user) {
 			fetchProfiles();
 		}
 	});
@@ -113,7 +114,7 @@
 									<p class="font-medium text-foreground">
 										Unable to connect to the database, Unable to load profiles
 									</p>
-								{:else if !$isLoggedIn}
+								{:else if !user}
 									<p class="font-medium text-foreground">
 										Login first if you want to save your profile here, or just create a profile by
 										selecting a schema from the list.
@@ -157,6 +158,7 @@
 						{currentCuid}
 						schemasReset={handleSchemasReset}
 						profileUpdated={handleProfileUpdated}
+						{user}
 					/>
 				{/if}
 			</div>
