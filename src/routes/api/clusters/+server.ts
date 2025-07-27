@@ -1,7 +1,7 @@
 import { getDB } from '$lib/server/db';
 import { createCluster, getClusters } from '$lib/server/models/cluster';
 import type { ClusterInsert, ClusterPublic } from '$lib/types/cluster';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';

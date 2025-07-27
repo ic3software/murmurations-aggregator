@@ -1,9 +1,17 @@
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import { redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
 
-const publicRoutes = ['/', '/login', '/register', '/profile-generator', '/batch-importer'];
+const publicRoutes = [
+	'/',
+	'/login',
+	'/register',
+	'/profile-generator',
+	'/batch-importer',
+	'/generate-delegation',
+	'/receive-delegation'
+];
 
 export const load: LayoutServerLoad = async ({ url, locals, cookies }) => {
 	const currentPath = url.pathname;
@@ -25,6 +33,8 @@ export const load: LayoutServerLoad = async ({ url, locals, cookies }) => {
 		if (!publicKey) {
 			throw redirect(302, '/register');
 		}
+
+		console.log(publicKey);
 
 		// Process currentPath for capability verification
 		const scheme = 'page';

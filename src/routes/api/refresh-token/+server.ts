@@ -4,7 +4,7 @@ import { getCapabilitiesByIds } from '$lib/server/models/capability';
 import { getCapabilityIdsByRoleIds } from '$lib/server/models/role-capability';
 import { getRoleIdsByUserId } from '$lib/server/models/user-role';
 import type { UcanCapability } from '$lib/types/ucan';
-import { buildUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { buildUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 

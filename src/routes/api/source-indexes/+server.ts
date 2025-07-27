@@ -5,7 +5,7 @@ import {
 	getSourceIndexes
 } from '$lib/server/models/source-index';
 import type { SourceIndex } from '$lib/types/source-index';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';

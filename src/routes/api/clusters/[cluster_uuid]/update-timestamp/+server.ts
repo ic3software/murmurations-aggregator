@@ -1,6 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { updateClusterTimestamp } from '$lib/server/models/cluster';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';

@@ -10,7 +10,7 @@ import {
 } from '$lib/server/models/email';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { getByUserId, updateUserEmailReset } from '$lib/server/models/user';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';

@@ -2,7 +2,7 @@ import { getDB } from '$lib/server/db';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/cluster';
 import { deleteNodes } from '$lib/server/models/node';
 import type { ClusterDbUpdateInput, ClusterPublic } from '$lib/types/cluster';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';

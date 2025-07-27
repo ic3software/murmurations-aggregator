@@ -181,6 +181,18 @@
 						</MenubarTrigger>
 					</MenubarMenu>
 
+					<MenubarMenu value="generate-delegation">
+						<MenubarTrigger>
+							<a href="/generate-delegation">Generate Delegation</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="receive-delegation">
+						<MenubarTrigger>
+							<a href="/receive-delegation">Receive Delegation</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
 					<MenubarMenu>
 						<MenubarTrigger class="ml-auto">
 							{#if !data?.user}

@@ -3,7 +3,7 @@ import {
 	getCapabilityIdsByRoleId,
 	updateRoleCapabilities
 } from '$lib/server/models/role-capability';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 

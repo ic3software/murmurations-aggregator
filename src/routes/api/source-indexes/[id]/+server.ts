@@ -6,7 +6,7 @@ import {
 	updateSourceIndex
 } from '$lib/server/models/source-index';
 import type { SourceIndexDbUpdateInput } from '$lib/types/source-index';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 

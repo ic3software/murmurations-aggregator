@@ -1,6 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { createCapability, getCapabilities } from '$lib/server/models/capability';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 

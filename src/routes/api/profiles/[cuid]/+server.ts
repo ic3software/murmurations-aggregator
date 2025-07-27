@@ -4,7 +4,7 @@ import { getDB } from '$lib/server/db';
 import { deleteProfile, getProfileByCuid, updateProfile } from '$lib/server/models/profiles';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import type { ProfileDbUpdateInput, ProfileObject } from '$lib/types/profile';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
+import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
