@@ -13,6 +13,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
+	import type { CryptoKeyPair } from '$lib/types/crypto';
 	import { AlertCircle, Home } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
@@ -21,7 +22,6 @@
 
 	let name = $state('');
 	let isSubmitting = $state(false);
-	/* global CryptoKeyPair */
 	let keypair: CryptoKeyPair | null = $state(null);
 	let error = $state<string | null>(null);
 

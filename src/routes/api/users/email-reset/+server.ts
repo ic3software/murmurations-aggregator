@@ -1,47 +1,31 @@
-import { removeDidPrefix } from '$lib/crypto';
 import { getDB } from '$lib/server/db';
 import { doesUserIdHaveEmail } from '$lib/server/models/email';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { updateUserEmailReset } from '$lib/server/models/user';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const PATCH: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/users/email-reset',
+			namespace: 'users',
+			segments: ['PATCH']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/users/email-reset',
-			'users',
-			['PATCH']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
 
-		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
 		if (!userByPublicKey) {
 			return json({ error: 'User not found', success: false }, { status: 404 });

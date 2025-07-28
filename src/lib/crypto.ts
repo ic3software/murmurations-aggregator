@@ -1,5 +1,7 @@
 import * as uint8arrays from 'uint8arrays';
 
+import type { CryptoKeyPair } from './types/crypto';
+
 /**
  * Opens IndexedDB and ensures the object store exists.
  */

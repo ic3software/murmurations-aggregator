@@ -1,7 +1,7 @@
 import { getDB } from '$lib/server/db';
 import { createNode, getNode, getNodes } from '$lib/server/models/node';
 import type { NodeInsert } from '$lib/types/node';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -38,33 +38,22 @@ export const GET: RequestHandler = async ({
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	request,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const {
+			publicKey,
+			error,
+			status: ucanStatus
+		} = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/clusters/*/nodes',
+			namespace: 'clusters',
+			segments: ['POST']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/clusters/*/nodes',
-			'clusters',
-			['POST']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status: ucanStatus });
 		}
 
 		const db = getDB(platform.env);

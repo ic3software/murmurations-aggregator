@@ -1,4 +1,3 @@
-import { removeDidPrefix } from '$lib/crypto';
 import { getDB } from '$lib/server/db';
 import {
 	deleteLoginToken,
@@ -7,44 +6,30 @@ import {
 } from '$lib/server/models/login-token';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { generateLoginToken } from '$lib/server/utils';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/keys',
+			namespace: 'keys',
+			segments: ['GET']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/tokens',
-			'tokens',
-			['GET']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
 
-		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
 		if (!userByPublicKey) {
 			return json({ error: 'User not found', success: false }, { status: 404 });
@@ -61,37 +46,23 @@ export const GET: RequestHandler = async ({
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/tokens',
+			namespace: 'tokens',
+			segments: ['POST']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/tokens',
-			'tokens',
-			['POST']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
 
-		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
 		if (!userByPublicKey) {
 			return json({ error: 'User not found', success: false }, { status: 404 });
@@ -110,38 +81,23 @@ export const POST: RequestHandler = async ({
 
 export const DELETE: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/tokens',
+			namespace: 'tokens',
+			segments: ['DELETE']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/profiles',
-			'profile',
-			['GET']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
 
-		const userByPublicKey = await getUserIdByPublicKey(db, removeDidPrefix(publicKey));
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
 		if (!userByPublicKey) {
 			return json({ error: 'User not found', success: false }, { status: 404 });

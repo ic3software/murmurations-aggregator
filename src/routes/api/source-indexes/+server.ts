@@ -5,7 +5,7 @@ import {
 	getSourceIndexes
 } from '$lib/server/models/source-index';
 import type { SourceIndex } from '$lib/types/source-index';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -26,8 +26,7 @@ export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Data
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request,
-	cookies
+	request
 }) => {
 	try {
 		const { url, label, libraryUrl } = await request.json();
@@ -36,29 +35,15 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/source-indexes',
+			namespace: 'source-indexes',
+			segments: ['POST']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/source-indexes',
-			'source-indexes',
-			['POST']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);

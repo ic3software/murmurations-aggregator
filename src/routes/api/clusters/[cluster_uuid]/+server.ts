@@ -2,7 +2,7 @@ import { getDB } from '$lib/server/db';
 import { deleteCluster, getCluster, updateCluster } from '$lib/server/models/cluster';
 import { deleteNodes } from '$lib/server/models/node';
 import type { ClusterDbUpdateInput, ClusterPublic } from '$lib/types/cluster';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -37,33 +37,18 @@ export const GET: RequestHandler = async ({
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	request,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/clusters/*',
+			namespace: 'clusters',
+			segments: ['PUT']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/clusters/*',
-			'clusters',
-			['PUT']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
@@ -105,32 +90,18 @@ export const PUT: RequestHandler = async ({
 export const DELETE: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/clusters/*',
+			namespace: 'clusters',
+			segments: ['DELETE']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/clusters/*',
-			'clusters',
-			['DELETE']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);

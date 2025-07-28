@@ -1,5 +1,9 @@
+import { getToken } from '$lib/core';
+import { currentTokenStore } from '$lib/stores/token-store';
 import type { Meta } from '$lib/types/api';
 import type { ValidationError } from '$lib/types/profile';
+
+import { get } from 'svelte/store';
 
 export async function request<TBody, TResponse>(
 	url: string,
@@ -15,9 +19,15 @@ export async function request<TBody, TResponse>(
 	meta?: Meta;
 	errors?: ValidationError[];
 }> {
+	let currentToken = get(currentTokenStore);
+	if (!currentToken) {
+		currentToken = await getToken('currentToken');
+	}
+
 	try {
 		const headers: HeadersInit = {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${currentToken}`
 		};
 
 		const requestBody = body !== undefined ? JSON.stringify(body) : undefined;

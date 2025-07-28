@@ -12,8 +12,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request,
-	cookies
+	request
 }) => {
 	try {
 		if (!PRIVATE_SERVER_KEY) {
@@ -46,15 +45,7 @@ export const POST: RequestHandler = async ({
 			segments: [capability.segments]
 		}));
 
-		const token = await buildUcanWithCapabilities(xPublicKey, 10 * 60, ucanCapabilities);
-
-		cookies.set('ucan_token', token, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'strict',
-			secure: process.env.NODE_ENV === 'production',
-			maxAge: 60 * 60 * 24
-		});
+		const token = await buildUcanWithCapabilities(xPublicKey, 60 * 60, ucanCapabilities);
 
 		return json({ data: { token }, success: true }, { status: 200 });
 	} catch (error) {

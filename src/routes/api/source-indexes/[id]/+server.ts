@@ -6,7 +6,7 @@ import {
 	updateSourceIndex
 } from '$lib/server/models/source-index';
 import type { SourceIndexDbUpdateInput } from '$lib/types/source-index';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
@@ -38,8 +38,7 @@ export const GET: RequestHandler = async ({
 export const PUT: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	request,
-	params,
-	cookies
+	params
 }) => {
 	try {
 		const id = parseInt(params.id ?? '');
@@ -48,29 +47,15 @@ export const PUT: RequestHandler = async ({
 			return json({ error: 'Invalid source index ID', success: false }, { status: 400 });
 		}
 
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/source-indexes/*',
+			namespace: 'source-indexes',
+			segments: ['PUT']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/source-indexes/*',
-			'source-indexes',
-			['PUT']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);
@@ -109,7 +94,7 @@ export const PUT: RequestHandler = async ({
 export const DELETE: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
 	params,
-	cookies
+	request
 }) => {
 	try {
 		const id = parseInt(params.id ?? '');
@@ -118,29 +103,15 @@ export const DELETE: RequestHandler = async ({
 			return json({ error: 'Invalid source index ID', success: false }, { status: 400 });
 		}
 
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/source-indexes/*',
+			namespace: 'source-indexes',
+			segments: ['DELETE']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/source-indexes/*',
-			'source-indexes',
-			['DELETE']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error, success: false }, { status });
 		}
 
 		const db = getDB(platform.env);

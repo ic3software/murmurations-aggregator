@@ -1,4 +1,8 @@
+import { PUBLIC_SERVER_DID_KEY } from '$env/static/public';
+import { removeDidPrefix } from '$lib/crypto';
+import type { CryptoKeyPair } from '$lib/types/crypto';
 import type { DidableKey } from '@ucans/ucans';
+import * as ucans from '@ucans/ucans';
 import * as uint8arrays from 'uint8arrays';
 
 export async function toDidableKey(keypair: CryptoKeyPair): Promise<DidableKey> {
@@ -28,4 +32,69 @@ export function didFromKeyBytes(publicKeyBytes: Uint8Array, prefix: Uint8Array):
 	const bytes = uint8arrays.concat([prefix, publicKeyBytes]);
 	const base58Key = uint8arrays.toString(bytes, 'base58btc');
 	return 'did:key:z' + base58Key;
+}
+
+export async function issueAccessUcan(
+	rootToken: string,
+	userKeyPair: CryptoKeyPair,
+	lifetimeInSeconds: number
+): Promise<string> {
+	const didableKey = await toDidableKey(userKeyPair);
+	const rootUcan = ucans.parse(rootToken);
+	const ucanToken = await ucans.build({
+		issuer: didableKey,
+		audience: PUBLIC_SERVER_DID_KEY,
+		lifetimeInSeconds,
+		capabilities: rootUcan.payload.att,
+		proofs: [rootToken]
+	});
+
+	return ucans.encode(ucanToken);
+}
+
+export async function verifyUcanWithCapabilities(
+	encodedUcan: string,
+	scheme: string,
+	hierPart: string,
+	namespace: string,
+	segments: string[]
+) {
+	const rootIssuerDidKey = PUBLIC_SERVER_DID_KEY;
+
+	const result = await ucans.verify(encodedUcan, {
+		audience: PUBLIC_SERVER_DID_KEY,
+		requiredCapabilities: [
+			{
+				capability: {
+					with: { scheme, hierPart },
+					can: { namespace, segments }
+				},
+				rootIssuer: rootIssuerDidKey
+			}
+		]
+	});
+
+	if (result.ok) {
+		return result.value;
+	} else {
+		return false;
+	}
+}
+
+export async function isUcanExpired(encodedUcan: string): Promise<boolean> {
+	try {
+		const ucan = ucans.parse(encodedUcan);
+		const now = Math.floor(Date.now() / 1000);
+		return ucan.payload.exp < now;
+	} catch (error) {
+		console.error('Error parsing UCAN:', error);
+		return true;
+	}
+}
+
+export async function getFirstAudienceFromProof(encodedUcan: string): Promise<string> {
+	const ucan = ucans.parse(encodedUcan);
+	const proof = ucan.payload.prf[0];
+	const proofUcan = ucans.parse(proof);
+	return removeDidPrefix(proofUcan.payload.aud.toString());
 }

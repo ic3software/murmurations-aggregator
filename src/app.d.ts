@@ -3,9 +3,7 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		interface Locals {
-			user: string | null;
-		}
+		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {
@@ -17,11 +15,6 @@ declare global {
 			};
 			caches: CacheStorage & { default: Cache };
 		}
-	}
-
-	interface CryptoKeyPair {
-		privateKey: CryptoKey;
-		publicKey: CryptoKey;
 	}
 }
 

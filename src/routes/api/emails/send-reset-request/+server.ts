@@ -4,7 +4,7 @@ import { getUserIdByEmail } from '$lib/server/models/email';
 import { insertLoginToken } from '$lib/server/models/login-token';
 import { getByUserId } from '$lib/server/models/user';
 import { generateLoginToken } from '$lib/server/utils';
-import { verifyUcan, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils.server';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -18,33 +18,22 @@ const resend = new Resend(PRIVATE_RESEND_KEY);
 
 export const POST: RequestHandler = async ({
 	platform = { env: { DB: {} as D1Database } },
-	request,
-	cookies
+	request
 }) => {
 	try {
-		const ucanToken = cookies.get('ucan_token');
-
-		if (!ucanToken) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const publicKey = await verifyUcan(ucanToken);
+		const {
+			publicKey,
+			error: ucanError,
+			status
+		} = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/emails/send-reset-request',
+			namespace: 'emails',
+			segments: ['POST']
+		});
 
 		if (!publicKey) {
-			return json({ error: 'Unauthorized', success: false }, { status: 401 });
-		}
-
-		const isVerified = await verifyUcanWithCapabilities(
-			ucanToken,
-			publicKey,
-			'api',
-			'/emails/send-reset-request',
-			'emails',
-			['POST']
-		);
-
-		if (!isVerified) {
-			return json({ error: 'Permission denied', success: false }, { status: 403 });
+			return json({ error: ucanError, success: false }, { status });
 		}
 
 		const { email } = await request.json();

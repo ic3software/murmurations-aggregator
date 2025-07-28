@@ -1,26 +1,28 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { refreshToken } from '$lib/api/auth-request';
 	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import { getToken, storeToken } from '$lib/core';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import { dbStatus } from '$lib/stores/db-status';
+	import { currentTokenStore, delegationsStore, rootTokenStore } from '$lib/stores/token-store';
+	import type { CryptoKeyPair } from '$lib/types/crypto';
+	import type { Delegation } from '$lib/types/delegation';
 	import { checkDbStatus } from '$lib/utils/check-db-status';
+	import {
+		issueAccessUcan,
+		isUcanExpired,
+		verifyUcanWithCapabilities
+	} from '$lib/utils/ucan-utils';
 	import { AlertCircle, WifiOff } from '@lucide/svelte';
 
-	import type { Snippet } from 'svelte';
 	import { onMount } from 'svelte';
 
 	import '../app.css';
 
-	interface Props {
-		children: Snippet;
-		data: {
-			user: string | null;
-		};
-	}
-
-	let { children, data }: Props = $props();
+	let { children } = $props();
 
 	let isDbOnline: boolean = $state(true);
 	let isOnline: boolean = $state(true);
@@ -41,8 +43,30 @@
 	const hiddenRoutes = ['/login', '/register'];
 	const showMenubar = $derived(!hiddenRoutes.includes(page.url.pathname));
 
-	/* global CryptoKeyPair */
-	let keypair: CryptoKeyPair | null = $state(null);
+	// Subscribe to stores
+	let rootToken: string | null = $state(null);
+	let currentToken: string | null = $state(null);
+	let delegations: Delegation[] = $state([]);
+
+	rootTokenStore.subscribe((v) => {
+		rootToken = v;
+	});
+	currentTokenStore.subscribe((v) => {
+		currentToken = v;
+	});
+	delegationsStore.subscribe((v) => {
+		delegations = v;
+	});
+
+	const publicRoutes = [
+		'/',
+		'/login',
+		'/register',
+		'/profile-generator',
+		'/batch-importer',
+		'/generate-delegation',
+		'/receive-delegation'
+	];
 
 	onMount(() => {
 		// Check system preference
@@ -74,24 +98,109 @@
 		};
 	});
 
-	onMount(async () => {
-		keypair = await getOrCreateKeyPair();
+	onMount(() => {
+		const init = async () => {
+			let keypair = await getOrCreateKeyPair();
 
-		// Refresh token if user is empty
-		if (!data?.user) {
+			const [root, current] = await Promise.all([getToken('rootToken'), getToken('currentToken')]);
+
+			rootTokenStore.set(root);
+			currentTokenStore.set(current);
+
+			await refreshTokenIfNeeded(keypair);
+			await verifyAccessIfNeeded(keypair);
+
+			// TODO: Remove this after using the delegations store
+			console.log('delegations', delegations);
+		};
+
+		init();
+	});
+
+	async function refreshTokenIfNeeded(keypair: CryptoKeyPair) {
+		let isExpired = false;
+		if (rootToken) {
+			isExpired = await isUcanExpired(rootToken);
+		}
+
+		if (!rootToken || isExpired) {
 			const xTimer = Math.floor(Date.now()).toString();
 			const requestBody = '{}';
 			const signature = await signRequest(requestBody, keypair.privateKey);
 			const xTimerSignature = await signRequest(xTimer, keypair.privateKey);
 			const publicKey = await exportPublicKey(keypair.publicKey);
 
-			const { success } = await refreshToken(signature, xTimer, xTimerSignature, publicKey);
+			const { success, data } = await refreshToken(signature, xTimer, xTimerSignature, publicKey);
 
-			if (success) {
-				window.location.reload();
+			if (success && data?.token) {
+				rootTokenStore.set(data.token);
+				await storeToken('rootToken', data.token);
+			} else {
+				rootTokenStore.set(null);
+				currentTokenStore.set(null);
+				delegationsStore.set([]);
+				goto('/register');
+				return;
 			}
 		}
-	});
+	}
+
+	async function verifyAccessIfNeeded(keypair: CryptoKeyPair) {
+		const currentPath = page.url.pathname;
+
+		if (rootToken && (currentPath === '/register' || currentPath === '/login')) {
+			goto('/');
+			return;
+		}
+
+		if (rootToken) {
+			let isExpired = false;
+			if (currentToken) {
+				isExpired = await isUcanExpired(currentToken);
+			}
+
+			if (!currentToken || isExpired) {
+				const accessUcan = await issueAccessUcan(rootToken, keypair, 60 * 60);
+				currentTokenStore.set(accessUcan);
+				await storeToken('currentToken', accessUcan);
+			}
+		}
+
+		if (!publicRoutes.includes(currentPath)) {
+			if (!rootToken || !currentToken) {
+				goto('/register');
+				return;
+			}
+
+			const scheme = 'page';
+			let hierPart = currentPath;
+			let namespace = 'client';
+
+			let pathToCheck = currentPath;
+			if (currentPath.includes('/admin')) {
+				namespace = 'admin';
+				hierPart = currentPath.replace('/admin', '') || '/';
+				pathToCheck = currentPath.replace(/^\/admin/, '') || '/';
+			}
+
+			// Only check the first segment of the path. As long as the user has permission for the first segment, they should be able to access the rest of the path
+			const segments = pathToCheck.split('/').filter(Boolean);
+			hierPart = '/' + (segments[0] ?? '');
+
+			const isVerified = await verifyUcanWithCapabilities(
+				currentToken,
+				scheme,
+				hierPart,
+				namespace,
+				['GET']
+			);
+
+			if (!isVerified) {
+				// goto('/register');
+				return;
+			}
+		}
+	}
 </script>
 
 <svelte:head>
@@ -195,7 +304,7 @@
 
 					<MenubarMenu>
 						<MenubarTrigger class="ml-auto">
-							{#if !data?.user}
+							{#if !currentToken}
 								<a href="/register">Login</a>
 							{/if}
 						</MenubarTrigger>
