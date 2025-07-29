@@ -8,15 +8,31 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Label } from '$lib/components/ui/label';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { getDelegations, storeDelegations } from '$lib/core';
 	import { delegationsStore } from '$lib/stores/token-store';
+	import type { Delegation } from '$lib/types/delegation';
 	import { decodeUcanToDelegation } from '$lib/utils/ucan-utils';
+	import { Trash2 } from '@lucide/svelte';
 
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	let delegationToken = $state('');
 	let isProcessing = $state(false);
+	let delegations: Delegation[] = $state([]);
+
+	onMount(async () => {
+		delegations = await getDelegations();
+	});
 
 	async function processDelegation() {
 		if (!delegationToken.trim()) {
@@ -42,6 +58,7 @@
 			await storeDelegations(updatedDelegations);
 
 			delegationsStore.set(updatedDelegations);
+			delegations = updatedDelegations;
 
 			toast.success('Delegation received successfully');
 			delegationToken = '';
@@ -56,6 +73,25 @@
 			isProcessing = false;
 		}
 	}
+
+	async function deleteDelegation(delegationToDelete: Delegation) {
+		try {
+			const updatedDelegations = delegations.filter((d) => d.token !== delegationToDelete.token);
+
+			await storeDelegations(updatedDelegations);
+			delegationsStore.set(updatedDelegations);
+			delegations = updatedDelegations;
+
+			toast.success('Delegation deleted successfully');
+		} catch (error) {
+			console.error('Failed to delete delegation:', error);
+			toast.error('Failed to delete delegation');
+		}
+	}
+
+	function formatDate(timestamp: number): string {
+		return new Date(timestamp * 1000).toLocaleString();
+	}
 </script>
 
 <div class="w-full space-y-6">
@@ -65,6 +101,49 @@
 			Paste a delegation token below to receive delegated capabilities from another user.
 		</p>
 	</div>
+
+	{#if delegations.length > 0}
+		<Card>
+			<CardHeader>
+				<CardTitle>Received Delegations</CardTitle>
+				<CardDescription>
+					Manage your received delegations. You can delete delegations you no longer need.
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>From</TableHead>
+							<TableHead>Expire</TableHead>
+							<TableHead class="w-[100px]">Actions</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{#each delegations as delegation (delegation.token)}
+							<TableRow>
+								<TableCell class="font-medium">
+									{delegation.from}
+								</TableCell>
+								<TableCell>
+									{delegation.expiresAt ? formatDate(delegation.expiresAt) : 'No expiration'}
+								</TableCell>
+								<TableCell>
+									<Button
+										variant="destructive"
+										size="sm"
+										onclick={() => deleteDelegation(delegation)}
+									>
+										<Trash2 class="w-4 h-4" />
+									</Button>
+								</TableCell>
+							</TableRow>
+						{/each}
+					</TableBody>
+				</Table>
+			</CardContent>
+		</Card>
+	{/if}
 
 	<Card>
 		<CardHeader>
