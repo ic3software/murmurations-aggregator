@@ -2,6 +2,7 @@ import { getToken } from '$lib/core';
 import { currentTokenStore } from '$lib/stores/token-store';
 import type { Meta } from '$lib/types/api';
 import type { ValidationError } from '$lib/types/profile';
+import { compressTokenBrotli } from '$lib/utils/compress-token';
 
 import { get } from 'svelte/store';
 
@@ -22,6 +23,11 @@ export async function request<TBody, TResponse>(
 	let currentToken = get(currentTokenStore);
 	if (!currentToken) {
 		currentToken = await getToken('currentToken');
+	}
+
+	if (currentToken) {
+		const compressedToken = compressTokenBrotli(currentToken);
+		currentToken = compressedToken;
 	}
 
 	try {

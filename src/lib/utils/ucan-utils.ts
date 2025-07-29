@@ -36,18 +36,19 @@ export function didFromKeyBytes(publicKeyBytes: Uint8Array, prefix: Uint8Array):
 }
 
 export async function issueAccessUcan(
-	rootToken: string,
+	currentToken: string,
 	userKeyPair: CryptoKeyPair,
 	lifetimeInSeconds: number
 ): Promise<string> {
 	const didableKey = await toDidableKey(userKeyPair);
-	const rootUcan = ucans.parse(rootToken);
+	const currentUcan = ucans.parse(currentToken);
+
 	const ucanToken = await ucans.build({
 		issuer: didableKey,
 		audience: PUBLIC_SERVER_DID_KEY,
 		lifetimeInSeconds,
-		capabilities: rootUcan.payload.att,
-		proofs: [rootToken]
+		capabilities: currentUcan.payload.att,
+		proofs: [currentToken]
 	});
 
 	return ucans.encode(ucanToken);
@@ -75,6 +76,8 @@ export async function verifyUcanWithCapabilities(
 		]
 	});
 
+	console.log('result', result);
+
 	if (result.ok) {
 		return result.value;
 	} else {
@@ -94,10 +97,14 @@ export async function isUcanExpired(encodedUcan: string): Promise<boolean> {
 }
 
 export async function getFirstAudienceFromProof(encodedUcan: string): Promise<string> {
-	const ucan = ucans.parse(encodedUcan);
-	const proof = ucan.payload.prf[0];
-	const proofUcan = ucans.parse(proof);
-	return removeDidPrefix(proofUcan.payload.aud.toString());
+	let currentUcan = ucans.parse(encodedUcan);
+
+	while (currentUcan.payload.prf && currentUcan.payload.prf.length > 0) {
+		const proof = currentUcan.payload.prf[0];
+		currentUcan = ucans.parse(proof);
+	}
+
+	return removeDidPrefix(currentUcan.payload.aud.toString());
 }
 
 export async function decodeUcanToDelegation(encodedUcan: string): Promise<Delegation> {

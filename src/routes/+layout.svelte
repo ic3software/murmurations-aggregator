@@ -78,6 +78,28 @@
 		'/receive-delegation'
 	];
 
+	async function updateCurrentToken(
+		keypair: CryptoKeyPair,
+		rootToken: string | null,
+		delegation: Delegation | null
+	) {
+		let newToken: string | null = null;
+
+		if (delegation) {
+			newToken = await issueAccessUcan(delegation.token, keypair, 60 * 60);
+		} else if (rootToken) {
+			newToken = await issueAccessUcan(rootToken, keypair, 60 * 60);
+		}
+
+		if (newToken) {
+			currentTokenStore.set(newToken);
+			await storeToken('currentToken', newToken);
+		} else {
+			currentTokenStore.set(null);
+			await storeToken('currentToken', null);
+		}
+	}
+
 	function isDelegationExpired(delegation: Delegation): boolean {
 		return Date.now() > delegation.expiresAt * 1000;
 	}
@@ -93,9 +115,12 @@
 	}
 
 	async function switchUser(delegationFrom: string | null) {
+		const keypair = await getOrCreateKeyPair();
+
 		if (delegationFrom === null) {
 			selectedDelegationStore.set(null);
 			await storeToken('selectedDelegation', null);
+			await updateCurrentToken(keypair, rootToken, null);
 		} else {
 			const delegation = delegations.find((d) => d.from === delegationFrom);
 			if (delegation) {
@@ -105,6 +130,7 @@
 				}
 				selectedDelegationStore.set(delegationFrom);
 				await storeToken('selectedDelegation', delegationFrom);
+				await updateCurrentToken(keypair, rootToken, delegation);
 			}
 		}
 	}

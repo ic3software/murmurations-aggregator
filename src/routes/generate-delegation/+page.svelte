@@ -17,14 +17,13 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { getToken } from '$lib/core';
 	import { getKey } from '$lib/crypto';
-	import { currentTokenStore } from '$lib/stores/token-store';
 	import { toDidableKey } from '$lib/utils/ucan-utils';
 	import * as ucans from '@ucans/ucans';
 
 	import { onMount, tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { get } from 'svelte/store';
 
 	let ucanToken = $state('');
 	let parsedCapabilities: ucans.Capability[] = $state([]);
@@ -54,7 +53,7 @@
 			toast.error('Failed to retrieve keypair from storage');
 		}
 
-		ucanToken = get(currentTokenStore) || '';
+		ucanToken = await getToken('rootToken');
 
 		if (ucanToken) {
 			try {

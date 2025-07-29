@@ -1,5 +1,6 @@
 import { PRIVATE_SERVER_KEY } from '$env/static/private';
 import type { UcanCapability } from '$lib/types/ucan';
+import { decompressTokenBrotli } from '$lib/utils/decompress-token.server';
 import { getFirstAudienceFromProof, verifyUcanWithCapabilities } from '$lib/utils/ucan-utils';
 import * as ucans from '@ucans/ucans';
 
@@ -27,10 +28,12 @@ export async function buildUcanWithCapabilities(
 }
 
 export async function authenticateUcanRequest(request: Request, capability: UcanCapability) {
-	const ucanToken = request.headers.get('authorization')?.replace('Bearer ', '');
-	if (!ucanToken) {
+	const compressedToken = request.headers.get('authorization')?.replace('Bearer ', '');
+	if (!compressedToken) {
 		return { error: 'Unauthorized', status: 401 };
 	}
+
+	const ucanToken = decompressTokenBrotli(compressedToken);
 
 	const isVerified = await verifyUcanWithCapabilities(
 		ucanToken,
