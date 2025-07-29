@@ -200,26 +200,6 @@ export const roleCapabilities = sqliteTable('role_capabilities', {
 		.default(sql`(unixepoch())`)
 });
 
-export const delegations = sqliteTable('delegations', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	fromUserId: integer('from_user_id')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	toUserId: integer('to_user_id')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	capabilityId: integer('capability_id')
-		.notNull()
-		.references(() => capabilities.id, { onDelete: 'cascade' }),
-	expiresAt: integer('expires_at', { mode: 'number' })
-		.notNull()
-		.default(sql`(unixepoch())`),
-	delegationToken: text('delegation_token').notNull(),
-	createdAt: integer('created_at', { mode: 'number' })
-		.notNull()
-		.default(sql`(unixepoch())`)
-});
-
 // Relations
 export const clusterSchemasRelations = relations(clusterSchemas, ({ one }) => ({
 	cluster: one(clusters, {

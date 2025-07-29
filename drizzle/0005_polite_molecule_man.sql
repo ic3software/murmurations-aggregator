@@ -8,19 +8,6 @@ CREATE TABLE `capabilities` (
 	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `delegations` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`from_user_id` integer NOT NULL,
-	`to_user_id` integer NOT NULL,
-	`capability_id` integer NOT NULL,
-	`expires_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`delegation_token` text NOT NULL,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`from_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`to_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`capability_id`) REFERENCES `capabilities`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
 CREATE TABLE `role_capabilities` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`role_id` integer NOT NULL,
