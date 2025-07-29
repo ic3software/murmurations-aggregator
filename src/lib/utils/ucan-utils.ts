@@ -76,8 +76,6 @@ export async function verifyUcanWithCapabilities(
 		]
 	});
 
-	console.log('result', result);
-
 	if (result.ok) {
 		return result.value;
 	} else {
