@@ -3,11 +3,17 @@
 	import { page } from '$app/state';
 	import { refreshToken } from '$lib/api/auth-request';
 	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import { getToken, storeToken } from '$lib/core';
+	import { getDelegations, getToken, storeDelegations, storeToken } from '$lib/core';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import { dbStatus } from '$lib/stores/db-status';
-	import { currentTokenStore, delegationsStore, rootTokenStore } from '$lib/stores/token-store';
+	import {
+		currentTokenStore,
+		delegationsStore,
+		rootTokenStore,
+		selectedDelegationStore
+	} from '$lib/stores/token-store';
 	import type { CryptoKeyPair } from '$lib/types/crypto';
 	import type { Delegation } from '$lib/types/delegation';
 	import { checkDbStatus } from '$lib/utils/check-db-status';
@@ -16,7 +22,7 @@
 		isUcanExpired,
 		verifyUcanWithCapabilities
 	} from '$lib/utils/ucan-utils';
-	import { AlertCircle, WifiOff } from '@lucide/svelte';
+	import { AlertCircle, Clock, User, WifiOff } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 
@@ -47,6 +53,7 @@
 	let rootToken: string | null = $state(null);
 	let currentToken: string | null = $state(null);
 	let delegations: Delegation[] = $state([]);
+	let selectedDelegation: string | null = $state(null);
 
 	rootTokenStore.subscribe((v) => {
 		rootToken = v;
@@ -56,6 +63,9 @@
 	});
 	delegationsStore.subscribe((v) => {
 		delegations = v;
+	});
+	selectedDelegationStore.subscribe((v) => {
+		selectedDelegation = v;
 	});
 
 	const publicRoutes = [
@@ -67,6 +77,68 @@
 		'/generate-delegation',
 		'/receive-delegation'
 	];
+
+	function isDelegationExpired(delegation: Delegation): boolean {
+		return Date.now() > delegation.expiresAt * 1000;
+	}
+
+	function formatExpirationDate(expiresAt: number): string {
+		return new Date(expiresAt * 1000).toLocaleString();
+	}
+
+	async function removeDelegation(delegationFrom: string) {
+		const updatedDelegations = delegations.filter((d) => d.from !== delegationFrom);
+		await storeDelegations(updatedDelegations);
+		delegationsStore.set(updatedDelegations);
+	}
+
+	async function switchUser(delegationFrom: string | null) {
+		if (delegationFrom === null) {
+			selectedDelegationStore.set(null);
+			await storeToken('selectedDelegation', null);
+		} else {
+			const delegation = delegations.find((d) => d.from === delegationFrom);
+			if (delegation) {
+				if (isDelegationExpired(delegation)) {
+					await removeDelegation(delegation.from);
+					return;
+				}
+				selectedDelegationStore.set(delegationFrom);
+				await storeToken('selectedDelegation', delegationFrom);
+			}
+		}
+	}
+
+	const delegationOptions = $derived(() => {
+		const options = [{ value: 'original', label: 'Original Account' }];
+
+		delegations.forEach((delegation) => {
+			options.push({
+				value: delegation.from,
+				label: delegation.from
+			});
+		});
+
+		return options;
+	});
+
+	let selectValue = $state('original');
+
+	$effect(() => {
+		selectValue = selectedDelegation || 'original';
+	});
+
+	function handleSelectChange(value: string | undefined) {
+		if (value === 'original') {
+			switchUser(null);
+		} else if (value) {
+			switchUser(value);
+		}
+	}
+
+	const triggerContent = $derived(
+		delegationOptions().find((opt) => opt.value === selectValue)?.label ?? 'Original Account'
+	);
 
 	onMount(() => {
 		// Check system preference
@@ -102,16 +174,20 @@
 		const init = async () => {
 			let keypair = await getOrCreateKeyPair();
 
-			const [root, current] = await Promise.all([getToken('rootToken'), getToken('currentToken')]);
+			const [root, current, delegations, selectedDelegation] = await Promise.all([
+				getToken('rootToken'),
+				getToken('currentToken'),
+				getDelegations(),
+				getToken('selectedDelegation')
+			]);
 
 			rootTokenStore.set(root);
 			currentTokenStore.set(current);
+			delegationsStore.set(delegations);
+			selectedDelegationStore.set(selectedDelegation);
 
 			await refreshTokenIfNeeded(keypair);
 			await verifyAccessIfNeeded(keypair);
-
-			// TODO: Remove this after using the delegations store
-			console.log('delegations', delegations);
 		};
 
 		init();
@@ -139,8 +215,6 @@
 				rootTokenStore.set(null);
 				currentTokenStore.set(null);
 				delegationsStore.set([]);
-				goto('/register');
-				return;
 			}
 		}
 	}
@@ -196,7 +270,7 @@
 			);
 
 			if (!isVerified) {
-				// goto('/register');
+				goto('/register');
 				return;
 			}
 		}
@@ -218,9 +292,66 @@
 
 <Toaster position="top-center" richColors={true} />
 
-{#if !isAdminRoute && showMenubar}
-	<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-		<!-- Status Alerts - Position above everything -->
+<div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
+	{#if delegations.length > 0 && rootToken}
+		<div
+			class="bg-blue-50 border-b border-blue-200 text-blue-900 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-100"
+		>
+			<div class="container mx-auto px-4 py-3">
+				<div class="flex items-center justify-center space-x-4">
+					<User class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+					<span class="text-sm font-medium">Acting as:</span>
+
+					<Select.Root type="single" bind:value={selectValue} onValueChange={handleSelectChange}>
+						<Select.Trigger
+							class="w-[240px] bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 focus:ring-2 focus:ring-slate-950 dark:focus:ring-slate-300 focus:ring-offset-2 rounded-md px-3 py-2 text-sm"
+						>
+							<span class="truncate">{triggerContent}</span>
+						</Select.Trigger>
+						<Select.Content class="min-w-[240px] max-w-[400px]">
+							<Select.Group>
+								<Select.Label
+									class="px-2 py-1.5 text-sm font-semibold text-slate-900 dark:text-slate-50"
+									>Available Accounts</Select.Label
+								>
+								{#each delegationOptions() as option (option.value)}
+									<Select.Item
+										value={option.value}
+										label={option.label}
+										class="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-slate-100 dark:focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+									>
+										<div class="flex items-center justify-between w-full min-w-0 overflow-hidden">
+											<span class="truncate flex-1 mr-2">{option.label}</span>
+											{#if option.value !== 'original'}
+												{@const delegation = delegations.find((d) => d.from === option.value)}
+												{#if delegation}
+													<div class="flex items-center space-x-1 text-xs flex-shrink-0">
+														<Clock class="w-3 h-3" />
+														<span
+															class={isDelegationExpired(delegation)
+																? 'text-red-500 dark:text-red-400'
+																: 'text-slate-500 dark:text-slate-400'}
+														>
+															{isDelegationExpired(delegation)
+																? 'Expired'
+																: formatExpirationDate(delegation.expiresAt)}
+														</span>
+													</div>
+												{/if}
+											{/if}
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	{#if !isAdminRoute && showMenubar}
+		<!-- Status Alerts - Position below delegation bar -->
 		{#if !isOnline}
 			<div class="bg-red-500 border-b border-red-600 text-white shadow-lg">
 				<div class="container mx-auto px-4 py-3">
@@ -314,7 +445,7 @@
 
 			{@render children()}
 		</div>
-	</div>
-{:else}
-	{@render children()}
-{/if}
+	{:else}
+		{@render children()}
+	{/if}
+</div>

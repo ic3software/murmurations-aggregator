@@ -1,6 +1,7 @@
 import { PUBLIC_SERVER_DID_KEY } from '$env/static/public';
 import { removeDidPrefix } from '$lib/crypto';
 import type { CryptoKeyPair } from '$lib/types/crypto';
+import type { Delegation } from '$lib/types/delegation';
 import type { DidableKey } from '@ucans/ucans';
 import * as ucans from '@ucans/ucans';
 import * as uint8arrays from 'uint8arrays';
@@ -97,4 +98,18 @@ export async function getFirstAudienceFromProof(encodedUcan: string): Promise<st
 	const proof = ucan.payload.prf[0];
 	const proofUcan = ucans.parse(proof);
 	return removeDidPrefix(proofUcan.payload.aud.toString());
+}
+
+export async function decodeUcanToDelegation(encodedUcan: string): Promise<Delegation> {
+	const ucan = ucans.parse(encodedUcan);
+
+	if (ucan.payload.exp < Math.floor(Date.now() / 1000)) {
+		throw new Error('Ucan has expired');
+	}
+
+	return {
+		from: removeDidPrefix(ucan.payload.iss.toString()),
+		token: encodedUcan,
+		expiresAt: ucan.payload.exp
+	};
 }
