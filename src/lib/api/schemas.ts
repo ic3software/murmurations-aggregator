@@ -4,7 +4,7 @@ import type { BasicSchema } from '$lib/types/schema';
 import type { JSONSchema7 } from 'json-schema';
 
 export const getSchemas = (url: string, customFetch?: typeof fetch) =>
-	request<undefined, { name: string }[]>(url, 'GET', undefined, customFetch);
+	request<undefined, { name: string }[]>(url, 'GET', undefined, customFetch, false);
 
 export const getSchema = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, JSONSchema7>(
@@ -19,5 +19,6 @@ export const getLibrarySchemas = (customFetch?: typeof fetch) =>
 		`${PUBLIC_LIBRARY_URL}/v2/schemas`,
 		'GET',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);

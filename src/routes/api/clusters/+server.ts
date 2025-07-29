@@ -1,6 +1,7 @@
 import { getDB } from '$lib/server/db';
 import { createCluster, getClusters } from '$lib/server/models/cluster';
 import type { ClusterInsert, ClusterPublic } from '$lib/types/cluster';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -24,6 +25,17 @@ export const POST: RequestHandler = async ({
 	request
 }) => {
 	try {
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/clusters',
+			namespace: 'clusters',
+			segments: ['POST']
+		});
+
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
+		}
+
 		const db = getDB(platform.env);
 		const body = await request.json();
 		const { name, indexUrl, queryUrl, centerLat, centerLon, scale } = body;

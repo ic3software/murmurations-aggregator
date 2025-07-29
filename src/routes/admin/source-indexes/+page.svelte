@@ -25,7 +25,6 @@
 	async function handleDelete(id: number) {
 		try {
 			const response = await deleteSourceIndex(id);
-			console.log('response', response);
 			if (response.success) {
 				toast.success('Source index deleted successfully');
 				sourceIndexes = sourceIndexes.filter((sourceIndex) => sourceIndex.id !== id);

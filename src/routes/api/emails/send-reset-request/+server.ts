@@ -1,9 +1,10 @@
 import { PRIVATE_RESEND_KEY } from '$env/static/private';
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { getUserIdByEmail } from '$lib/server/models/email';
 import { insertLoginToken } from '$lib/server/models/login-token';
 import { getByUserId } from '$lib/server/models/user';
 import { generateLoginToken } from '$lib/server/utils';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -20,22 +21,28 @@ export const POST: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: false
+		const {
+			publicKey,
+			error: ucanError,
+			status
+		} = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/emails/send-reset-request',
+			namespace: 'emails',
+			segments: ['POST']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error: ucanError, success: false }, { status });
 		}
 
-		const { db, body } = authResult.data;
-		const { email } = body as { email: string };
+		const { email } = await request.json();
 
 		if (!email) {
 			return json({ error: 'Missing email', success: false }, { status: 400 });
 		}
 
+		const db = getDB(platform.env);
 		const userId = await getUserIdByEmail(db, email.toLowerCase());
 		if (!userId) {
 			return json(

@@ -27,7 +27,13 @@
 
 	async function handleDeleteCluster(clusterUuid: string) {
 		try {
-			await deleteCluster(clusterUuid);
+			const { success, error } = await deleteCluster(clusterUuid);
+
+			if (!success) {
+				toast.error(error ?? 'Failed to delete cluster');
+				return;
+			}
+
 			clusters = clusters.filter((cluster) => cluster.clusterUuid !== clusterUuid);
 			toast.success('Cluster deleted successfully');
 		} catch (error) {

@@ -1,6 +1,8 @@
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { doesUserIdHaveEmail } from '$lib/server/models/email';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { updateUserEmailReset } from '$lib/server/models/user';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -10,23 +12,32 @@ export const PATCH: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/users/email-reset',
+			namespace: 'users',
+			segments: ['PATCH']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, userId, body } = authResult.data;
-		const { emailReset } = body as { emailReset: boolean };
+		const db = getDB(platform.env);
+
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { emailReset } = await request.json();
 
 		if (typeof emailReset !== 'boolean') {
 			return json({ error: 'Invalid emailReset value', success: false }, { status: 400 });
 		}
 
-		const hasEmail = await doesUserIdHaveEmail(db, userId!);
+		const hasEmail = await doesUserIdHaveEmail(db, userByPublicKey.userId);
 		if (!hasEmail) {
 			return json(
 				{ error: 'You need to add an email to your account', success: false },
@@ -34,7 +45,7 @@ export const PATCH: RequestHandler = async ({
 			);
 		}
 
-		await updateUserEmailReset(db, userId!, emailReset);
+		await updateUserEmailReset(db, userByPublicKey.userId, emailReset);
 
 		return json({ success: true }, { status: 200 });
 	} catch (error) {

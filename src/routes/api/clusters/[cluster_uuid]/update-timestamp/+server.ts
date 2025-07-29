@@ -1,5 +1,6 @@
 import { getDB } from '$lib/server/db';
 import { updateClusterTimestamp } from '$lib/server/models/cluster';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -10,10 +11,24 @@ export const PATCH: RequestHandler = async ({
 	request
 }) => {
 	try {
+		const {
+			publicKey,
+			error,
+			status: ucanStatus
+		} = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/clusters/*/update-timestamp',
+			namespace: 'clusters',
+			segments: ['PATCH']
+		});
+
+		if (!publicKey) {
+			return json({ error, success: false }, { status: ucanStatus });
+		}
+
 		const db = getDB(platform.env);
 		const clusterUuid = params.cluster_uuid;
-		const body = await request.json();
-		const { lastUpdated } = body;
+		const { lastUpdated } = await request.json();
 
 		if (!clusterUuid) {
 			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
