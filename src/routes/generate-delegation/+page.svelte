@@ -53,9 +53,9 @@
 			toast.error('Failed to retrieve keypair from storage');
 		}
 
-		ucanToken = await getToken('rootToken');
+		ucanToken = (await getToken('rootToken')) || '';
 
-		if (ucanToken) {
+		if (ucanToken && ucanToken !== '') {
 			try {
 				const decoded = ucans.parse(ucanToken);
 				parsedCapabilities = decoded.payload.att || [];
@@ -139,6 +139,11 @@
 	async function generateDelegation() {
 		if (!recipientPublicKey.trim()) {
 			toast.error("Please enter the recipient's public key");
+			return;
+		}
+
+		if (recipientPublicKey === myDidKey) {
+			toast.error('Cannot delegate to yourself');
 			return;
 		}
 
