@@ -1,32 +1,38 @@
 import { validateProfile } from '$lib/api/profiles';
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { createProfile, getProfilesByUserId } from '$lib/server/models/profiles';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import type { ProfileInsert, ProfileObject } from '$lib/types/profile';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createId } from '@paralleldrive/cuid2';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	platform = { env: { DB: {} as D1Database } },
+	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: false,
-			requiredUserId: true
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles',
+			namespace: 'profiles',
+			segments: ['GET']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, userId } = authResult.data;
+		const db = getDB(platform.env);
 
-		if (userId === undefined || isNaN(userId)) {
-			return json({ error: 'Invalid user ID', success: false }, { status: 400 });
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
 		}
 
-		const profiles = await getProfilesByUserId(db, userId);
+		const profiles = await getProfilesByUserId(db, userByPublicKey.userId);
 
 		return json({ data: profiles, success: true });
 	} catch (err) {
@@ -34,37 +40,35 @@ export const GET: RequestHandler = async ({
 		return json({ error: 'Internal Server Error', success: false }, { status: 500 });
 	}
 };
+
 export const POST: RequestHandler = async ({
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	platform = { env: { DB: {} as D1Database } },
+	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles',
+			namespace: 'profiles',
+			segments: ['GET']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, body, userId } = authResult.data;
+		const db = getDB(platform.env);
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
-		if (!body) {
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { linkedSchemas, title, profile, nodeId, lastUpdated } = await request.json();
+
+		if (!linkedSchemas || !title || !profile || !nodeId || !lastUpdated) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
-
-		if (!userId) {
-			return json({ error: 'Missing user ID', success: false }, { status: 400 });
-		}
-
-		const { linkedSchemas, title, profile, nodeId, lastUpdated } = body as {
-			linkedSchemas: string;
-			title: string;
-			profile: string;
-			nodeId: string;
-			lastUpdated: number;
-		};
 
 		// Validate profile
 		const validationResult = await validateProfile(JSON.parse(profile) as ProfileObject);
@@ -75,7 +79,7 @@ export const POST: RequestHandler = async ({
 		const cuid = createId();
 		const profileInsert: ProfileInsert = {
 			cuid,
-			userId,
+			userId: userByPublicKey.userId,
 			lastUpdated,
 			linkedSchemas,
 			title,

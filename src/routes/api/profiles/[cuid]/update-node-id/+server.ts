@@ -1,34 +1,43 @@
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { updateProfileNodeId } from '$lib/server/models/profiles';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const PUT: RequestHandler = async ({
-	request,
+	platform = { env: { DB: {} as D1Database } },
 	params,
-	platform = { env: { DB: {} as D1Database } }
+	request
 }) => {
 	try {
 		const { cuid } = params;
+		const { node_id } = await request.json();
 
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
-		});
-
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
-		}
-
-		const { db, body, userId } = authResult.data;
-
-		const { node_id } = body as { node_id: string };
-
-		if (!cuid || !node_id || !userId) {
+		if (!cuid || !node_id) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const result = await updateProfileNodeId(db, cuid, userId, node_id);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles/*/update-node-id',
+			namespace: 'profiles',
+			segments: ['PUT']
+		});
+
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
+		}
+
+		const db = getDB(platform.env);
+
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const result = await updateProfileNodeId(db, cuid, userByPublicKey.userId, node_id);
 
 		if (result?.meta?.changes === 0) {
 			return json({ error: 'Profile not found', success: false }, { status: 404 });

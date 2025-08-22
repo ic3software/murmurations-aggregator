@@ -6,24 +6,11 @@ export const getPublicKeys = (customFetch?: typeof fetch) =>
 		'/api/keys',
 		'GET',
 		undefined,
-		customFetch,
-		true
+		customFetch
 	);
 
 export const linkPublicKey = (token: string, customFetch?: typeof fetch) =>
-	request<{ token: string }, { publicKey: string }>(
-		'/api/keys',
-		'POST',
-		{ token },
-		customFetch,
-		true
-	);
+	request<{ token: string }, { publicKey: string }>('/api/keys', 'POST', { token }, customFetch);
 
 export const deletePublicKey = (publicKey: string, customFetch?: typeof fetch) =>
-	request<{ publicKey: string }, undefined>(
-		'/api/keys',
-		'DELETE',
-		{ publicKey },
-		customFetch,
-		true
-	);
+	request<{ publicKey: string }, undefined>('/api/keys', 'DELETE', { publicKey }, customFetch);

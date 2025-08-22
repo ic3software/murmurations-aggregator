@@ -14,7 +14,7 @@ export const getCluster = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, ClusterPublic>(`/api/clusters/${clusterUuid}`, 'GET', undefined, customFetch);
 
 export const createCluster = (input: ClusterCreateInput, customFetch?: typeof fetch) =>
-	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch, true);
+	request<ClusterCreateInput, ClusterPublic>('/api/clusters', 'POST', input, customFetch);
 
 export const updateCluster = (
 	clusterUuid: string,
@@ -25,18 +25,11 @@ export const updateCluster = (
 		`/api/clusters/${clusterUuid}`,
 		'PUT',
 		input,
-		customFetch,
-		true
+		customFetch
 	);
 
 export const deleteCluster = (clusterUuid: string, customFetch?: typeof fetch) =>
-	request<undefined, undefined>(
-		`/api/clusters/${clusterUuid}`,
-		'DELETE',
-		undefined,
-		customFetch,
-		true
-	);
+	request<undefined, undefined>(`/api/clusters/${clusterUuid}`, 'DELETE', undefined, customFetch);
 
 export const getAuthorityMap = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, string[]>(
@@ -55,8 +48,7 @@ export const updateClusterTimestamp = (
 		`/api/clusters/${clusterUuid}/update-timestamp`,
 		'PATCH',
 		{ lastUpdated },
-		customFetch,
-		true
+		customFetch
 	);
 
 export const getEnumsDropdown = (clusterUuid: string, customFetch?: typeof fetch) =>

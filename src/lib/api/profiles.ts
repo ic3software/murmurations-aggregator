@@ -12,7 +12,8 @@ export const validateProfile = (profile: ProfileObject, customFetch?: typeof fet
 		`${PUBLIC_INDEX_URL}/v2/validate`,
 		'POST',
 		profile,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const getIndexStatus = (nodeId: string, customFetch?: typeof fetch) =>
@@ -20,7 +21,8 @@ export const getIndexStatus = (nodeId: string, customFetch?: typeof fetch) =>
 		`${PUBLIC_INDEX_URL}/v2/nodes/${nodeId}`,
 		'GET',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const postIndex = (cuid: string, customFetch?: typeof fetch) =>
@@ -28,7 +30,8 @@ export const postIndex = (cuid: string, customFetch?: typeof fetch) =>
 		`/api/index/nodes/${cuid}`,
 		'POST',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const deleteIndex = (nodeId: string, customFetch?: typeof fetch) =>
@@ -36,39 +39,32 @@ export const deleteIndex = (nodeId: string, customFetch?: typeof fetch) =>
 		`${PUBLIC_INDEX_URL}/v2/nodes/${nodeId}`,
 		'DELETE',
 		undefined,
-		customFetch
+		customFetch,
+		false
 	);
 
 export const getProfiles = (customFetch?: typeof fetch) =>
-	request<undefined, Profile[]>(`/api/profiles`, 'GET', undefined, customFetch, true);
+	request<undefined, Profile[]>(`/api/profiles`, 'GET', undefined, customFetch);
 
 export const getProfile = (cuid: string, customFetch?: typeof fetch) =>
-	request<undefined, Profile>(`/api/profiles/${cuid}`, 'GET', undefined, customFetch, true);
+	request<undefined, Profile>(`/api/profiles/${cuid}`, 'GET', undefined, customFetch);
 
 export const createProfile = (profile: ProfileCreateInput, customFetch?: typeof fetch) =>
-	request<ProfileCreateInput, Profile>(`/api/profiles`, 'POST', profile, customFetch, true);
+	request<ProfileCreateInput, Profile>(`/api/profiles`, 'POST', profile, customFetch);
 
 export const updateProfile = (
 	cuid: string,
 	profile: ProfileUpdateInput,
 	customFetch?: typeof fetch
-) =>
-	request<ProfileUpdateInput, Profile>(
-		`/api/profiles/${cuid}`,
-		'PATCH',
-		profile,
-		customFetch,
-		true
-	);
+) => request<ProfileUpdateInput, Profile>(`/api/profiles/${cuid}`, 'PATCH', profile, customFetch);
 
 export const updateProfileNodeId = (cuid: string, nodeId: string, customFetch?: typeof fetch) =>
 	request<{ node_id: string }, undefined>(
 		`/api/profiles/${cuid}/update-node-id`,
 		'PUT',
 		{ node_id: nodeId },
-		customFetch,
-		true
+		customFetch
 	);
 
 export const deleteProfile = (cuid: string, customFetch?: typeof fetch) =>
-	request<undefined, undefined>(`/api/profiles/${cuid}`, 'DELETE', undefined, customFetch, true);
+	request<undefined, undefined>(`/api/profiles/${cuid}`, 'DELETE', undefined, customFetch);

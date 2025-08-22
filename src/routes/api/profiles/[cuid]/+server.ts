@@ -1,14 +1,16 @@
 import { validateProfile } from '$lib/api/profiles';
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import { deleteProfile, getProfileByCuid, updateProfile } from '$lib/server/models/profiles';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import type { ProfileDbUpdateInput, ProfileObject } from '$lib/types/profile';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
 	params,
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	request
 }) => {
 	try {
 		const { cuid } = params;
@@ -16,18 +18,26 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: false,
-			requiredUserId: true
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles/*',
+			namespace: 'profiles',
+			segments: ['GET']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, userId } = authResult.data;
+		const db = getDB(platform.env);
 
-		const profile = await getProfileByCuid(db, cuid, Number(userId));
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const profile = await getProfileByCuid(db, cuid, userByPublicKey.userId);
 
 		if (!profile) {
 			return json({ error: 'Profile not found', success: false }, { status: 404 });
@@ -47,29 +57,33 @@ export const GET: RequestHandler = async ({
 };
 
 export const PATCH: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
 	params,
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	request
 }) => {
 	try {
 		const { cuid } = params;
 
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: true,
-			requiredUserId: true
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles/*',
+			namespace: 'profiles',
+			segments: ['PATCH']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, body, userId } = authResult.data;
+		const db = getDB(platform.env);
 
-		const { title, lastUpdated, profile } = body as {
-			title: string;
-			lastUpdated: number;
-			profile: string;
-		};
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { title, lastUpdated, profile } = await request.json();
 
 		if (!cuid || !title || !lastUpdated || !profile) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
@@ -86,7 +100,7 @@ export const PATCH: RequestHandler = async ({
 			profile,
 			updatedAt: Math.floor(new Date().getTime() / 1000)
 		};
-		const isUpdated = await updateProfile(db, cuid, Number(userId), profileUpdate);
+		const isUpdated = await updateProfile(db, cuid, userByPublicKey.userId, profileUpdate);
 
 		if (isUpdated?.meta?.changes === 0) {
 			return json({ error: 'Failed to update profile', success: false }, { status: 404 });
@@ -118,32 +132,37 @@ export const PATCH: RequestHandler = async ({
 };
 
 export const DELETE: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
 	params,
-	request,
-	platform = { env: { DB: {} as D1Database } }
+	request
 }) => {
 	try {
 		const { cuid } = params;
 
-		const authResult = await authenticateRequest(platform, request, {
-			parseBody: false,
-			requiredUserId: true
+		if (!cuid) {
+			return json({ error: 'Missing cuid', success: false }, { status: 400 });
+		}
+
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/profiles/*',
+			namespace: 'profiles',
+			segments: ['DELETE']
 		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { db, userId } = authResult.data;
+		const db = getDB(platform.env);
 
-		if (!cuid || !userId) {
-			return json(
-				{ error: 'Missing cuid or user not authenticated', success: false },
-				{ status: 400 }
-			);
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
 		}
 
-		const isDeleted = await deleteProfile(db, cuid, Number(userId));
+		const isDeleted = await deleteProfile(db, cuid, userByPublicKey.userId);
 
 		if (isDeleted?.meta?.changes === 0) {
 			return json({ error: 'Failed to delete profile', success: false }, { status: 404 });

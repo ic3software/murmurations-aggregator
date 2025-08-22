@@ -1,4 +1,4 @@
-import { authenticateRequest } from '$lib/server/auth';
+import { getDB } from '$lib/server/db';
 import {
 	checkEmailExists,
 	deleteEmail,
@@ -7,7 +7,9 @@ import {
 	getEmailsByUserId,
 	insertEmail
 } from '$lib/server/models/email';
+import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { getByUserId, updateUserEmailReset } from '$lib/server/models/user';
+import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
 import type { D1Database } from '@cloudflare/workers-types';
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
@@ -17,14 +19,25 @@ export const GET: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request);
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/emails',
+			namespace: 'emails',
+			segments: ['GET']
+		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { userId, db } = authResult.data;
-		const userEmails = await getEmailsByUserId(db, userId!);
+		const db = getDB(platform.env);
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const userEmails = await getEmailsByUserId(db, userByPublicKey.userId);
 
 		return json({ data: userEmails, success: true }, { status: 200 });
 	} catch (error) {
@@ -38,14 +51,25 @@ export const POST: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, { parseBody: true });
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/emails',
+			namespace: 'emails',
+			segments: ['POST']
+		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { userId, db, body } = authResult.data;
-		const { email } = body as { email: string };
+		const db = getDB(platform.env);
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
+
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { email } = await request.json();
 
 		if (!email) {
 			return json({ error: 'Missing email', success: false }, { status: 400 });
@@ -56,7 +80,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Email already exists', success: false }, { status: 409 });
 		}
 
-		await insertEmail(db, userId!, email.toLowerCase());
+		await insertEmail(db, userByPublicKey.userId, email.toLowerCase());
 
 		return json({ data: { email }, success: true }, { status: 201 });
 	} catch (error) {
@@ -70,20 +94,30 @@ export const DELETE: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const authResult = await authenticateRequest(platform, request, { parseBody: true });
+		const { publicKey, error, status } = await authenticateUcanRequest(request, {
+			scheme: 'api',
+			hierPart: '/emails',
+			namespace: 'emails',
+			segments: ['DELETE']
+		});
 
-		if (!authResult.success) {
-			return json({ error: authResult.error, success: false }, { status: authResult.status });
+		if (!publicKey) {
+			return json({ error, success: false }, { status });
 		}
 
-		const { userId, db, body } = authResult.data;
-		const { email } = body as { email: string };
+		const db = getDB(platform.env);
+		const userByPublicKey = await getUserIdByPublicKey(db, publicKey);
 
+		if (!userByPublicKey) {
+			return json({ error: 'User not found', success: false }, { status: 404 });
+		}
+
+		const { email } = await request.json();
 		if (!email) {
 			return json({ error: 'Missing email', success: false }, { status: 400 });
 		}
 
-		const existingEmail = await getEmailByUserIdAndEmail(db, userId!, email);
+		const existingEmail = await getEmailByUserIdAndEmail(db, userByPublicKey.userId, email);
 
 		if (!existingEmail) {
 			return json({ error: 'Email not found', success: false }, { status: 404 });
@@ -92,12 +126,12 @@ export const DELETE: RequestHandler = async ({
 		await deleteEmail(db, existingEmail.id);
 
 		// In future, we'll support multiple emails, so we need to check if the user has any emails left
-		const hasEmail = await doesUserIdHaveEmail(db, userId!);
-		const user = await getByUserId(db, userId!);
+		const hasEmail = await doesUserIdHaveEmail(db, userByPublicKey.userId);
+		const user = await getByUserId(db, userByPublicKey.userId);
 		let emailReset = user?.emailReset ?? false;
 		if (!hasEmail && emailReset) {
 			emailReset = false;
-			await updateUserEmailReset(db, userId!, emailReset);
+			await updateUserEmailReset(db, userByPublicKey.userId, emailReset);
 		}
 
 		return json({ data: { email, emailReset }, success: true }, { status: 200 });
