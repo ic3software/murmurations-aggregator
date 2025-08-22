@@ -70,6 +70,13 @@
 
 	const publicRoutes = ['/', '/login', '/register', '/profile-generator', '/batch-importer'];
 
+	function isPublicRoute(path: string): boolean {
+		if (publicRoutes.includes(path)) return true;
+
+		// Support /clusters/*/map and /clusters/*/list
+		return path.startsWith('/clusters/') && (path.endsWith('/map') || path.endsWith('/list'));
+	}
+
 	async function updateCurrentToken(
 		keypair: CryptoKeyPair,
 		rootToken: string | null,
@@ -238,7 +245,7 @@
 	}
 
 	async function verifyAccessIfNeeded(keypair: CryptoKeyPair) {
-		const currentPath = page.url.pathname;
+		const currentPath = page.url.pathname as string;
 
 		if (rootToken && (currentPath === '/register' || currentPath === '/login')) {
 			goto('/');
@@ -258,7 +265,7 @@
 			}
 		}
 
-		if (!publicRoutes.includes(currentPath)) {
+		if (!isPublicRoute(currentPath)) {
 			if (!rootToken || !currentToken) {
 				goto('/register');
 				return;
