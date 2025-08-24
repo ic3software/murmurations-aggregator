@@ -1,10 +1,12 @@
 import { getLibrarySchemas } from '$lib/api/schemas';
+import { getToken } from '$lib/core';
 import type { BasicSchema } from '$lib/types/schema';
 
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch }) => {
 	try {
+		const currentToken = await getToken('currentToken');
 		const { data: schemas, error } = await getLibrarySchemas(fetch);
 		const schemasList = schemas
 			.filter((s: BasicSchema) => {
@@ -14,7 +16,7 @@ export const load: PageLoad = async ({ fetch }) => {
 				return !s.name.startsWith('test_schema-v');
 			});
 
-		return { schemasList, errorMessage: error };
+		return { user: currentToken, schemasList, errorMessage: error };
 	} catch (err) {
 		console.error('Error fetching schemas:', err);
 		return { schemasList: [], errorMessage: 'Error fetching schemas' };
