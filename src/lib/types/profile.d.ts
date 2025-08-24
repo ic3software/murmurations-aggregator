@@ -20,6 +20,7 @@ export interface ValidationError {
 
 export interface ErrorSource {
 	pointer: string;
+	oid?: string;
 }
 
 export type ProfileCardType = {
