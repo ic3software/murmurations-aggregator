@@ -26,7 +26,7 @@
 	let currentCuid: string = $state('');
 	let isDbOnline: boolean = $state(true);
 
-	const user = data?.user;
+	const user = data?.user ?? null;
 
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
