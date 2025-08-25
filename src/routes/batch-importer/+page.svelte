@@ -70,15 +70,26 @@
 
 			let success: boolean;
 			let errors: ValidationError[] | null;
+			let errorMessage: string | null;
 			if (isModifyMode && currentBatchId) {
 				formData.append('batch_id', currentBatchId);
-				const { success: updateSuccess, errors: updateErrors } = await updateBatch(formData);
+				const {
+					success: updateSuccess,
+					errors: updateErrors,
+					error: updateErrorMessage
+				} = await updateBatch(formData);
 				success = updateSuccess;
 				errors = updateErrors ?? null;
+				errorMessage = updateErrorMessage ?? '';
 			} else {
-				const { success: createSuccess, errors: createErrors } = await createBatch(formData);
+				const {
+					success: createSuccess,
+					errors: createErrors,
+					error: createErrorMessage
+				} = await createBatch(formData);
 				success = createSuccess;
 				errors = createErrors ?? null;
+				errorMessage = createErrorMessage ?? '';
 			}
 
 			if (!success) {
@@ -92,6 +103,8 @@
 						if (error.detail !== undefined) errorDetails.push(`Detail: ${error.detail}`);
 						return errorDetails.join(' - ');
 					});
+				} else if (errorMessage && errorMessage !== '') {
+					toast.error(errorMessage);
 				} else {
 					toast.error('Failed to import/modify batch');
 				}

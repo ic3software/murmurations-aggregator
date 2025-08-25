@@ -32,9 +32,12 @@ export async function request<TBody, TResponse>(
 
 	try {
 		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${currentToken}`
+			'Content-Type': 'application/json'
 		};
+
+		if (currentToken) {
+			headers['Authorization'] = `Bearer ${currentToken}`;
+		}
 
 		const requestBody = body !== undefined ? JSON.stringify(body) : undefined;
 
@@ -89,9 +92,11 @@ export async function requestWithFormData<TResponse>(
 	}
 
 	try {
-		const headers: HeadersInit = {
-			Authorization: `Bearer ${currentToken}`
-		};
+		const headers: HeadersInit = {};
+
+		if (currentToken) {
+			headers['Authorization'] = `Bearer ${currentToken}`;
+		}
 
 		const response = await customFetch(url, {
 			method,
