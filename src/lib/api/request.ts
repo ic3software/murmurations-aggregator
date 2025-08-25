@@ -1,6 +1,7 @@
 import { getToken } from '$lib/core';
 import { currentTokenStore } from '$lib/stores/token-store';
 import type { Meta } from '$lib/types/api';
+import type { IndexNodeMeta } from '$lib/types/index-node';
 import type { ValidationError } from '$lib/types/profile';
 import { compressTokenBrotli } from '$lib/utils/compress-token';
 
@@ -17,7 +18,7 @@ export async function request<TBody, TResponse>(
 	success: boolean;
 	message?: string;
 	error?: string;
-	meta?: Meta;
+	meta?: Meta | IndexNodeMeta;
 	errors?: ValidationError[];
 }> {
 	let currentToken = get(currentTokenStore);

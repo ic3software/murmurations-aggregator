@@ -25,7 +25,7 @@
 
 	let nodes: Node[] = $state(data?.nodes ?? []);
 	let cluster: ClusterPublic = $state(data?.cluster);
-	let meta: Meta | null = $state(data?.meta ?? null);
+	let meta: Meta | null = $state((data?.meta as Meta) ?? null);
 	let nameSearch: string = $state(data?.nameSearch ?? '');
 	let tagSearch: string = $state(data?.tagSearch ?? '');
 	let sort: 'name-asc' | 'name-desc' | 'default' = $state(data?.sort ?? 'default');

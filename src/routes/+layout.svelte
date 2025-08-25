@@ -68,7 +68,15 @@
 		selectedDelegation = v;
 	});
 
-	const publicRoutes = ['/', '/login', '/register', '/profile-generator', '/batch-importer'];
+	const publicRoutes = [
+		'/',
+		'/login',
+		'/register',
+		'/profile-generator',
+		'/batch-importer',
+		'/index-explorer',
+		'/index-updater'
+	];
 
 	function isPublicRoute(path: string): boolean {
 		if (publicRoutes.includes(path)) return true;
@@ -313,6 +321,13 @@
 			}
 		})();
 	</script>
+	<script
+		data-goatcounter={import.meta.env.PROD
+			? 'https://stats-tools.murmurations.network/count'
+			: 'https://test-stats-tools.murmurations.network/count'}
+		async
+		src="//stats.murmurations.network/count.js"
+	></script>
 </svelte:head>
 
 <Toaster position="top-center" richColors={true} />

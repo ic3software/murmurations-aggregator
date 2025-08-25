@@ -10,7 +10,10 @@ export const load: PageLoad = async ({ fetch }) => {
 	// Use the first source index as the default
 	const defaultSourceIndex = sourceIndexes[0];
 
-	const rawCountries = await getCountries(`${defaultSourceIndex?.libraryUrl}/countries`, fetch);
+	const { data: rawCountries } = await getCountries(
+		`${defaultSourceIndex?.libraryUrl}/countries`,
+		fetch
+	);
 
 	const countries = Object.entries(rawCountries).map(([key, names]) => ({
 		value: key,
