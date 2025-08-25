@@ -72,6 +72,11 @@ VALUES
   ('api', '/users', 'users', 'GET'),
   ('api', '/users/email-reset', 'users', 'PATCH'),
 
+  ('api', '/batches', 'batches', 'GET'),
+  ('api', '/batches', 'batches', 'POST'),
+  ('api', '/batches', 'batches', 'PUT'),
+  ('api', '/batches', 'batches', 'DELETE'),
+
   ('api', '/admin/users', 'admin-users', 'GET'),
   ('api', '/admin/users/*/roles', 'admin-users', 'GET'),
   ('api', '/admin/users/*/roles', 'admin-users', 'POST'),

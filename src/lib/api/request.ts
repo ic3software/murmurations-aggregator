@@ -64,3 +64,57 @@ export async function request<TBody, TResponse>(
 		throw error;
 	}
 }
+
+export async function requestWithFormData<TResponse>(
+	url: string,
+	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+	body?: FormData,
+	customFetch: typeof fetch = fetch
+): Promise<{
+	data: TResponse;
+	success: boolean;
+	message?: string;
+	error?: string;
+	meta?: Meta;
+	errors?: ValidationError[];
+}> {
+	let currentToken = get(currentTokenStore);
+	if (!currentToken) {
+		currentToken = await getToken('currentToken');
+	}
+
+	if (currentToken) {
+		const compressedToken = compressTokenBrotli(currentToken);
+		currentToken = compressedToken;
+	}
+
+	try {
+		const headers: HeadersInit = {
+			Authorization: `Bearer ${currentToken}`
+		};
+
+		const response = await customFetch(url, {
+			method,
+			headers,
+			body
+		});
+
+		const json = await response.json();
+
+		if (!response.ok) {
+			return {
+				data: null as unknown as TResponse,
+				success: false,
+				message: json?.message,
+				error: json?.error,
+				meta: json?.meta,
+				errors: json?.errors
+			};
+		}
+
+		return json;
+	} catch (error) {
+		console.error(`Error on request to ${url}:`, error);
+		throw error;
+	}
+}
