@@ -69,6 +69,35 @@ export async function request<TBody, TResponse>(
 	}
 }
 
+export async function requestRaw<TResponse>(
+	url: string,
+	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',
+	customFetch: typeof fetch = fetch
+): Promise<{
+	data: TResponse;
+	success: boolean;
+}> {
+	try {
+		const response = await customFetch(url, {
+			method
+		});
+
+		if (!response.ok) {
+			throw new Error(`Request failed with status ${response.status}`);
+		}
+
+		const json = (await response.json()) as TResponse;
+
+		return {
+			data: json,
+			success: true
+		};
+	} catch (error) {
+		console.error(`Error on requestRaw to ${url}:`, error);
+		throw error;
+	}
+}
+
 export async function requestWithFormData<TResponse>(
 	url: string,
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',

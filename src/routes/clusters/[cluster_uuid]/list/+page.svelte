@@ -17,6 +17,7 @@
 	import type { JSONSchema7 } from 'json-schema';
 
 	import { untrack } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { MediaQuery } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
@@ -77,7 +78,7 @@
 	async function reloadData(page = 1) {
 		currentPage = page;
 
-		const query = new URLSearchParams();
+		const query = new SvelteURLSearchParams();
 		query.set('page', currentPage.toString());
 		if (nameSearch) query.set('name', nameSearch);
 		if (tagSearch) query.set('tags', tagSearch);
@@ -103,7 +104,7 @@
 				fetch
 			);
 			nodes = res.data;
-			meta = res.meta ?? null;
+			meta = res.meta as Meta | null;
 		}
 	}
 
@@ -175,14 +176,14 @@
 					{#if enumsDropdown && enumsDropdown.length > 0}
 						<div class="space-y-3">
 							<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-								{#each enumsDropdown as dropdown}
+								{#each enumsDropdown as dropdown (dropdown.field_name)}
 									<Select.Root type="single" bind:value={enumFilters[dropdown.field_name]}>
 										<Select.Trigger class="w-full">
 											{getDropdownTriggerContent(dropdown, dropdown.field_name)}
 										</Select.Trigger>
 										<Select.Content>
 											<Select.Item value="">All {dropdown.title}</Select.Item>
-											{#each dropdown.options as opt}
+											{#each dropdown.options as opt (opt.value)}
 												<Select.Item value={opt.value}>{opt.label}</Select.Item>
 											{/each}
 										</Select.Content>
@@ -212,7 +213,7 @@
 									{triggerContent}
 								</Select.Trigger>
 								<Select.Content>
-									{#each sortOptions as option}
+									{#each sortOptions as option (option.value)}
 										<Select.Item value={option.value}>{option.label}</Select.Item>
 									{/each}
 								</Select.Content>
@@ -241,7 +242,7 @@
 			</Card>
 		{:else}
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{#each nodes as node, index}
+				{#each nodes as node, index (node.id)}
 					{@const nodeData = typeof node.data === 'string' ? JSON.parse(node.data) : node.data}
 					<Card class="overflow-hidden">
 						<CardHeader class="pb-3">

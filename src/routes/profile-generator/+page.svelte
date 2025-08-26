@@ -134,7 +134,7 @@
 						</CardContent>
 					</Card>
 				{/if}
-				{#each profileCards as profileCard}
+				{#each profileCards as profileCard (profileCard.cuid)}
 					<ProfileCard
 						{...profileCard}
 						profileUpdated={handleProfileUpdated}

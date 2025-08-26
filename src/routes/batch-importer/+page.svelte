@@ -226,7 +226,7 @@
 					</CardContent>
 				</Card>
 			{/if}
-			{#each batchCards as batch}
+			{#each batchCards as batch (batch.batch_id)}
 				<Card class="transition-all duration-200 hover:shadow-md border-border">
 					<CardContent class="p-6">
 						<div class="flex items-start justify-between">
@@ -244,7 +244,7 @@
 									</div>
 
 									<div class="space-y-1">
-										{#each batch.schemas as schema}
+										{#each batch.schemas as schema (schema)}
 											<div class="flex items-center gap-2 text-sm text-muted-foreground">
 												<Database class="h-4 w-4" />
 												<span class="font-mono text-xs bg-muted px-2 py-1 rounded">{schema}</span>
@@ -309,7 +309,7 @@
 					<AlertDescription>
 						<p class="font-medium">There were errors in your submission:</p>
 						<ul class="mt-2">
-							{#each errorsMessage as error}
+							{#each errorsMessage as error (error)}
 								<li class="font-medium list-disc list-inside">{error}</li>
 							{/each}
 						</ul>
@@ -331,7 +331,7 @@
 							<div class="space-y-2">
 								<h3 class="font-medium">Schemas selected:</h3>
 								<div class="space-y-1">
-									{#each schemasSelected as schemaName}
+									{#each schemasSelected as schemaName (schemaName)}
 										<Badge variant="secondary">
 											<code>{schemaName}</code>
 										</Badge>

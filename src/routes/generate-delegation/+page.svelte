@@ -277,7 +277,7 @@
 		<CardContent>
 			{#if parsedCapabilities.length > 0}
 				<Accordion type="multiple" class="w-full">
-					{#each parsedCapabilities as capability, index}
+					{#each parsedCapabilities as capability, index (capability.can)}
 						{@const details = getCapabilityDetails(capability)}
 						<AccordionItem value="capability-{index}">
 							<AccordionTrigger class="text-left">

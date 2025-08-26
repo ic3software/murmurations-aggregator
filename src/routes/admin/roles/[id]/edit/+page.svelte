@@ -8,6 +8,7 @@
 
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
 
@@ -24,7 +25,7 @@
 		} else {
 			selectedCapabilityIds.add(capabilityId);
 		}
-		selectedCapabilityIds = new Set(selectedCapabilityIds);
+		selectedCapabilityIds = new SvelteSet(selectedCapabilityIds);
 	}
 
 	async function handleSave() {
@@ -65,7 +66,7 @@
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium">Available Capabilities</h3>
 			<div class="grid gap-4">
-				{#each allCapabilities as capability}
+				{#each allCapabilities as capability (capability.id)}
 					<div class="flex items-center space-x-2">
 						<Checkbox
 							id="capability-{capability.id}"

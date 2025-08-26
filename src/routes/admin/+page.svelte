@@ -82,7 +82,7 @@
 		</div>
 	</div>
 {:else}
-	{#each clusters as cluster}
+	{#each clusters as cluster (cluster.clusterUuid)}
 		<div
 			class="mb-8 rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 		>

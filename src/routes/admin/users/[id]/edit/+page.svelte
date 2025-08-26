@@ -7,6 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
 
@@ -23,7 +24,7 @@
 		} else {
 			selectedRoleIds.add(roleId);
 		}
-		selectedRoleIds = new Set(selectedRoleIds);
+		selectedRoleIds = new SvelteSet(selectedRoleIds);
 	}
 
 	async function handleSave() {
@@ -58,7 +59,7 @@
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium">Available Roles</h3>
 			<div class="grid gap-4">
-				{#each allRoles as role}
+				{#each allRoles as role (role.id)}
 					<div class="flex items-center space-x-2">
 						<Checkbox
 							id="role-{role.id}"

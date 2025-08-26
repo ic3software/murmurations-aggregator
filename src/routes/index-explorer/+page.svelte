@@ -14,6 +14,7 @@
 	import { AlertCircle, ChevronLeftIcon, ChevronRightIcon } from '@lucide/svelte';
 
 	import { onMount, tick } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { MediaQuery } from 'svelte/reactivity';
 
 	import type { PageData } from './$types';
@@ -173,7 +174,7 @@
 	async function handleSearch(event: Event): Promise<void> {
 		event.preventDefault();
 		isLoading = true;
-		searchParams = new URLSearchParams();
+		searchParams = new SvelteURLSearchParams();
 
 		for (const [key, value] of Object.entries(searchParamsObj)) {
 			if (value) {
@@ -587,7 +588,7 @@
 										<Table.Cell class="p-1 text-sm md:p-2">
 											<div class="flex flex-wrap gap-1">
 												{#if node?.tags?.length}
-													{#each node.tags as tag}
+													{#each node.tags as tag (tag)}
 														<Badge variant="secondary" class="text-xs">
 															{tag}
 														</Badge>

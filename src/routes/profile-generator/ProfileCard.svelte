@@ -135,7 +135,7 @@
 						</div>
 
 						<div class="space-y-1">
-							{#each schemas as schema}
+							{#each schemas as schema (schema)}
 								<div class="flex items-center gap-2 text-sm text-muted-foreground">
 									<Database class="h-4 w-4" />
 									<span class="font-mono text-xs bg-muted px-2 py-1 rounded">{schema}</span>

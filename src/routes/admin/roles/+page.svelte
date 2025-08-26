@@ -53,7 +53,7 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#each roles as role}
+					{#each roles as role (role.id)}
 						<TableRow>
 							<TableCell>{role.id}</TableCell>
 							<TableCell class="font-medium">{role.name}</TableCell>
