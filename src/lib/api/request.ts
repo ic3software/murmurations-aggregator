@@ -1,6 +1,7 @@
 import { getToken } from '$lib/core';
 import { currentTokenStore } from '$lib/stores/token-store';
 import type { Meta } from '$lib/types/api';
+import type { IndexNodeMeta } from '$lib/types/index-node';
 import type { ValidationError } from '$lib/types/profile';
 import { compressTokenBrotli } from '$lib/utils/compress-token';
 
@@ -17,7 +18,7 @@ export async function request<TBody, TResponse>(
 	success: boolean;
 	message?: string;
 	error?: string;
-	meta?: Meta;
+	meta?: Meta | IndexNodeMeta;
 	errors?: ValidationError[];
 }> {
 	let currentToken = get(currentTokenStore);
@@ -32,9 +33,12 @@ export async function request<TBody, TResponse>(
 
 	try {
 		const headers: HeadersInit = {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${currentToken}`
+			'Content-Type': 'application/json'
 		};
+
+		if (currentToken) {
+			headers['Authorization'] = `Bearer ${currentToken}`;
+		}
 
 		const requestBody = body !== undefined ? JSON.stringify(body) : undefined;
 
@@ -89,9 +93,11 @@ export async function requestWithFormData<TResponse>(
 	}
 
 	try {
-		const headers: HeadersInit = {
-			Authorization: `Bearer ${currentToken}`
-		};
+		const headers: HeadersInit = {};
+
+		if (currentToken) {
+			headers['Authorization'] = `Bearer ${currentToken}`;
+		}
 
 		const response = await customFetch(url, {
 			method,

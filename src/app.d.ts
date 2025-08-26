@@ -16,6 +16,12 @@ declare global {
 			caches: CacheStorage & { default: Cache };
 		}
 	}
+
+	interface Window {
+		goatcounter: {
+			count: (options: { path: (p: string) => string; title: string; event: boolean }) => void;
+		};
+	}
 }
 
 export {};
