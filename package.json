@@ -76,7 +76,7 @@
 		"leaflet": "^1.9.4",
 		"leaflet.markercluster": "^1.5.3",
 		"paneforge": "1.0.0-next.5",
-		"resend": "^4.8.0",
+		"resend": "^6.0.1",
 		"uint8arrays": "^5.1.0",
 		"vaul-svelte": "1.0.0-next.7"
 	},
