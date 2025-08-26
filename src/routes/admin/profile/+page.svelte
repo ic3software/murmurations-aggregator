@@ -357,7 +357,7 @@
 			</CardHeader>
 			<CardContent>
 				<div class="space-y-4">
-					{#each publicKeyList as publicKey, index}
+					{#each publicKeyList as publicKey, index (publicKey)}
 						<div class="space-y-4">
 							<div class="flex items-center justify-between gap-4">
 								<div class="font-mono text-sm break-all flex-1">
@@ -394,7 +394,7 @@
 						<p class="text-muted-foreground">No token available.</p>
 					{:else}
 						<div class="space-y-4">
-							{#each tokens as { token, expiresIn }, index}
+							{#each tokens as { token, expiresIn }, index (token)}
 								<div class="space-y-4">
 									<div class="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_auto]">
 										<div class="space-y-1">
@@ -469,7 +469,7 @@
 						</div>
 					{:else}
 						<div class="space-y-2">
-							{#each emailList as email, index}
+							{#each emailList as email, index (email)}
 								<div class="flex items-center justify-between p-3 border rounded-lg">
 									<span class="text-sm">{email}</span>
 									<Button variant="destructive" size="sm" onclick={() => removeEmail(index)}>

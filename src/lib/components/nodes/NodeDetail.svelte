@@ -23,7 +23,7 @@
 </script>
 
 <Tooltip.Provider>
-    {#each Object.entries(nodeData) as [key, value]}
+    {#each Object.entries(nodeData) as [key, value] (key)}
         {#if key !== 'image' && key !== 'name'}
             {@const fieldInfo = getFieldInfo(key)}
             <div class="space-y-2">
@@ -49,12 +49,12 @@
                             <span class="text-muted-foreground">{value[0]}</span>
                         {:else}
                             <ul class="ml-4 space-y-1 list-disc">
-                                {#each value as item}
+                                {#each value as item (item)}
                                     <li class="text-muted-foreground">
                                         {#if typeof item === 'object' && item !== null}
                                             {#if Array.isArray(item)}
                                                 <ul class="ml-4 mt-1 list-disc space-y-1">
-                                                    {#each item as subItem}
+                                                    {#each item as subItem (subItem)}
                                                         <li class="text-xs">
                                                             {typeof subItem === 'object' && subItem !== null
                                                                 ? JSON.stringify(subItem)
@@ -64,7 +64,7 @@
                                                 </ul>
                                             {:else}
                                                 <ul class="ml-4 mt-1 list-disc space-y-1">
-                                                    {#each Object.entries(item) as [subKey, subValue]}
+                                                    {#each Object.entries(item) as [subKey, subValue] (subKey)}
                                                         <li class="text-xs">
                                                             <span class="font-medium text-foreground"
                                                                 >{subKey}:</span
@@ -76,7 +76,7 @@
                                                                     >
                                                                 {:else}
                                                                     <ul class="ml-4 mt-1 list-disc space-y-1">
-                                                                        {#each subValue as subSubItem}
+                                                                        {#each subValue as subSubItem (subSubItem)}
                                                                             <li class="text-muted-foreground">
                                                                                 {typeof subSubItem === 'object' &&
                                                                                 subSubItem !== null
@@ -123,7 +123,7 @@
                         {/if}
                     {:else if typeof value === 'object' && value !== null}
                         <ul class="ml-4 space-y-1 list-disc">
-                            {#each Object.entries(value) as [subKey, subValue]}
+                            {#each Object.entries(value) as [subKey, subValue] (subKey)}
                                 <li class="text-xs">
                                     <span class="font-medium text-foreground">{subKey}:</span>
                                     {#if Array.isArray(subValue)}
@@ -131,7 +131,7 @@
                                             <span class="text-muted-foreground">{subValue[0]}</span>
                                         {:else}
                                             <ul class="ml-4 mt-1 list-disc space-y-1">
-                                                {#each subValue as subSubItem}
+                                                {#each subValue as subSubItem (subSubItem)}
                                                     <li class="text-muted-foreground">
                                                         {typeof subSubItem === 'object' && subSubItem !== null
                                                             ? JSON.stringify(subSubItem)

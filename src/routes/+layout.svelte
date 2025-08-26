@@ -155,11 +155,7 @@
 		return options;
 	});
 
-	let selectValue = $state('original');
-
-	$effect(() => {
-		selectValue = selectedDelegation || 'original';
-	});
+	let selectValue = $derived(selectedDelegation || 'original');
 
 	function handleSelectChange(value: string | undefined) {
 		if (value === 'original') {

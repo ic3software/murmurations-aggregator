@@ -54,7 +54,7 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#each capabilities as capability}
+					{#each capabilities as capability (capability.id)}
 						<TableRow>
 							<TableCell>{capability.id}</TableCell>
 							<TableCell class="font-medium">{capability.scheme}</TableCell>

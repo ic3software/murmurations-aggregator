@@ -13,7 +13,7 @@
 </script>
 
 <div class="space-y-6">
-	{#each Object.entries(schemas.properties) as [name, field]}
+	{#each Object.entries(schemas.properties) as [name, field] (name)}
 		{#if name === 'linked_schemas'}
 			<input type="hidden" name="linked_schemas" value={schemas?.metadata?.schema} />
 		{:else}

@@ -45,14 +45,14 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each users as user}
+				{#each users as user (user.id)}
 					<TableRow>
 						<TableCell>{user.id}</TableCell>
 						<TableCell class="font-medium">{user.name}</TableCell>
 						<TableCell>
 							{#if user.roles && user.roles.length > 0}
 								<div class="flex flex-wrap gap-1">
-									{#each user.roles as role}
+									{#each user.roles as role (role)}
 										<Badge variant="default">{role}</Badge>
 									{/each}
 								</div>

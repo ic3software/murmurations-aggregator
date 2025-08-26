@@ -26,6 +26,7 @@
 
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { get } from 'svelte/store';
 
 	import DynamicForm from './DynamicForm.svelte';
@@ -108,7 +109,7 @@
 			const formDataObject: Record<string, string | string[]> = {};
 
 			// Find all the fields that have multiple select
-			const multipleSelects: Set<string> = new Set();
+			const multipleSelects: Set<string> = new SvelteSet();
 			const selects = target.querySelectorAll('select[multiple]');
 			selects.forEach((select) => {
 				const selectElement = select as HTMLSelectElement;
@@ -256,7 +257,7 @@
 			<AlertDescription>
 				<p class="font-medium">There were errors in your submission:</p>
 				<ul class="list-disc list-inside mt-2">
-					{#each validationErrors as error}
+					{#each validationErrors as error (error)}
 						<li>{error}</li>
 					{/each}
 				</ul>
@@ -281,7 +282,7 @@
 					</div>
 
 					<div class="flex flex-wrap gap-2 mb-6">
-						{#each schemasSelected as schema}
+						{#each schemasSelected as schema (schema)}
 							<Badge variant="secondary" class="font-medium">{schema}</Badge>
 						{/each}
 					</div>

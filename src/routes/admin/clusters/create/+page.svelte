@@ -106,7 +106,7 @@
 	async function loadCountriesForIndex(libraryURL: string) {
 		loadingCountries = true;
 		try {
-			const rawCountries = await getCountries(`${libraryURL}/countries`);
+			const { data: rawCountries } = await getCountries(`${libraryURL}/countries`);
 			countryOptions.length = 0;
 			countryOptions.push(
 				...Object.entries(rawCountries).map(([key, names]) => ({
@@ -536,7 +536,7 @@
 												<Command.List>
 													<Command.Empty>No countries found.</Command.Empty>
 													<Command.Group>
-														{#each countrySearchResults as result}
+														{#each countrySearchResults as result (result.value)}
 															<Command.Item
 																value={result.value}
 																onSelect={() => {

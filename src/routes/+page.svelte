@@ -42,7 +42,7 @@
 	</div>
 {:else}
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-		{#each clusters as cluster}
+		{#each clusters as cluster (cluster.clusterUuid)}
 			<div
 				class="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 			>

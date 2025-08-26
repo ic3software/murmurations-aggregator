@@ -107,7 +107,7 @@
 					bind:value={fieldValue[fieldName]}
 					multiple
 				>
-					{#each field.enum as option, index}
+					{#each field.enum as option, index (option)}
 						<option value={option}>{field.enumNames ? field.enumNames[index] : option}</option>
 					{/each}
 				</select>
@@ -120,7 +120,7 @@
 					bind:value={fieldValue[fieldName]}
 				>
 					<option value="">Select an option</option>
-					{#each field.enum as option, index}
+					{#each field.enum as option, index (option)}
 						<option value={option}>{field.enumNames ? field.enumNames[index] : option}</option>
 					{/each}
 				</select>
@@ -256,7 +256,7 @@
 				</CardHeader>
 			{/if}
 			<CardContent class="space-y-4">
-				{#each Object.entries(field.properties) as [key, value]}
+				{#each Object.entries(field.properties) as [key, value] (key)}
 					<FormField
 						name={name + '.' + key}
 						fieldName={key}
