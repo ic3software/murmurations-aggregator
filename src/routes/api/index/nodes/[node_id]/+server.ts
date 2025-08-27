@@ -12,7 +12,10 @@ export const GET: RequestHandler = async ({ params }) => {
 
 		const data = await response.json();
 		if (!response.ok) {
-			return json({ data: data.data, success: false }, { status: response.status });
+			return json(
+				{ errors: data.errors || 'Error fetching status from index', success: false },
+				{ status: response.status }
+			);
 		}
 
 		return json({ data: data.data, success: true }, { status: 200 });
@@ -79,10 +82,10 @@ export const DELETE: RequestHandler = async ({ params }) => {
 			method: 'DELETE'
 		});
 
+		const data = await response.json();
 		if (!response.ok) {
-			const errorData = await response.json();
 			return json(
-				{ error: errorData.error || 'Error deleting profile from index', success: false },
+				{ errors: data.errors || 'Error deleting profile from index', success: false },
 				{ status: response.status }
 			);
 		}
