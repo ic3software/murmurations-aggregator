@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		createProfile,
-		postIndex,
+		postProfileToIndex,
 		updateProfile,
 		updateProfileNodeId,
 		validateProfile
@@ -214,7 +214,7 @@
 			}
 
 			// Post profile URL to index and get node_id
-			const { data, errors } = await postIndex(result.data.cuid);
+			const { data, errors } = await postProfileToIndex(result.data.cuid);
 			if (errors) {
 				const errorMessages = Array.isArray(errors)
 					? errors

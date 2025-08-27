@@ -53,3 +53,38 @@ export const GET: RequestHandler = async ({ url }) => {
 		return json({ error: `Failed to load nodes: ${errorMessage}` }, { status: 500 });
 	}
 };
+
+export const POST: RequestHandler = async ({ request }) => {
+	const { profile_url: profileUrl } = await request.json();
+
+	if (!profileUrl) {
+		return json({ error: 'Missing profile URL' }, { status: 400 });
+	}
+
+	try {
+		const response = await fetch(`${PUBLIC_INDEX_URL}/v2/nodes-sync`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ profile_url: profileUrl })
+		});
+
+		const data = await response.json();
+		if (!response.ok) {
+			return json(
+				{ errors: data.errors || 'Error posting profile to index', success: false },
+				{ status: response.status }
+			);
+		}
+
+		return json({ data: data?.data, success: true }, { status: 200 });
+	} catch (err) {
+		const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+		console.error(`Failed to post profile to index: ${errorMessage}`);
+		return json(
+			{ error: 'The index service is currently not available. Please try again in a few minutes.' },
+			{ status: 500 }
+		);
+	}
+};
