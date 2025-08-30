@@ -189,13 +189,6 @@
 		navigator.clipboard.writeText(token);
 		toast.success('Delegation copied to clipboard');
 	}
-
-	function copyDidKey() {
-		if (myDidKey) {
-			navigator.clipboard.writeText(myDidKey);
-			toast.success('DID key copied to clipboard');
-		}
-	}
 </script>
 
 <div class="w-full space-y-6">
@@ -205,22 +198,6 @@
 			Create a delegation token to grant specific capabilities to another user.
 		</p>
 	</div>
-
-	<!-- My DID Key -->
-	{#if myDidKey}
-		<Card>
-			<CardHeader>
-				<CardTitle>Your DID Key</CardTitle>
-				<CardDescription>
-					This is your DID key that identifies you as the issuer of the delegation.
-				</CardDescription>
-			</CardHeader>
-			<CardContent class="space-y-4">
-				<Input value={myDidKey} readonly class="font-mono text-sm" />
-				<Button onclick={copyDidKey} variant="outline" class="w-full">Copy My DID Key</Button>
-			</CardContent>
-		</Card>
-	{/if}
 
 	<!-- Generated Delegation Token -->
 	{#if generatedDelegation}
