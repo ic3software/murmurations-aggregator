@@ -34,6 +34,10 @@
 	let keypair: { publicKey: CryptoKey; privateKey: CryptoKey } | null = $state(null);
 	let myDidKey = $state('');
 
+	let isAllSelected = $derived(
+		parsedCapabilities.length > 0 && selectedCapabilities.length === parsedCapabilities.length
+	);
+
 	onMount(async () => {
 		const storedPrivateKey = await getKey('privateKey');
 		if (storedPrivateKey) {
@@ -82,6 +86,14 @@
 			);
 		} else {
 			selectedCapabilities = [...selectedCapabilities, capability];
+		}
+	}
+
+	function toggleAllCapabilities() {
+		if (isAllSelected) {
+			selectedCapabilities = [];
+		} else {
+			selectedCapabilities = [...parsedCapabilities];
 		}
 	}
 
@@ -199,7 +211,6 @@
 		</p>
 	</div>
 
-	<!-- Generated Delegation Token -->
 	{#if generatedDelegation}
 		<Card>
 			<CardHeader>
@@ -253,6 +264,19 @@
 		</CardHeader>
 		<CardContent>
 			{#if parsedCapabilities.length > 0}
+				<div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+					<div class="flex items-center space-x-3">
+						<Checkbox
+							id="select-all"
+							checked={isAllSelected}
+							onCheckedChange={toggleAllCapabilities}
+						/>
+						<Label for="select-all" class="text-sm font-medium cursor-pointer">
+							{isAllSelected ? 'Deselect All' : 'Select All'}
+						</Label>
+					</div>
+				</div>
+
 				<Accordion type="multiple" class="w-full">
 					{#each parsedCapabilities as capability, index (capability.can)}
 						{@const details = getCapabilityDetails(capability)}
