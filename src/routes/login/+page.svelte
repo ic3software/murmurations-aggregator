@@ -10,12 +10,15 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { getKey, removeDidPrefix } from '$lib/crypto';
+	import { toDidableKey } from '$lib/utils/ucan-utils';
 	import { AlertCircle, Home } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 
 	let token;
 	let errorMessage = '';
+	let publicKey = '';
 
 	onMount(async () => {
 		const params = new URLSearchParams(window.location.search);
@@ -27,7 +30,25 @@
 		}
 
 		try {
-			const { success, error } = await linkPublicKey(token);
+			let keypair: { publicKey: CryptoKey; privateKey: CryptoKey } | null = null;
+			const storedPrivateKey = await getKey('privateKey');
+
+			if (storedPrivateKey) {
+				keypair = {
+					publicKey: (await getKey('publicKey')) as CryptoKey,
+					privateKey: storedPrivateKey
+				};
+			}
+
+			if (!keypair) {
+				errorMessage = 'Failed to retrieve keypair';
+				return;
+			}
+
+			const didableKey = await toDidableKey(keypair);
+			publicKey = removeDidPrefix(didableKey.did());
+
+			const { success, error } = await linkPublicKey(token, publicKey);
 
 			if (success) {
 				goto('/admin', {

@@ -51,24 +51,17 @@ export const POST: RequestHandler = async ({
 	request
 }) => {
 	try {
-		const { publicKey, error, status } = await authenticateUcanRequest(request, {
-			scheme: 'api',
-			hierPart: '/keys',
-			namespace: 'keys',
-			segments: ['POST']
-		});
+		const { publicKey, token } = await request.json();
 
 		if (!publicKey) {
-			return json({ error, success: false }, { status });
+			return json({ error: 'Missing public key', success: false }, { status: 400 });
 		}
-
-		const db = getDB(platform.env);
-
-		const { token } = await request.json();
 
 		if (!token) {
 			return json({ error: 'Missing token', success: false }, { status: 400 });
 		}
+
+		const db = getDB(platform.env);
 
 		const userId = await isTokenValidAndGetUserId(db, token);
 
@@ -136,7 +129,7 @@ export const DELETE: RequestHandler = async ({
 			return json({ error: 'User not found', success: false }, { status: 404 });
 		}
 
-		const deleteResult = await deletePublicKey(db, userByPublicKey.userId, userPublicKey);
+		const deleteResult = await deletePublicKey(db, userByPublicKey.userId, publicKey);
 
 		if (!deleteResult) {
 			return json(
