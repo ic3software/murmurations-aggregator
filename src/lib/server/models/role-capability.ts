@@ -34,8 +34,20 @@ export async function updateRoleCapabilities(
 ) {
 	await db.delete(roleCapabilities).where(eq(roleCapabilities.roleId, roleId)).run();
 
-	if (capabilityIds.length > 0) {
-		const values = capabilityIds.map((capabilityId) => ({ roleId, capabilityId }));
+	if (capabilityIds.length === 0) {
+		return;
+	}
+
+	for (const ids of chunk(capabilityIds, 10)) {
+		const values = ids.map((capabilityId) => ({ roleId, capabilityId }));
 		await db.insert(roleCapabilities).values(values).run();
 	}
+}
+
+function chunk<T>(arr: T[], size: number): T[][] {
+	const result: T[][] = [];
+	for (let i = 0; i < arr.length; i += size) {
+		result.push(arr.slice(i, i + size));
+	}
+	return result;
 }

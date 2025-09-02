@@ -19,6 +19,10 @@
 	let selectedCapabilityIds = $state(new Set(data.roleCapabilities));
 	let isLoading = $state(false);
 
+	let isAllSelected = $derived(
+		allCapabilities.length > 0 && selectedCapabilityIds.size === allCapabilities.length
+	);
+
 	function toggleCapability(capabilityId: number) {
 		if (selectedCapabilityIds.has(capabilityId)) {
 			selectedCapabilityIds.delete(capabilityId);
@@ -26,6 +30,14 @@
 			selectedCapabilityIds.add(capabilityId);
 		}
 		selectedCapabilityIds = new SvelteSet(selectedCapabilityIds);
+	}
+
+	function toggleAllCapabilities() {
+		if (isAllSelected) {
+			selectedCapabilityIds = new SvelteSet();
+		} else {
+			selectedCapabilityIds = new SvelteSet(allCapabilities.map((cap) => cap.id));
+		}
 	}
 
 	async function handleSave() {
@@ -65,6 +77,23 @@
 	<CardContent class="space-y-6">
 		<div class="space-y-4">
 			<h3 class="text-lg font-medium">Available Capabilities</h3>
+
+			{#if allCapabilities.length > 0}
+				<div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+					<div class="flex items-center space-x-3">
+						<Checkbox
+							id="select-all"
+							checked={isAllSelected}
+							onCheckedChange={toggleAllCapabilities}
+							disabled={isLoading}
+						/>
+						<Label for="select-all" class="text-sm font-medium cursor-pointer">
+							{isAllSelected ? 'Deselect All' : 'Select All'}
+						</Label>
+					</div>
+				</div>
+			{/if}
+
 			<div class="grid gap-4">
 				{#each allCapabilities as capability (capability.id)}
 					<div class="flex items-center space-x-2">
@@ -82,6 +111,18 @@
 						</Label>
 					</div>
 				{/each}
+			</div>
+
+			<div class="mt-4 text-sm text-slate-600 dark:text-slate-400">
+				{#if selectedCapabilityIds.size > 0}
+					{#if selectedCapabilityIds.size === 1}
+						{selectedCapabilityIds.size} capability selected
+					{:else}
+						{selectedCapabilityIds.size} capabilities selected
+					{/if}
+				{:else}
+					No capabilities selected
+				{/if}
 			</div>
 		</div>
 
