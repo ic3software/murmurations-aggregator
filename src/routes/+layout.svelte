@@ -256,8 +256,6 @@
 			return;
 		}
 
-		console.log('currentPath', currentPath);
-
 		if (rootToken) {
 			let isExpired = false;
 			if (currentToken) {
@@ -270,8 +268,6 @@
 				await storeToken('currentToken', accessUcan);
 			}
 		}
-
-		console.log('currentPath2', currentPath);
 
 		if (!isPublicRoute(currentPath)) {
 			if (!rootToken || !currentToken) {
