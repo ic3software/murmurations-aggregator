@@ -34,6 +34,10 @@
 	let keypair: { publicKey: CryptoKey; privateKey: CryptoKey } | null = $state(null);
 	let myDidKey = $state('');
 
+	let isAllSelected = $derived(
+		parsedCapabilities.length > 0 && selectedCapabilities.length === parsedCapabilities.length
+	);
+
 	onMount(async () => {
 		const storedPrivateKey = await getKey('privateKey');
 		if (storedPrivateKey) {
@@ -82,6 +86,14 @@
 			);
 		} else {
 			selectedCapabilities = [...selectedCapabilities, capability];
+		}
+	}
+
+	function toggleAllCapabilities() {
+		if (isAllSelected) {
+			selectedCapabilities = [];
+		} else {
+			selectedCapabilities = [...parsedCapabilities];
 		}
 	}
 
@@ -189,13 +201,6 @@
 		navigator.clipboard.writeText(token);
 		toast.success('Delegation copied to clipboard');
 	}
-
-	function copyDidKey() {
-		if (myDidKey) {
-			navigator.clipboard.writeText(myDidKey);
-			toast.success('DID key copied to clipboard');
-		}
-	}
 </script>
 
 <div class="w-full space-y-6">
@@ -206,23 +211,6 @@
 		</p>
 	</div>
 
-	<!-- My DID Key -->
-	{#if myDidKey}
-		<Card>
-			<CardHeader>
-				<CardTitle>Your DID Key</CardTitle>
-				<CardDescription>
-					This is your DID key that identifies you as the issuer of the delegation.
-				</CardDescription>
-			</CardHeader>
-			<CardContent class="space-y-4">
-				<Input value={myDidKey} readonly class="font-mono text-sm" />
-				<Button onclick={copyDidKey} variant="outline" class="w-full">Copy My DID Key</Button>
-			</CardContent>
-		</Card>
-	{/if}
-
-	<!-- Generated Delegation Token -->
 	{#if generatedDelegation}
 		<Card>
 			<CardHeader>
@@ -276,6 +264,19 @@
 		</CardHeader>
 		<CardContent>
 			{#if parsedCapabilities.length > 0}
+				<div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+					<div class="flex items-center space-x-3">
+						<Checkbox
+							id="select-all"
+							checked={isAllSelected}
+							onCheckedChange={toggleAllCapabilities}
+						/>
+						<Label for="select-all" class="text-sm font-medium cursor-pointer">
+							{isAllSelected ? 'Deselect All' : 'Select All'}
+						</Label>
+					</div>
+				</div>
+
 				<Accordion type="multiple" class="w-full">
 					{#each parsedCapabilities as capability, index (capability.can)}
 						{@const details = getCapabilityDetails(capability)}

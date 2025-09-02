@@ -52,7 +52,7 @@ VALUES
   ('api', '/emails/send-reset-request', 'emails', 'POST'),
 
   ('api', '/keys', 'keys', 'GET'),
-  ('api', '/keys', 'keys', 'POST'),
+  ('api', '/keys', 'keys', 'DELETE'),
 
   ('api', '/profiles', 'profiles', 'GET'),
   ('api', '/profiles', 'profiles', 'POST'),

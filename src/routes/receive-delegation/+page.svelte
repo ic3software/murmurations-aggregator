@@ -7,6 +7,7 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import {
 		Table,
@@ -18,9 +19,11 @@
 	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { getDelegations, storeDelegations } from '$lib/core';
+	import { getKey } from '$lib/crypto';
 	import { delegationsStore } from '$lib/stores/token-store';
 	import type { Delegation } from '$lib/types/delegation';
 	import { decodeUcanToDelegation } from '$lib/utils/ucan-utils';
+	import { toDidableKey } from '$lib/utils/ucan-utils';
 	import { Trash2 } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
@@ -29,9 +32,28 @@
 	let delegationToken = $state('');
 	let isProcessing = $state(false);
 	let delegations: Delegation[] = $state([]);
+	let myDidKey = $state('');
 
 	onMount(async () => {
 		delegations = await getDelegations();
+
+		const storedPrivateKey = await getKey('privateKey');
+		if (storedPrivateKey) {
+			let keypair = {
+				publicKey: (await getKey('publicKey')) as CryptoKey,
+				privateKey: storedPrivateKey
+			};
+
+			// Get the DID key for display
+			try {
+				const didableKey = await toDidableKey(keypair);
+				myDidKey = didableKey.did();
+			} catch (error) {
+				console.error('Failed to generate DID key:', error);
+			}
+		} else {
+			toast.error('Failed to retrieve keypair from storage');
+		}
 	});
 
 	async function processDelegation() {
@@ -92,6 +114,13 @@
 	function formatDate(timestamp: number): string {
 		return new Date(timestamp * 1000).toLocaleString();
 	}
+
+	function copyDidKey() {
+		if (myDidKey) {
+			navigator.clipboard.writeText(myDidKey);
+			toast.success('DID key copied to clipboard');
+		}
+	}
 </script>
 
 <div class="w-full space-y-6">
@@ -101,6 +130,21 @@
 			Paste a delegation token below to receive delegated capabilities from another user.
 		</p>
 	</div>
+
+	{#if myDidKey}
+		<Card>
+			<CardHeader>
+				<CardTitle>Your DID Key</CardTitle>
+				<CardDescription>
+					This is your DID key that identifies you as the issuer of the delegation.
+				</CardDescription>
+			</CardHeader>
+			<CardContent class="space-y-4">
+				<Input value={myDidKey} readonly class="font-mono text-sm" />
+				<Button onclick={copyDidKey} variant="outline" class="w-full">Copy My DID Key</Button>
+			</CardContent>
+		</Card>
+	{/if}
 
 	{#if delegations.length > 0}
 		<Card>
