@@ -4,8 +4,6 @@
 
 This guide will help you set up and run the Murmurations Aggregator locally. Follow the steps in order to ensure a smooth installation.
 
-------------------------------------------------------------------------
-
 ## 1. Configure Environment Variables
 
 First, copy the example environment file:
@@ -38,8 +36,6 @@ recovery. You can create a free account at
 PRIVATE_RESEND_KEY=<YOUR_API_KEY>
 ```
 
-------------------------------------------------------------------------
-
 ## 2. Generate UCAN Server Keys
 
 Run the following command to generate UCAN server keys. Copy the output
@@ -60,8 +56,6 @@ PUBLIC_SERVER_DID_KEY=did:key:z6MkwEzW43zy5CJ4rSscCA4N6EpFGK6WHbFQrg8NxomZoEJS
 PRIVATE_SERVER_KEY=SClA0WPgndVIBcYMy9KNc2SVcsEFJEjGQdyxTNHTc+75ciH16VlgrKUcw/x8t6btDeb5FpvQwk2g8AVqIZPbdw==
 ```
 
-------------------------------------------------------------------------
-
 ## 3. Set Up the Database
 
 Murmurations Aggregator uses **Cloudflare D1** as its database.
@@ -73,9 +67,7 @@ pnpm db:migrate
 ```
 
 This will create a `.wrangler` folder containing a local SQLite database
-in `wrangler/d1/`, which you can use for local testing and preview.
-
-------------------------------------------------------------------------
+in `.wrangler/d1/`, which you can use for local testing and preview.
 
 ## 4. Install Dependencies and Run the App
 
@@ -91,6 +83,4 @@ Start the development server:
 pnpm dev
 ```
 
-Your application should now be available locally at:
-
-[http://localhost:5173](http://localhost:5173)
+Your application should now be available locally at: [http://localhost:5173](http://localhost:5173)
