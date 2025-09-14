@@ -38,6 +38,12 @@ PRIVATE_RESEND_KEY=<YOUR_API_KEY>
 
 ## 2. Generate UCAN Server Keys
 
+Install the required packages:
+
+``` bash
+pnpm install
+```
+
 Run the following command to generate UCAN server keys. Copy the output
 into your `.env` file:
 
@@ -69,13 +75,7 @@ pnpm db:migrate
 This will create a `.wrangler` folder containing a local SQLite database
 in `.wrangler/d1/`, which you can use for local testing and preview.
 
-## 4. Install Dependencies and Run the App
-
-Install the required packages:
-
-``` bash
-pnpm install
-```
+## 4. Run the App
 
 Start the development server:
 
@@ -84,3 +84,13 @@ pnpm dev
 ```
 
 Your application should now be available locally at: [http://localhost:5173](http://localhost:5173)
+
+## 5. Setup Admin Role
+
+Click the login button and select a name for the admin role. The public/private keypair generated in your browser will be associated with the username you create.
+
+Use your favorite database editor to find the `user_roles` table and change the `role_id` for the newly created account from `2` to `1`.
+
+Open up IndexedDB in your browser and delete the `core` database. Refresh the page and the cached UCAN token will be replaced with a new one with the roles permissions updated from user to admin.
+
+Navigate to <http://localhost:5173/admin> in your browser.

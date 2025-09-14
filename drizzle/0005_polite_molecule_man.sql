@@ -96,10 +96,9 @@ VALUES
   ('page', '/source-indexes', 'admin', 'GET'),  
   ('page', '/users', 'admin', 'GET'),
   ('page', '/roles', 'admin', 'GET'),
-  ('page', '/capabilities', 'admin', 'GET');
-
+  ('page', '/capabilities', 'admin', 'GET'),
   ('page', '/generate-delegation', 'client', 'GET'),
-  ('page', '/receive-delegation', 'client', 'GET'),
+  ('page', '/receive-delegation', 'client', 'GET');
 --> statement-breakpoint
 INSERT INTO `roles` (`name`, `description`)
 VALUES
