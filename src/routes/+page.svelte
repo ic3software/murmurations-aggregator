@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { getUser } from '$lib/api/users';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+	import { getToken } from '$lib/core';
 	import { currentTokenStore } from '$lib/stores/token-store';
 	import type { User } from '$lib/types/user';
 	import { formatDate } from '$lib/utils/date';
@@ -9,6 +11,7 @@
 	import type { Page } from '@sveltejs/kit';
 
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 
 	import type { PageData } from './$types';
 
@@ -18,10 +21,9 @@
 	let user: User | null = $state(null);
 	let isInitialized = $state(false);
 
-	// Subscribe to token changes
-	currentTokenStore.subscribe(async (value) => {
-		currentToken = value;
-		if (value) {
+	async function updateUserData(token: string | null) {
+		currentToken = token;
+		if (token) {
 			try {
 				const { data: userData, success } = await getUser();
 				if (success && userData) {
@@ -34,7 +36,7 @@
 		} else {
 			user = null;
 		}
-	});
+	}
 
 	interface CustomPageState extends Page {
 		state: {
@@ -47,16 +49,34 @@
 	const { clusters } = data;
 
 	onMount(() => {
-		// Wait for the layout to finish initializing
-		// Use multiple requestAnimationFrame calls to
-		// ensure we're after layout initialization
-		requestAnimationFrame(() => {
-			requestAnimationFrame(() => {
-				setTimeout(() => {
-					isInitialized = true;
-				}, 100);
-			});
+		const unsubscribe = currentTokenStore.subscribe(async (value) => {
+			await updateUserData(value);
 		});
+
+		if (browser) {
+			getToken('currentToken')
+				.then(async (storedToken) => {
+					if (storedToken) {
+						await updateUserData(storedToken);
+					}
+				})
+				.catch((error) => {
+					console.error('Failed to get token from IndexedDB:', error);
+				});
+		}
+
+		setTimeout(() => {
+			const token = get(currentTokenStore);
+			if (token && !currentToken) {
+				updateUserData(token);
+			}
+		}, 100);
+
+		setTimeout(() => {
+			isInitialized = true;
+		}, 200);
+
+		return unsubscribe;
 	});
 </script>
 

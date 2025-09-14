@@ -12,6 +12,7 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { storeToken } from '$lib/core';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import type { CryptoKeyPair } from '$lib/types/crypto';
 	import { AlertCircle, Home } from '@lucide/svelte';
@@ -55,6 +56,9 @@
 				error = registerError || 'Registration failed';
 				return;
 			}
+
+			await storeToken('rootToken', data.token);
+			await storeToken('currentToken', data.token);
 
 			goto('/');
 		} catch (err) {
