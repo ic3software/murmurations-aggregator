@@ -474,7 +474,7 @@
 					<MenubarMenu>
 						<MenubarTrigger class="ml-auto">
 							{#if !currentToken}
-								<a href="/register">Login</a>
+								<a href="/register">Register</a>
 							{/if}
 						</MenubarTrigger>
 					</MenubarMenu>
