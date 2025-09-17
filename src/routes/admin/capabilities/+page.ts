@@ -14,6 +14,7 @@ export const load: PageLoad = async ({ fetch }) => {
 		}
 
 		return {
+			title: 'Capabilities',
 			capabilities
 		};
 	} catch (error) {

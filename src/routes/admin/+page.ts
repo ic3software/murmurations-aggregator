@@ -6,7 +6,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	const { data: clusters } = await getClusters(fetch);
 
 	return {
-		title: 'Dashboard',
+		title: 'Clusters',
 		clusters
 	};
 };

@@ -2,6 +2,7 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { getUser } from '$lib/api/users';
+	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { getToken } from '$lib/core';
 	import { currentTokenStore } from '$lib/stores/token-store';
@@ -91,40 +92,43 @@
 
 {#if isInitialized}
 	<div class="mb-6">
-		{#if currentToken}
-			<Alert
-				class="bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200"
-			>
-				<CircleAlert class="size-4" />
-				<AlertTitle>Welcome{user?.name ? `, ${user.name}` : ''}! You are logged in.</AlertTitle>
-			</Alert>
-		{:else}
-			<Alert
-				class="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
-			>
-				<CircleAlert class="size-4" />
+		<Alert
+			class={currentToken
+				? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200'
+				: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200'}
+		>
+			{#if currentToken}
+				<AlertTitle>Welcome{user?.name ? `, ${user.name}` : ''}!</AlertTitle>
+			{:else}
 				<AlertTitle
 					>You have not registered yet. <a href="/register" class="underline hover:no-underline"
 						>Click here to register</a
 					>.</AlertTitle
 				>
-				<AlertDescription
-					>When you loaded this website, a <a
-						href="https://en.wikipedia.org/wiki/Public-key_cryptography"
-						target="_blank"
-						class="text-primary hover:text-primary/80 underline">public/private key pair</a
-					> was generated and stored safely in your browser. Click the link above to create an account.
-					You will then be able to identify yourself here using this key pair. Logging in is automatic;
-					you will be logged in as soon as the key pair is loaded.</AlertDescription
-				>
-			</Alert>
-		{/if}
+			{/if}
+			<AlertDescription>
+				<Accordion.Root type="single">
+					<Accordion.Item value="item-1">
+						<Accordion.Trigger>What is MurmurMaps?</Accordion.Trigger>
+						<Accordion.Content>
+							With MurmurMaps you can:
+							<ul class="list-disc list-inside">
+								<li class="mt-2">
+									Curate clusters of open, decentralized data from the Murmurations index as maps or
+									directories
+								</li>
+								<li>
+									Create and manage your own open data sets for inclusion in the Murmurations index
+								</li>
+								<li>Explore the data in the Murmurations index</li>
+							</ul>
+						</Accordion.Content>
+					</Accordion.Item>
+				</Accordion.Root>
+			</AlertDescription>
+		</Alert>
 	</div>
 {/if}
-
-<div class="mb-8">
-	<h2 class="text-2xl font-bold text-slate-900 dark:text-slate-50">All Clusters</h2>
-</div>
 
 {#if clusters.length === 0}
 	<div class="flex h-32 items-center justify-center">
@@ -152,13 +156,13 @@
 						href="/clusters/{cluster.clusterUuid}/list"
 						class="flex-1 rounded-md bg-slate-900 px-3 py-2 text-center text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
 					>
-						List View
+						Directory
 					</a>
 					<a
 						href="/clusters/{cluster.clusterUuid}/map"
-						class="flex-1 rounded-md border border-slate-300 px-3 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+						class="flex-1 rounded-md bg-slate-900 px-3 py-2 text-center text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
 					>
-						Map View
+						Map
 					</a>
 				</div>
 			</div>

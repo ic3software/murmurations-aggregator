@@ -33,7 +33,7 @@
 	let isDbOnline: boolean = $state(true);
 	let isOnline: boolean = $state(true);
 
-	const siteName = 'Murmurations Collaborative Cluster';
+	const siteName = 'MurmurMaps';
 	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
 	// Define routes that do not require DB status check
@@ -445,15 +445,15 @@
 						</MenubarTrigger>
 					</MenubarMenu>
 
-					<MenubarMenu value="index-explorer">
-						<MenubarTrigger>
-							<a href="/index-explorer">Index Explorer</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
 					<MenubarMenu value="index-updater">
 						<MenubarTrigger>
 							<a href="/index-updater">Index Updater</a>
+						</MenubarTrigger>
+					</MenubarMenu>
+
+					<MenubarMenu value="index-explorer">
+						<MenubarTrigger>
+							<a href="/index-explorer">Index Explorer</a>
 						</MenubarTrigger>
 					</MenubarMenu>
 

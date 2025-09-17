@@ -13,6 +13,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	}
 
 	return {
+		title: 'Users',
 		users
 	};
 };

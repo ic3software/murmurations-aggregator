@@ -4,7 +4,7 @@
 
 	let { children } = $props();
 
-	const siteName = 'Murmurations Collaborative Cluster Builder';
+	const siteName = 'MurmurMaps Admin';
 </script>
 
 <svelte:head>
@@ -21,9 +21,9 @@
 
 		<div class="mb-6">
 			<Menubar>
-				<MenubarMenu value="dashboard">
+				<MenubarMenu value="clusters">
 					<MenubarTrigger>
-						<a href="/admin">Dashboard</a>
+						<a href="/admin">Clusters</a>
 					</MenubarTrigger>
 				</MenubarMenu>
 

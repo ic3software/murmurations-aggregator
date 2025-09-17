@@ -1,21 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { register } from '$lib/api/auth-request';
+	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
-	import {
-		Card,
-		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { storeToken } from '$lib/core';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
 	import type { CryptoKeyPair } from '$lib/types/crypto';
-	import { AlertCircle, Home } from '@lucide/svelte';
+	import { AlertCircle } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 
@@ -73,10 +68,6 @@
 	<Card class="w-full max-w-md">
 		<CardHeader>
 			<CardTitle>Register</CardTitle>
-			<CardDescription class="mt-2">
-				Enter a username to identify you on this demo website. <br />
-				Your username will be linked to the key pair that was created and stored in your browser.
-			</CardDescription>
 		</CardHeader>
 		<CardContent class="space-y-4">
 			{#if form?.error || error}
@@ -93,15 +84,48 @@
 					<div class="space-y-2">
 						<Label for="name">Username</Label>
 						<Input
+							class="mt-2"
 							id="name"
 							name="name"
 							type="text"
-							placeholder="Enter your username"
+							placeholder="Enter a username to identify you on this website"
 							bind:value={name}
 							disabled={isSubmitting}
 							required
 						/>
 					</div>
+
+					<Alert
+						class="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
+					>
+						<AlertDescription>
+							<Accordion.Root type="single">
+								<Accordion.Item value="item-1">
+									<Accordion.Trigger>Why don't I need to enter a password?</Accordion.Trigger>
+									<Accordion.Content>
+										When you loaded this website, a <a
+											href="https://en.wikipedia.org/wiki/Public-key_cryptography"
+											target="_blank"
+											class="text-primary hover:text-primary/80 underline"
+											>public/private key pair</a
+										> was generated and stored safely in your browser. This key pair will be used to
+										automatically identify you here, and is much more secure than a password. Just enter
+										a username and click the button to create an account.
+									</Accordion.Content>
+								</Accordion.Item>
+								<Accordion.Item value="item-2">
+									<Accordion.Trigger
+										>How can I access my account from another device?</Accordion.Trigger
+									>
+									<Accordion.Content>
+										Select <b>Profile</b> from the menu and then click the
+										<b>Generate Login Token</b> button. Copy the link and open it in a browser on another
+										device to access your account.
+									</Accordion.Content>
+								</Accordion.Item>
+							</Accordion.Root>
+						</AlertDescription>
+					</Alert>
 
 					<Button class="w-full" type="submit" disabled={isSubmitting || !name.trim() || !keypair}>
 						{isSubmitting ? 'Creating Account...' : 'Create Account'}
@@ -109,10 +133,7 @@
 				</div>
 			</form>
 
-			<Button href="/" class="w-full" variant="outline">
-				<Home class="mr-2 h-4 w-4" />
-				Go to Home
-			</Button>
+			<Button href="/" class="w-full" variant="outline">Cancel</Button>
 		</CardContent>
 	</Card>
 </div>
