@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { getUser } from '$lib/api/users';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import { getToken } from '$lib/core';
 	import { currentTokenStore } from '$lib/stores/token-store';
 	import type { User } from '$lib/types/user';
 	import { formatDate } from '$lib/utils/date';
@@ -12,7 +10,6 @@
 	import type { Page } from '@sveltejs/kit';
 
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
 
 	import type { PageData } from './$types';
 
@@ -54,25 +51,6 @@
 		const unsubscribe = currentTokenStore.subscribe(async (value) => {
 			await updateUserData(value);
 		});
-
-		if (browser) {
-			getToken('currentToken')
-				.then(async (storedToken) => {
-					if (storedToken) {
-						await updateUserData(storedToken);
-					}
-				})
-				.catch((error) => {
-					console.error('Failed to get token from IndexedDB:', error);
-				});
-		}
-
-		setTimeout(() => {
-			const token = get(currentTokenStore);
-			if (token && !currentToken) {
-				updateUserData(token);
-			}
-		}, 100);
 
 		setTimeout(() => {
 			isInitialized = true;
