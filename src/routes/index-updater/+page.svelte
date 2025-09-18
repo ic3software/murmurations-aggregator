@@ -69,157 +69,155 @@
 	}
 </script>
 
-<div class="mx-auto">
-	<div class="mb-4 sm:flex sm:items-center">
-		<div class="text-gray-900 sm:flex-auto dark:text-gray-50">
-			<h1 class="text-2xl font-bold mb-2">Index Updater</h1>
-			<p>
-				Manage your profile in the Murmurations Index. Add, update, check status, or delete your
-				profile.
-			</p>
+<div class="mb-4 sm:flex sm:items-center">
+	<div class="text-gray-900 sm:flex-auto dark:text-gray-50">
+		<h1 class="text-2xl font-bold mb-2">Index Updater</h1>
+		<p>
+			Manage your profile in the Murmurations Index. Add, update, check status, or delete your
+			profile.
+		</p>
+	</div>
+</div>
+
+<div class="space-y-6">
+	<!-- Add/Update Profile Section -->
+	<div class="card p-4 variant-ghost-primary mb-4 border-2 border-gray-200 rounded-lg">
+		<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+			Add/Update Profile in Index
+		</h2>
+		<p class="text-gray-700 dark:text-gray-300 mb-4">
+			Post your profile to your website then add your profile, and always update the Index every
+			time you change it to enable data aggregators to learn about your recent changes.
+		</p>
+		<div class="space-y-4">
+			<Input
+				type="text"
+				placeholder="https://your.site/directory/profile.json"
+				bind:value={postProfileUrl}
+				class="w-full"
+			/>
+			<div class="flex justify-center">
+				<Button onclick={postProfile} disabled={isSubmittingPost} class="w-full sm:w-auto px-8">
+					{isSubmittingPost ? 'Posting...' : 'Post'}
+				</Button>
+			</div>
 		</div>
+		{#if postResponse}
+			<div class="mt-4">
+				<Alert.Root variant={postResponseOk ? 'default' : 'destructive'}>
+					{#if postResponseOk}
+						<CheckCircle class="h-4 w-4" />
+						<Alert.Title>Success</Alert.Title>
+					{:else}
+						<AlertCircle class="h-4 w-4" />
+						<Alert.Title>Error</Alert.Title>
+					{/if}
+					<Alert.Description>
+						<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
+								JSON.parse(postResponse),
+								null,
+								2
+							)}</pre>
+					</Alert.Description>
+				</Alert.Root>
+			</div>
+		{/if}
 	</div>
 
-	<div class="space-y-6">
-		<!-- Add/Update Profile Section -->
-		<div class="card p-4 variant-ghost-primary mb-4 border-2 border-gray-200 rounded-lg">
-			<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
-				Add/Update Profile in Index
-			</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-4">
-				Post your profile to your website then add your profile, and always update the Index every
-				time you change it to enable data aggregators to learn about your recent changes.
-			</p>
-			<div class="space-y-4">
-				<Input
-					type="text"
-					placeholder="https://your.site/directory/profile.json"
-					bind:value={postProfileUrl}
-					class="w-full"
-				/>
-				<div class="flex justify-center">
-					<Button onclick={postProfile} disabled={isSubmittingPost} class="w-full sm:w-auto px-8">
-						{isSubmittingPost ? 'Posting...' : 'Post'}
-					</Button>
-				</div>
+	<!-- Check Profile Status Section -->
+	<div class="card p-4 variant-ghost-primary mb-4 border-2 border-gray-200 rounded-lg">
+		<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+			Check Profile Status in Index
+		</h2>
+		<p class="text-gray-700 dark:text-gray-300 mb-4">
+			Get status and other information about your profile from the Index.
+		</p>
+		<div class="space-y-4">
+			<Input
+				type="text"
+				placeholder="https://your.site/directory/profile.json"
+				bind:value={checkProfileUrl}
+				class="w-full"
+			/>
+			<div class="flex justify-center">
+				<Button
+					onclick={checkProfileStatus}
+					disabled={isSubmittingCheck}
+					class="w-full sm:w-auto px-8"
+				>
+					{isSubmittingCheck ? 'Checking...' : 'Check'}
+				</Button>
 			</div>
-			{#if postResponse}
-				<div class="mt-4">
-					<Alert.Root variant={postResponseOk ? 'default' : 'destructive'}>
-						{#if postResponseOk}
-							<CheckCircle class="h-4 w-4" />
-							<Alert.Title>Success</Alert.Title>
-						{:else}
-							<AlertCircle class="h-4 w-4" />
-							<Alert.Title>Error</Alert.Title>
-						{/if}
-						<Alert.Description>
-							<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
-									JSON.parse(postResponse),
-									null,
-									2
-								)}</pre>
-						</Alert.Description>
-					</Alert.Root>
-				</div>
-			{/if}
 		</div>
+		{#if statusResponse}
+			<div class="mt-4">
+				<Alert.Root variant={statusResponseOk ? 'default' : 'destructive'}>
+					{#if statusResponseOk}
+						<CheckCircle class="h-4 w-4" />
+						<Alert.Title>Success</Alert.Title>
+					{:else}
+						<AlertCircle class="h-4 w-4" />
+						<Alert.Title>Error</Alert.Title>
+					{/if}
+					<Alert.Description>
+						<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
+								JSON.parse(statusResponse),
+								null,
+								2
+							)}</pre>
+					</Alert.Description>
+				</Alert.Root>
+			</div>
+		{/if}
+	</div>
 
-		<!-- Check Profile Status Section -->
-		<div class="card p-4 variant-ghost-primary mb-4 border-2 border-gray-200 rounded-lg">
-			<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
-				Check Profile Status in Index
-			</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-4">
-				Get status and other information about your profile from the Index.
-			</p>
-			<div class="space-y-4">
-				<Input
-					type="text"
-					placeholder="https://your.site/directory/profile.json"
-					bind:value={checkProfileUrl}
-					class="w-full"
-				/>
-				<div class="flex justify-center">
-					<Button
-						onclick={checkProfileStatus}
-						disabled={isSubmittingCheck}
-						class="w-full sm:w-auto px-8"
-					>
-						{isSubmittingCheck ? 'Checking...' : 'Check'}
-					</Button>
-				</div>
+	<!-- Delete Profile Section -->
+	<div class="card p-4 variant-ghost-primary mb-2 border-2 border-gray-200 rounded-lg">
+		<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
+			Delete Profile from Index
+		</h2>
+		<p class="text-gray-700 dark:text-gray-300 mb-4">
+			Remove your profile from your website first (it should return a <code
+				class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm">404 Not Found</code
+			> status code) and then submit it here to delete it from the Index.
+		</p>
+		<div class="space-y-4">
+			<Input
+				type="text"
+				placeholder="https://your.site/directory/profile.json"
+				bind:value={deleteProfileUrl}
+				class="w-full"
+			/>
+			<div class="flex justify-center">
+				<Button
+					onclick={deleteProfile}
+					disabled={isSubmittingDelete}
+					variant="destructive"
+					class="w-full sm:w-auto px-8"
+				>
+					{isSubmittingDelete ? 'Deleting...' : 'Delete'}
+				</Button>
 			</div>
-			{#if statusResponse}
-				<div class="mt-4">
-					<Alert.Root variant={statusResponseOk ? 'default' : 'destructive'}>
-						{#if statusResponseOk}
-							<CheckCircle class="h-4 w-4" />
-							<Alert.Title>Success</Alert.Title>
-						{:else}
-							<AlertCircle class="h-4 w-4" />
-							<Alert.Title>Error</Alert.Title>
-						{/if}
-						<Alert.Description>
-							<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
-									JSON.parse(statusResponse),
-									null,
-									2
-								)}</pre>
-						</Alert.Description>
-					</Alert.Root>
-				</div>
-			{/if}
 		</div>
-
-		<!-- Delete Profile Section -->
-		<div class="card p-4 variant-ghost-primary mb-2 border-2 border-gray-200 rounded-lg">
-			<h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
-				Delete Profile from Index
-			</h2>
-			<p class="text-gray-700 dark:text-gray-300 mb-4">
-				Remove your profile from your website first (it should return a <code
-					class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm">404 Not Found</code
-				> status code) and then submit it here to delete it from the Index.
-			</p>
-			<div class="space-y-4">
-				<Input
-					type="text"
-					placeholder="https://your.site/directory/profile.json"
-					bind:value={deleteProfileUrl}
-					class="w-full"
-				/>
-				<div class="flex justify-center">
-					<Button
-						onclick={deleteProfile}
-						disabled={isSubmittingDelete}
-						variant="destructive"
-						class="w-full sm:w-auto px-8"
-					>
-						{isSubmittingDelete ? 'Deleting...' : 'Delete'}
-					</Button>
-				</div>
+		{#if deleteResponse}
+			<div class="mt-4">
+				<Alert.Root variant={deleteResponseOk ? 'default' : 'destructive'}>
+					{#if deleteResponseOk}
+						<CheckCircle class="h-4 w-4" />
+						<Alert.Title>Success</Alert.Title>
+					{:else}
+						<AlertCircle class="h-4 w-4" />
+						<Alert.Title>Error</Alert.Title>
+					{/if}
+					<Alert.Description>
+						<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
+								JSON.parse(deleteResponse),
+								null,
+								2
+							)}</pre>
+					</Alert.Description>
+				</Alert.Root>
 			</div>
-			{#if deleteResponse}
-				<div class="mt-4">
-					<Alert.Root variant={deleteResponseOk ? 'default' : 'destructive'}>
-						{#if deleteResponseOk}
-							<CheckCircle class="h-4 w-4" />
-							<Alert.Title>Success</Alert.Title>
-						{:else}
-							<AlertCircle class="h-4 w-4" />
-							<Alert.Title>Error</Alert.Title>
-						{/if}
-						<Alert.Description>
-							<pre class="mt-2 overflow-auto text-sm">{JSON.stringify(
-									JSON.parse(deleteResponse),
-									null,
-									2
-								)}</pre>
-						</Alert.Description>
-					</Alert.Root>
-				</div>
-			{/if}
-		</div>
+		{/if}
 	</div>
 </div>

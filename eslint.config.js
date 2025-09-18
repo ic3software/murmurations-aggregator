@@ -24,6 +24,9 @@ export default ts.config(
 		}
 	},
 	{
+		ignores: ['src/lib/components/ui/**', 'src/lib/hooks/**']
+	},
+	{
 		files: ['**/*.svelte'],
 		rules: {
 			'svelte/valid-compile': 'off'

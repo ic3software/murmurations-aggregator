@@ -21,6 +21,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
 		const countries = Object.keys(rawCountries);
 
 		return {
+			title: 'Index Explorer',
 			loadSearchParams: url.searchParams,
 			schemasList,
 			countries,
@@ -29,6 +30,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
 	} catch (err) {
 		console.error('Error fetching data:', err);
 		return {
+			title: 'Index Explorer',
 			loadSearchParams: url.searchParams,
 			schemasList: [],
 			countries: [],

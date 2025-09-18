@@ -3,4 +3,5 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 drizzle
-src/lib/components
+/src/lib/components/ui
+/src/lib/hooks
