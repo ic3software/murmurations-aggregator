@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
+	import AppSidebarAdmin from '$lib/components/app-sidebar-admin.svelte';
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 
 	let { children } = $props();
 
@@ -12,47 +15,31 @@
 </svelte:head>
 
 <div class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-	<div class="container mx-auto px-4 py-4">
-		<header class="mb-8">
-			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
-				{siteName}
-			</h1>
-		</header>
-
-		<div class="mb-6">
-			<Menubar>
-				<MenubarMenu value="clusters">
-					<MenubarTrigger>
-						<a href="/admin">Clusters</a>
-					</MenubarTrigger>
-				</MenubarMenu>
-
-				<MenubarMenu value="source-indexes">
-					<MenubarTrigger>
-						<a href="/admin/source-indexes">Source Config</a>
-					</MenubarTrigger>
-				</MenubarMenu>
-
-				<MenubarMenu value="users">
-					<MenubarTrigger>
-						<a href="/admin/users">Users</a>
-					</MenubarTrigger>
-				</MenubarMenu>
-
-				<MenubarMenu value="roles">
-					<MenubarTrigger>
-						<a href="/admin/roles">Roles</a>
-					</MenubarTrigger>
-				</MenubarMenu>
-
-				<MenubarMenu value="capabilities">
-					<MenubarTrigger>
-						<a href="/admin/capabilities">Capabilities</a>
-					</MenubarTrigger>
-				</MenubarMenu>
-			</Menubar>
-		</div>
-
-		{@render children()}
-	</div>
+	<Sidebar.Provider>
+		<AppSidebarAdmin />
+		<Sidebar.Inset>
+			<header class="flex h-16 shrink-0 items-center gap-2 border-b">
+				<div class="flex items-center gap-2 px-3">
+					<Sidebar.Trigger />
+					<Separator orientation="vertical" class="mr-2 data-[orientation=vertical]:h-4" />
+					<Breadcrumb.Root>
+						<Breadcrumb.List>
+							<Breadcrumb.Item>
+								<Breadcrumb.Link href="/admin">{siteName}</Breadcrumb.Link>
+							</Breadcrumb.Item>
+							{#if page.data.title}
+								<Breadcrumb.Separator />
+								<Breadcrumb.Item>
+									<Breadcrumb.Page>{page.data.title}</Breadcrumb.Page>
+								</Breadcrumb.Item>
+							{/if}
+						</Breadcrumb.List>
+					</Breadcrumb.Root>
+				</div>
+			</header>
+			<div class="flex flex-1 flex-col gap-4 p-4">
+				{@render children()}
+			</div>
+		</Sidebar.Inset>
+	</Sidebar.Provider>
 </div>
