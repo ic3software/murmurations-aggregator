@@ -109,7 +109,7 @@
 			{/if}
 			<AlertDescription>
 				<Accordion.Root type="single">
-					<Accordion.Item value="item-1">
+					<Accordion.Item value="item-1" class="border-none">
 						<Accordion.Trigger>What is MurmurMaps?</Accordion.Trigger>
 						<Accordion.Content>
 							With MurmurMaps you can:

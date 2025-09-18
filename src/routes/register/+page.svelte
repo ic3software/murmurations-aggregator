@@ -100,7 +100,7 @@
 					>
 						<AlertDescription>
 							<Accordion.Root type="single">
-								<Accordion.Item value="item-1">
+								<Accordion.Item value="item-1" class="border-none">
 									<Accordion.Trigger>Why don't I need to enter a password?</Accordion.Trigger>
 									<Accordion.Content>
 										When you loaded this website, a <a
@@ -113,7 +113,7 @@
 										a username and click the button to create an account.
 									</Accordion.Content>
 								</Accordion.Item>
-								<Accordion.Item value="item-2">
+								<Accordion.Item value="item-2" class="border-none">
 									<Accordion.Trigger
 										>How can I access my account from another device?</Accordion.Trigger
 									>
