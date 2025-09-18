@@ -43,20 +43,6 @@
       "when": 1752753759602,
       "tag": "0005_polite_molecule_man",
       "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1757840715734,
-      "tag": "0006_add_delegations_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1757840715735,
-      "tag": "0007_add_user_capability",
-      "breakpoints": true
     }
   ]
 }
