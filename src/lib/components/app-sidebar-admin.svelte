@@ -9,7 +9,7 @@
 	const data = {
 		navMain: [
 			{
-				title: 'Clusters',
+				title: 'Cluster Management',
 				url: '/admin',
 				icon: DatabaseIcon
 			},
@@ -59,7 +59,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({ props }: { props: Record<string, unknown> })}
-						<a href="/" {...props}>
+						<a href="/admin" {...props}>
 							<div
 								class="bg-red-600 text-white flex aspect-square size-8 items-center justify-center rounded-lg"
 							>

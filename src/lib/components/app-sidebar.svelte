@@ -1,5 +1,6 @@
 <script lang="ts" module>
-	import MapIcon from '@lucide/svelte/icons/map';
+	import Boxes from '@lucide/svelte/icons/boxes';
+	import SearchIcon from '@lucide/svelte/icons/search';
 	import UserCircleIcon from '@lucide/svelte/icons/user-circle';
 	import UserPlusIcon from '@lucide/svelte/icons/user-plus';
 	import WrenchIcon from '@lucide/svelte/icons/wrench';
@@ -7,15 +8,14 @@
 	const data = {
 		navMain: [
 			{
-				title: 'Getting Started',
-				url: '#',
-				icon: MapIcon,
-				items: [
-					{
-						title: 'Clusters',
-						url: '/'
-					}
-				]
+				title: 'Clusters',
+				url: '/',
+				icon: Boxes
+			},
+			{
+				title: 'Index Explorer',
+				url: '/index-explorer',
+				icon: SearchIcon
 			},
 			{
 				title: 'Tools',
@@ -33,10 +33,6 @@
 					{
 						title: 'Index Updater',
 						url: '/index-updater'
-					},
-					{
-						title: 'Index Explorer',
-						url: '/index-explorer'
 					}
 				]
 			},
