@@ -24,17 +24,18 @@
 
 	async function updateUserData(token: string | null) {
 		currentToken = token;
-		if (token) {
-			try {
-				const { data: userData, success } = await getUser();
-				if (success && userData) {
-					user = userData;
-				}
-			} catch (error) {
-				console.error('Failed to fetch user data:', error);
-				user = null;
+		if (!token) {
+			user = null;
+			return;
+		}
+
+		try {
+			const { data: userData, success } = await getUser();
+			if (success && userData) {
+				user = userData;
 			}
-		} else {
+		} catch (error) {
+			console.error('Failed to fetch user data:', error);
 			user = null;
 		}
 	}
