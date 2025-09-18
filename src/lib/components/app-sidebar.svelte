@@ -47,6 +47,10 @@
 				requiresToken: true,
 				items: [
 					{
+						title: 'Account Settings',
+						url: '/account-settings'
+					},
+					{
 						title: 'Generate Delegation',
 						url: '/generate-delegation'
 					},

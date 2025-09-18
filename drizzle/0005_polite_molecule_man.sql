@@ -92,11 +92,11 @@ VALUES
   ('page', '/', 'admin', 'GET'),
   ('page', '/clusters', 'admin', 'GET'),
   ('page', '/emails', 'admin', 'GET'),
-  ('page', '/profile', 'admin', 'GET'),
   ('page', '/source-indexes', 'admin', 'GET'),  
   ('page', '/users', 'admin', 'GET'),
   ('page', '/roles', 'admin', 'GET'),
   ('page', '/capabilities', 'admin', 'GET'),
+  ('page', '/account-settings', 'client', 'GET'),
   ('page', '/generate-delegation', 'client', 'GET'),
   ('page', '/receive-delegation', 'client', 'GET');
 --> statement-breakpoint
