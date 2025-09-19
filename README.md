@@ -8,7 +8,7 @@ This guide will help you set up and run the Murmurations Aggregator locally. Fol
 
 First, copy the example environment file:
 
-``` bash
+```bash
 cp .env.example .env
 ```
 
@@ -16,7 +16,7 @@ Next, configure the Murmuration Services URLs. You can use the provided
 test services or run your own using
 [MurmurationServices](https://github.com/MurmurationsNetwork/MurmurationsServices):
 
-``` bash
+```bash
 PUBLIC_INDEX_URL=https://test-index.murmurations.network
 PUBLIC_LIBRARY_URL=https://test-library.murmurations.network
 PUBLIC_DATA_PROXY_URL=https://test-data-proxy.murmurations.network
@@ -24,7 +24,7 @@ PUBLIC_DATA_PROXY_URL=https://test-data-proxy.murmurations.network
 
 Set the Aggregator's Tools URL:
 
-``` bash
+```bash
 PUBLIC_TOOLS_URL=http://localhost:5173
 ```
 
@@ -32,7 +32,7 @@ Finally, configure the **Resend API Key** for email-based account
 recovery. You can create a free account at
 [Resend](https://resend.com/signup):
 
-``` bash
+```bash
 PRIVATE_RESEND_KEY=<YOUR_API_KEY>
 ```
 
@@ -40,20 +40,20 @@ PRIVATE_RESEND_KEY=<YOUR_API_KEY>
 
 Install the required packages:
 
-``` bash
+```bash
 pnpm install
 ```
 
 Run the following command to generate UCAN server keys. Copy the output
 into your `.env` file:
 
-``` bash
+```bash
 pnpm generate-server-keys
 ```
 
 Example output:
 
-``` bash
+```bash
 ✅ Generated server keys successfully!
 
 Please add the following to your .env file:
@@ -68,7 +68,7 @@ Murmurations Aggregator uses **Cloudflare D1** as its database.
 
 Run the migration command to initialize the local database:
 
-``` bash
+```bash
 pnpm db:migrate
 ```
 
@@ -79,7 +79,7 @@ in `.wrangler/d1/`, which you can use for local testing and preview.
 
 Start the development server:
 
-``` bash
+```bash
 pnpm dev
 ```
 

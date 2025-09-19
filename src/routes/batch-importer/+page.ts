@@ -16,9 +16,9 @@ export const load: PageLoad = async ({ fetch }) => {
 				return !s.name.startsWith('test_schema-v');
 			});
 
-		return { user: currentToken, schemasList, errorMessage: error };
+		return { title: 'Batch Importer', user: currentToken, schemasList, errorMessage: error };
 	} catch (err) {
 		console.error('Error fetching schemas:', err);
-		return { schemasList: [], errorMessage: 'Error fetching schemas' };
+		return { title: 'Batch Importer', schemasList: [], errorMessage: 'Error fetching schemas' };
 	}
 };

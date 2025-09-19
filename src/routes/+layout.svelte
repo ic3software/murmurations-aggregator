@@ -2,8 +2,11 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { refreshToken } from '$lib/api/auth-request';
-	import { Menubar, MenubarMenu, MenubarTrigger } from '$lib/components/ui/menubar';
+	import AppSidebar from '$lib/components/app-sidebar.svelte';
+	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getDelegations, getToken, storeDelegations, storeToken } from '$lib/core';
 	import { exportPublicKey, getOrCreateKeyPair, signRequest } from '$lib/crypto';
@@ -33,7 +36,7 @@
 	let isDbOnline: boolean = $state(true);
 	let isOnline: boolean = $state(true);
 
-	const siteName = 'Murmurations Collaborative Cluster';
+	const siteName = 'MurmurMaps';
 	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
 	// Define routes that do not require DB status check
@@ -416,73 +419,33 @@
 			</div>
 		{/if}
 
-		<div class="container mx-auto px-4 py-4">
-			<header class="mb-8">
-				<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">
-					<a href="/" class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-						{siteName}
-					</a>
-				</h1>
-			</header>
-
-			<div class="mb-6">
-				<Menubar>
-					<MenubarMenu value="home">
-						<MenubarTrigger>
-							<a href="/">Home</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
-					<MenubarMenu value="profile-generator">
-						<MenubarTrigger>
-							<a href="/profile-generator">Profile Generator</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
-					<MenubarMenu value="batch-importer">
-						<MenubarTrigger>
-							<a href="/batch-importer">Batch Importer</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
-					<MenubarMenu value="index-explorer">
-						<MenubarTrigger>
-							<a href="/index-explorer">Index Explorer</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
-					<MenubarMenu value="index-updater">
-						<MenubarTrigger>
-							<a href="/index-updater">Index Updater</a>
-						</MenubarTrigger>
-					</MenubarMenu>
-
-					{#if currentToken}
-						<MenubarMenu value="generate-delegation">
-							<MenubarTrigger>
-								<a href="/generate-delegation">Generate Delegation</a>
-							</MenubarTrigger>
-						</MenubarMenu>
-
-						<MenubarMenu value="receive-delegation">
-							<MenubarTrigger>
-								<a href="/receive-delegation">Receive Delegation</a>
-							</MenubarTrigger>
-						</MenubarMenu>
-					{/if}
-
-					<MenubarMenu>
-						<MenubarTrigger class="ml-auto">
-							{#if !currentToken}
-								<a href="/register">Login</a>
-							{/if}
-						</MenubarTrigger>
-					</MenubarMenu>
-				</Menubar>
-			</div>
-
-			{@render children()}
-		</div>
+		<Sidebar.Provider>
+			<AppSidebar {currentToken} />
+			<Sidebar.Inset>
+				<header class="flex h-16 shrink-0 items-center gap-2 border-b">
+					<div class="flex items-center gap-2 px-3">
+						<Sidebar.Trigger />
+						<Separator orientation="vertical" class="mr-2 data-[orientation=vertical]:h-4" />
+						<Breadcrumb.Root>
+							<Breadcrumb.List>
+								<Breadcrumb.Item>
+									<Breadcrumb.Link href="/">{siteName}</Breadcrumb.Link>
+								</Breadcrumb.Item>
+								{#if page.data.title}
+									<Breadcrumb.Separator />
+									<Breadcrumb.Item>
+										<Breadcrumb.Page>{page.data.title}</Breadcrumb.Page>
+									</Breadcrumb.Item>
+								{/if}
+							</Breadcrumb.List>
+						</Breadcrumb.Root>
+					</div>
+				</header>
+				<div class="flex flex-1 flex-col gap-4 p-4">
+					{@render children()}
+				</div>
+			</Sidebar.Inset>
+		</Sidebar.Provider>
 	{:else}
 		{@render children()}
 	{/if}
