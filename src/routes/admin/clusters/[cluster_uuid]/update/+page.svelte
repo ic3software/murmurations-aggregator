@@ -339,7 +339,7 @@
 	});
 </script>
 
-<div class="min-h-screen bg-background text-foreground">
+<div class="container mx-auto min-h-screen bg-background text-foreground">
 	<div class="container mx-auto px-4 py-8">
 		<header class="mb-8">
 			<h1 class="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-50">Updated Nodes</h1>

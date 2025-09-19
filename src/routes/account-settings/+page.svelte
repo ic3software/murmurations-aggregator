@@ -275,237 +275,246 @@
 	}
 </script>
 
-{#if typedPage?.state?.message}
-	<Alert
-		class="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"
-	>
-		<AlertDescription>{typedPage.state.message}</AlertDescription>
-	</Alert>
-{/if}
-
-{#if errorMessage}
-	<Alert variant="destructive">
-		<AlertDescription>
-			{#if errorMessage && errorMessage.includes('Algorithm: Unrecognized name')}
-				<div class="space-y-4">
-					<div>
-						Chrome and Chromium browsers do not support the Ed25519 algorithm by default. Here's how
-						to enable it:
-					</div>
-					<ol class="list-decimal pl-4 space-y-1">
-						<li>
-							Open a new browser window and type <code class="font-mono">chrome://flags</code> in the
-							address bar and press Enter.
-						</li>
-						<li>
-							In the search box at the top of the <code class="font-mono">chrome://flags</code> page,
-							type "Experimental Web Platform features".
-						</li>
-						<li>Find the "Experimental Web Platform features" flag.</li>
-						<li>Click the dropdown menu next to it and select "Enabled".</li>
-						<li>After enabling the flag, you will be prompted to restart the browser.</li>
-						<li>Click "Relaunch" to restart and try loading this page again.</li>
-					</ol>
-					<p>
-						<strong
-							>Or you can simply just use Firefox (Windows, Linux, Apple) or Safari (Apple) instead.</strong
-						>
-					</p>
-				</div>
-			{:else}
-				{errorMessage}
-			{/if}
-		</AlertDescription>
-	</Alert>
-{/if}
-
-{#if !userName}
-	{#if !errorMessage.includes('Algorithm: Unrecognized name')}
-		<Card>
-			<CardHeader>
-				<CardTitle>Welcome to the Murmurations Collaborative Cluster Builder</CardTitle>
-			</CardHeader>
-			<CardContent class="space-y-4">
-				<p>
-					When you loaded this website, a public/private key pair was generated and stored safely in
-					your browser. You can use this key pair to identify yourself here.
-				</p>
-				<p>Click the button below to create an account.</p>
-				<Button>
-					<a href="/register">Register</a>
-				</Button>
-			</CardContent>
-		</Card>
+<div class="container mx-auto">
+	{#if typedPage?.state?.message}
+		<Alert
+			class="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"
+		>
+			<AlertDescription>{typedPage.state.message}</AlertDescription>
+		</Alert>
 	{/if}
-{:else}
-	<div class="space-y-8">
-		<h1 class="text-3xl font-bold">Welcome, {userName}!</h1>
 
-		<!-- Public Keys Section -->
-		<Card>
-			<CardHeader>
-				<CardTitle>{publicKeyList.length > 1 ? 'Your Public Keys' : 'Your Public Key'}</CardTitle>
-				<CardDescription>
-					{#if publicKeyList.length > 1}
-						These are your public keys. You can disassociate keys from your other devices by
-						deleting them, except for the key pair on this device.
-					{:else}
-						This is your public key. You can add other public keys to enable access to your account
-						from other devices.
-					{/if}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div class="space-y-4">
-					{#each publicKeyList as publicKey, index (publicKey)}
-						<div class="space-y-4">
-							<div class="flex items-center justify-between gap-4">
-								<div class="font-mono text-sm break-all flex-1">
-									did:key:z{publicKey}
-								</div>
-								{#if publicKey !== currentPublicKey}
-									<Button variant="destructive" onclick={() => handleDeletePublicKey(publicKey)}>
-										Delete
-									</Button>
-								{:else}
-									<Badge variant="secondary">Current</Badge>
-								{/if}
-							</div>
-							{#if index < publicKeyList.length - 1}
-								<hr class="border-border" />
-							{/if}
+	{#if errorMessage}
+		<Alert variant="destructive">
+			<AlertDescription>
+				{#if errorMessage && errorMessage.includes('Algorithm: Unrecognized name')}
+					<div class="space-y-4">
+						<div>
+							Chrome and Chromium browsers do not support the Ed25519 algorithm by default. Here's
+							how to enable it:
 						</div>
-					{/each}
-				</div>
-			</CardContent>
-		</Card>
+						<ol class="list-decimal pl-4 space-y-1">
+							<li>
+								Open a new browser window and type <code class="font-mono">chrome://flags</code> in the
+								address bar and press Enter.
+							</li>
+							<li>
+								In the search box at the top of the <code class="font-mono">chrome://flags</code> page,
+								type "Experimental Web Platform features".
+							</li>
+							<li>Find the "Experimental Web Platform features" flag.</li>
+							<li>Click the dropdown menu next to it and select "Enabled".</li>
+							<li>After enabling the flag, you will be prompted to restart the browser.</li>
+							<li>Click "Relaunch" to restart and try loading this page again.</li>
+						</ol>
+						<p>
+							<strong
+								>Or you can simply just use Firefox (Windows, Linux, Apple) or Safari (Apple)
+								instead.</strong
+							>
+						</p>
+					</div>
+				{:else}
+					{errorMessage}
+				{/if}
+			</AlertDescription>
+		</Alert>
+	{/if}
 
-		<!-- Login Tokens Section -->
-		<Card>
-			<CardHeader>
-				<CardTitle>{tokens.length > 1 ? 'Login Tokens' : 'Login Token'}</CardTitle>
-				<CardDescription>
-					Generate a login token to sign in to your account from another device.
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div class="space-y-4">
-					{#if tokens.length === 0}
-						<p class="text-muted-foreground">No token available.</p>
-					{:else}
-						<div class="space-y-4">
-							{#each tokens as { token, expiresIn }, index (token)}
-								<div class="space-y-4">
-									<div class="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_auto]">
-										<div class="space-y-1">
-											<div class="flex items-center">
-												<span class="text-sm font-medium">Token:</span>
-												<span class="ml-2 font-mono text-sm truncate">{token}</span>
-											</div>
-											<div class="flex items-center">
-												{#if expiresIn > 0}
-													<span class="text-sm font-medium"
-														>Expires in: <span class="font-normal">{expiresIn} seconds</span></span
-													>
-												{:else}
-													<Badge variant="destructive">Expired</Badge>
-												{/if}
-											</div>
-										</div>
-										<div class="flex flex-col gap-2 sm:flex-row">
-											{#if expiresIn > 0}
-												<Button variant="outline" onclick={() => copyLinkToClipboard(token)}>
-													Copy Link
-												</Button>
-											{/if}
-											<Button variant="destructive" onclick={() => handleDeleteToken(token)}>
-												Delete Token
-											</Button>
-										</div>
+	{#if !userName}
+		{#if !errorMessage.includes('Algorithm: Unrecognized name')}
+			<Card>
+				<CardHeader>
+					<CardTitle>Welcome to the Murmurations Collaborative Cluster Builder</CardTitle>
+				</CardHeader>
+				<CardContent class="space-y-4">
+					<p>
+						When you loaded this website, a public/private key pair was generated and stored safely
+						in your browser. You can use this key pair to identify yourself here.
+					</p>
+					<p>Click the button below to create an account.</p>
+					<Button>
+						<a href="/register">Register</a>
+					</Button>
+				</CardContent>
+			</Card>
+		{/if}
+	{:else}
+		<div class="space-y-8">
+			<h1 class="text-3xl font-bold">Welcome, {userName}!</h1>
+
+			<!-- Public Keys Section -->
+			<Card>
+				<CardHeader>
+					<CardTitle>{publicKeyList.length > 1 ? 'Your Public Keys' : 'Your Public Key'}</CardTitle>
+					<CardDescription>
+						{#if publicKeyList.length > 1}
+							These are your public keys. You can disassociate keys from your other devices by
+							deleting them, except for the key pair on this device.
+						{:else}
+							This is your public key. You can add other public keys to enable access to your
+							account from other devices.
+						{/if}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						{#each publicKeyList as publicKey, index (publicKey)}
+							<div class="space-y-4">
+								<div class="flex items-center justify-between gap-4">
+									<div class="font-mono text-sm break-all flex-1">
+										did:key:z{publicKey}
 									</div>
-									{#if index < tokens.length - 1}
-										<hr class="border-border" />
+									{#if publicKey !== currentPublicKey}
+										<Button variant="destructive" onclick={() => handleDeletePublicKey(publicKey)}>
+											Delete
+										</Button>
+									{:else}
+										<Badge variant="secondary">Current</Badge>
 									{/if}
 								</div>
-							{/each}
-						</div>
-					{/if}
-
-					{#if tokens.length === 0}
-						<Button onclick={generateLink} disabled={isGeneratingLink}>
-							{isGeneratingLink ? 'Generating...' : 'Generate Login Token'}
-						</Button>
-					{/if}
-				</div>
-			</CardContent>
-		</Card>
-
-		<!-- Email Section -->
-		<Card>
-			<CardHeader>
-				<CardTitle>Your Email</CardTitle>
-				<CardDescription>
-					{#if publicKeyList.length > 1}
-						Add an email address to reset access to your account if you accidentally erase all of
-						your key pairs from your devices.
-					{:else}
-						Add an email address to reset access to your account if you accidentally erase your key
-						pair from this device.
-					{/if}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div class="space-y-4">
-					{#if emailList.length === 0}
-						<div class="flex flex-col gap-2 sm:flex-row sm:items-end">
-							<div class="flex-1 space-y-2">
-								<Label for="email">Email Address</Label>
-								<Input id="email" type="email" bind:value={email} placeholder="Enter your email" />
-								{#if email && !validEmail}
-									<p class="text-sm text-destructive">Invalid email format</p>
+								{#if index < publicKeyList.length - 1}
+									<hr class="border-border" />
 								{/if}
-								<Button onclick={handleAddEmail} disabled={!validEmail}>Add Email</Button>
 							</div>
-						</div>
-					{:else}
-						<div class="space-y-2">
-							{#each emailList as email, index (email)}
-								<div class="flex items-center justify-between p-3 border rounded-lg">
-									<span class="text-sm">{email}</span>
-									<Button variant="destructive" size="sm" onclick={() => removeEmail(index)}>
-										Delete
-									</Button>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</CardContent>
-		</Card>
-
-		<!-- Email Reset Toggle -->
-		<Card>
-			<CardHeader>
-				<CardTitle>Email Reset Settings</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<div class="space-y-4">
-					<div class="flex items-center space-x-2">
-						<Switch
-							id="email-reset"
-							checked={emailResetEnabled}
-							onCheckedChange={toggleEmailReset}
-						/>
-						<Label for="email-reset">Enable Email Reset</Label>
+						{/each}
 					</div>
-					<p class="text-sm text-muted-foreground">
-						Use this link to test resetting your email:
-						<a class="text-primary hover:underline" href="{window.location.origin}/admin/email">
-							{window.location.origin}/admin/email
-						</a>
-					</p>
-				</div>
-			</CardContent>
-		</Card>
-	</div>
-{/if}
+				</CardContent>
+			</Card>
+
+			<!-- Login Tokens Section -->
+			<Card>
+				<CardHeader>
+					<CardTitle>{tokens.length > 1 ? 'Login Tokens' : 'Login Token'}</CardTitle>
+					<CardDescription>
+						Generate a login token to sign in to your account from another device.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						{#if tokens.length === 0}
+							<p class="text-muted-foreground">No token available.</p>
+						{:else}
+							<div class="space-y-4">
+								{#each tokens as { token, expiresIn }, index (token)}
+									<div class="space-y-4">
+										<div class="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_auto]">
+											<div class="space-y-1">
+												<div class="flex items-center">
+													<span class="text-sm font-medium">Token:</span>
+													<span class="ml-2 font-mono text-sm truncate">{token}</span>
+												</div>
+												<div class="flex items-center">
+													{#if expiresIn > 0}
+														<span class="text-sm font-medium"
+															>Expires in: <span class="font-normal">{expiresIn} seconds</span
+															></span
+														>
+													{:else}
+														<Badge variant="destructive">Expired</Badge>
+													{/if}
+												</div>
+											</div>
+											<div class="flex flex-col gap-2 sm:flex-row">
+												{#if expiresIn > 0}
+													<Button variant="outline" onclick={() => copyLinkToClipboard(token)}>
+														Copy Link
+													</Button>
+												{/if}
+												<Button variant="destructive" onclick={() => handleDeleteToken(token)}>
+													Delete Token
+												</Button>
+											</div>
+										</div>
+										{#if index < tokens.length - 1}
+											<hr class="border-border" />
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/if}
+
+						{#if tokens.length === 0}
+							<Button onclick={generateLink} disabled={isGeneratingLink}>
+								{isGeneratingLink ? 'Generating...' : 'Generate Login Token'}
+							</Button>
+						{/if}
+					</div>
+				</CardContent>
+			</Card>
+
+			<!-- Email Section -->
+			<Card>
+				<CardHeader>
+					<CardTitle>Your Email</CardTitle>
+					<CardDescription>
+						{#if publicKeyList.length > 1}
+							Add an email address to reset access to your account if you accidentally erase all of
+							your key pairs from your devices.
+						{:else}
+							Add an email address to reset access to your account if you accidentally erase your
+							key pair from this device.
+						{/if}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						{#if emailList.length === 0}
+							<div class="flex flex-col gap-2 sm:flex-row sm:items-end">
+								<div class="flex-1 space-y-2">
+									<Label for="email">Email Address</Label>
+									<Input
+										id="email"
+										type="email"
+										bind:value={email}
+										placeholder="Enter your email"
+									/>
+									{#if email && !validEmail}
+										<p class="text-sm text-destructive">Invalid email format</p>
+									{/if}
+									<Button onclick={handleAddEmail} disabled={!validEmail}>Add Email</Button>
+								</div>
+							</div>
+						{:else}
+							<div class="space-y-2">
+								{#each emailList as email, index (email)}
+									<div class="flex items-center justify-between p-3 border rounded-lg">
+										<span class="text-sm">{email}</span>
+										<Button variant="destructive" size="sm" onclick={() => removeEmail(index)}>
+											Delete
+										</Button>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				</CardContent>
+			</Card>
+
+			<!-- Email Reset Toggle -->
+			<Card>
+				<CardHeader>
+					<CardTitle>Email Reset Settings</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						<div class="flex items-center space-x-2">
+							<Switch
+								id="email-reset"
+								checked={emailResetEnabled}
+								onCheckedChange={toggleEmailReset}
+							/>
+							<Label for="email-reset">Enable Email Reset</Label>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							Use this link to test resetting your email:
+							<a class="text-primary hover:underline" href="{window.location.origin}/admin/email">
+								{window.location.origin}/admin/email
+							</a>
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	{/if}
+</div>

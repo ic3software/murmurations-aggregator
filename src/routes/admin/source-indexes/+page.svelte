@@ -39,7 +39,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="container mx-auto space-y-6">
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold">Source Index Configuration</h1>
@@ -101,7 +101,7 @@
 									</Button>
 									<AlertDialog.Root>
 										<AlertDialog.Trigger>
-											<Button variant="destructive" size="sm">
+											<Button variant="destructive" size="sm" class="cursor-pointer">
 												<Trash2 class="size-4" />
 												Delete
 											</Button>
@@ -117,8 +117,11 @@
 												</p>
 											</AlertDialog.Description>
 											<AlertDialog.Footer>
-												<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-												<AlertDialog.Action onclick={() => handleDelete(sourceIndex.id)}>
+												<AlertDialog.Cancel class="cursor-pointer">Cancel</AlertDialog.Cancel>
+												<AlertDialog.Action
+													class="cursor-pointer"
+													onclick={() => handleDelete(sourceIndex.id)}
+												>
 													Continue
 												</AlertDialog.Action>
 											</AlertDialog.Footer>
