@@ -60,7 +60,7 @@
 	});
 </script>
 
-<div class="mx-auto max-w-none">
+<div class="container mx-auto">
 	<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">Edit Cluster</h2>
 
 	<form class="space-y-8" onsubmit={submitEdit}>

@@ -273,7 +273,7 @@
 										variant: 'outline',
 										size: 'sm'
 									}) +
-										' flex items-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30 bg-transparent'}
+										' flex items-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30 bg-transparent cursor-pointer'}
 									disabled={!isDbOnline}
 								>
 									<Trash2 class="h-4 w-4" />
@@ -289,9 +289,10 @@
 										</p>
 									</AlertDialog.Description>
 									<AlertDialog.Footer>
-										<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-										<AlertDialog.Action onclick={() => handleDeleteBatch(batch)}
-											>Continue</AlertDialog.Action
+										<AlertDialog.Cancel class="cursor-pointer">Cancel</AlertDialog.Cancel>
+										<AlertDialog.Action
+											class="cursor-pointer"
+											onclick={() => handleDeleteBatch(batch)}>Continue</AlertDialog.Action
 										>
 									</AlertDialog.Footer>
 								</AlertDialog.Content>
