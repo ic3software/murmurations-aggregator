@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Card, CardContent } from '$lib/components/ui/card';
 	import {
 		Table,
 		TableBody,
@@ -28,7 +28,7 @@
 	});
 </script>
 
-<div class="space-y-4">
+<div class="container mx-auto space-y-4">
 	<div class="flex justify-between items-center">
 		<h1 class="text-2xl font-bold">Capabilities Management</h1>
 		<Button href="/admin/capabilities/create">
@@ -38,9 +38,6 @@
 	</div>
 
 	<Card>
-		<CardHeader>
-			<CardTitle>All Capabilities</CardTitle>
-		</CardHeader>
 		<CardContent>
 			<Table>
 				<TableHeader>

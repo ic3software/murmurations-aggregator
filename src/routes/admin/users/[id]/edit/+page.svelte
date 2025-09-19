@@ -51,38 +51,40 @@
 	}
 </script>
 
-<Card>
-	<CardHeader>
-		<CardTitle>Edit User Roles - User ID: {data.userId}</CardTitle>
-	</CardHeader>
-	<CardContent class="space-y-6">
-		<div class="space-y-4">
-			<h3 class="text-lg font-medium">Available Roles</h3>
-			<div class="grid gap-4">
-				{#each allRoles as role (role.id)}
-					<div class="flex items-center space-x-2">
-						<Checkbox
-							id="role-{role.id}"
-							checked={selectedRoleIds.has(role.id)}
-							onCheckedChange={() => toggleRole(role.id)}
-							disabled={isLoading}
-						/>
-						<Label
-							for="role-{role.id}"
-							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							{role.name}
-						</Label>
-					</div>
-				{/each}
+<div class="container mx-auto">
+	<Card>
+		<CardHeader>
+			<CardTitle>Edit User Roles - User ID: {data.userId}</CardTitle>
+		</CardHeader>
+		<CardContent class="space-y-6">
+			<div class="space-y-4">
+				<h3 class="text-lg font-medium">Available Roles</h3>
+				<div class="grid gap-4">
+					{#each allRoles as role (role.id)}
+						<div class="flex items-center space-x-2">
+							<Checkbox
+								id="role-{role.id}"
+								checked={selectedRoleIds.has(role.id)}
+								onCheckedChange={() => toggleRole(role.id)}
+								disabled={isLoading}
+							/>
+							<Label
+								for="role-{role.id}"
+								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								{role.name}
+							</Label>
+						</div>
+					{/each}
+				</div>
 			</div>
-		</div>
 
-		<div class="flex gap-2">
-			<Button onclick={handleSave} disabled={isLoading}>
-				{isLoading ? 'Saving...' : 'Save Changes'}
-			</Button>
-			<Button variant="outline" onclick={handleCancel} disabled={isLoading}>Cancel</Button>
-		</div>
-	</CardContent>
-</Card>
+			<div class="flex gap-2">
+				<Button onclick={handleSave} disabled={isLoading}>
+					{isLoading ? 'Saving...' : 'Save Changes'}
+				</Button>
+				<Button variant="outline" onclick={handleCancel} disabled={isLoading}>Cancel</Button>
+			</div>
+		</CardContent>
+	</Card>
+</div>

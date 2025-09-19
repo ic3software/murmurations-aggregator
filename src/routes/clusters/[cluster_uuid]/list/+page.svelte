@@ -120,198 +120,202 @@
 	}
 </script>
 
-{#if !cluster}
-	<div class="flex h-32 items-center justify-center">
-		<div class="text-center space-y-2">
-			<AlertCircle class="h-8 w-8 text-muted-foreground mx-auto" />
-			<h3 class="text-lg font-semibold">Cluster Not Found</h3>
-			<p class="text-sm text-muted-foreground">The requested cluster could not be loaded.</p>
-		</div>
-	</div>
-{:else}
-	<div class="space-y-6">
-		<Button variant="outline" size="sm" href="/">
-			<ArrowLeft class="h-4 w-4" />
-			Back to Home
-		</Button>
-
-		<div class="flex items-center justify-between">
-			<div class="flex items-center gap-4">
-				<h1 class="text-3xl font-bold tracking-tight">{cluster.name}</h1>
+<div class="container mx-auto">
+	{#if !cluster}
+		<div class="flex h-32 items-center justify-center">
+			<div class="text-center space-y-2">
+				<AlertCircle class="h-8 w-8 text-muted-foreground mx-auto" />
+				<h3 class="text-lg font-semibold">Cluster Not Found</h3>
+				<p class="text-sm text-muted-foreground">The requested cluster could not be loaded.</p>
 			</div>
 		</div>
+	{:else}
+		<div class="space-y-6">
+			<Button variant="outline" size="sm" href="/">
+				<ArrowLeft class="h-4 w-4" />
+				Back to Home
+			</Button>
 
-		<Card>
-			<CardContent class="p-6">
-				<form
-					onsubmit={(e) => {
-						e.preventDefault();
-						reloadData(1);
-					}}
-					class="space-y-4"
-				>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div class="relative">
-							<Search
-								class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-							/>
-							<Input
-								id="nameSearch"
-								placeholder="Search by name..."
-								class="pl-10"
-								bind:value={nameSearch}
-							/>
-						</div>
-						<div class="relative">
-							<Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-							<Input
-								id="tagSearch"
-								placeholder="Search by tags (comma separated)..."
-								class="pl-10"
-								bind:value={tagSearch}
-							/>
-						</div>
-					</div>
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-4">
+					<h1 class="text-3xl font-bold tracking-tight">{cluster.name}</h1>
+				</div>
+			</div>
 
-					{#if enumsDropdown && enumsDropdown.length > 0}
-						<div class="space-y-3">
-							<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-								{#each enumsDropdown as dropdown (dropdown.field_name)}
-									<Select.Root type="single" bind:value={enumFilters[dropdown.field_name]}>
-										<Select.Trigger class="w-full">
-											{getDropdownTriggerContent(dropdown, dropdown.field_name)}
-										</Select.Trigger>
-										<Select.Content>
-											<Select.Item value="">All {dropdown.title}</Select.Item>
-											{#each dropdown.options as opt (opt.value)}
-												<Select.Item value={opt.value}>{opt.label}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
-								{/each}
+			<Card>
+				<CardContent class="p-6">
+					<form
+						onsubmit={(e) => {
+							e.preventDefault();
+							reloadData(1);
+						}}
+						class="space-y-4"
+					>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="relative">
+								<Search
+									class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								/>
+								<Input
+									id="nameSearch"
+									placeholder="Search by name..."
+									class="pl-10"
+									bind:value={nameSearch}
+								/>
+							</div>
+							<div class="relative">
+								<Tag
+									class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								/>
+								<Input
+									id="tagSearch"
+									placeholder="Search by tags (comma separated)..."
+									class="pl-10"
+									bind:value={tagSearch}
+								/>
 							</div>
 						</div>
-					{/if}
 
-					<div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2">
-						<div class="flex gap-2">
-							<Button type="submit" class="flex-shrink-0">
-								<Search class="h-4 w-4 mr-2" />
-								Search
-							</Button>
-							{#if hasActiveFilters()}
-								<Button type="button" variant="outline" onclick={clearFilters}>
-									Clear Filters
-								</Button>
-							{/if}
-						</div>
-
-						<div class="flex items-center gap-2">
-							<span class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
-							<Select.Root type="single" bind:value={sort}>
-								<Select.Trigger class="w-[160px]">
-									{triggerContent}
-								</Select.Trigger>
-								<Select.Content>
-									{#each sortOptions as option (option.value)}
-										<Select.Item value={option.value}>{option.label}</Select.Item>
+						{#if enumsDropdown && enumsDropdown.length > 0}
+							<div class="space-y-3">
+								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+									{#each enumsDropdown as dropdown (dropdown.field_name)}
+										<Select.Root type="single" bind:value={enumFilters[dropdown.field_name]}>
+											<Select.Trigger class="w-full">
+												{getDropdownTriggerContent(dropdown, dropdown.field_name)}
+											</Select.Trigger>
+											<Select.Content>
+												<Select.Item value="">All {dropdown.title}</Select.Item>
+												{#each dropdown.options as opt (opt.value)}
+													<Select.Item value={opt.value}>{opt.label}</Select.Item>
+												{/each}
+											</Select.Content>
+										</Select.Root>
 									{/each}
-								</Select.Content>
-							</Select.Root>
-						</div>
-					</div>
-				</form>
-			</CardContent>
-		</Card>
-
-		{#if !nodes || nodes.length === 0}
-			<Card>
-				<CardContent class="flex h-32 items-center justify-center">
-					<div class="text-center space-y-2">
-						<Database class="h-8 w-8 text-muted-foreground mx-auto" />
-						<h3 class="text-lg font-semibold">
-							{nameSearch.trim() || tagSearch.trim() ? 'No Results Found' : 'No Data Available'}
-						</h3>
-						<p class="text-sm text-muted-foreground">
-							{nameSearch.trim() || tagSearch.trim()
-								? 'Try adjusting your search terms.'
-								: "This cluster doesn't contain any data yet."}
-						</p>
-					</div>
-				</CardContent>
-			</Card>
-		{:else}
-			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{#each nodes as node, index (node.id)}
-					{@const nodeData = typeof node.data === 'string' ? JSON.parse(node.data) : node.data}
-					<Card class="overflow-hidden">
-						<CardHeader class="pb-3">
-							<CardTitle class="text-lg">
-								{nodeData.name || `Item #${index + 1}`}
-							</CardTitle>
-						</CardHeader>
-
-						{#if nodeData.image}
-							<div class="px-6 pb-3">
-								<img
-									src={nodeData.image}
-									alt={nodeData.name || `Item #${index + 1}`}
-									class="w-full h-48 object-contain rounded-md border"
-								/>
+								</div>
 							</div>
 						{/if}
 
-						<CardContent class="space-y-3">
-							<NodeDetail {nodeData} {schema} />
-						</CardContent>
-					</Card>
-				{/each}
-			</div>
+						<div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-2">
+							<div class="flex gap-2">
+								<Button type="submit" class="flex-shrink-0">
+									<Search class="h-4 w-4 mr-2" />
+									Search
+								</Button>
+								{#if hasActiveFilters()}
+									<Button type="button" variant="outline" onclick={clearFilters}>
+										Clear Filters
+									</Button>
+								{/if}
+							</div>
 
-			{#if meta && meta.totalPages > 1}
-				<div class="flex justify-center mt-8">
-					<Pagination.Root
-						count={meta.total}
-						perPage={meta.perPage}
-						{siblingCount}
-						bind:page={getPage, setPage}
-					>
-						{#snippet children({ pages })}
-							<Pagination.Content>
-								<Pagination.Item>
-									<Pagination.PrevButton>
-										<ChevronLeftIcon class="size-4" />
-										<span class="hidden sm:block">Previous</span>
-									</Pagination.PrevButton>
-								</Pagination.Item>
-								{#each pages as page (page.key)}
-									{#if page.type === 'ellipsis'}
-										<Pagination.Item>
-											<Pagination.Ellipsis />
-										</Pagination.Item>
-									{:else}
-										<Pagination.Item>
-											<Pagination.Link
-												onclick={() => setPage(page.value)}
-												isActive={getPage() === page.value}
-												{page}
-											>
-												{page.value}
-											</Pagination.Link>
-										</Pagination.Item>
-									{/if}
-								{/each}
-								<Pagination.Item>
-									<Pagination.NextButton>
-										<span class="hidden sm:block">Next</span>
-										<ChevronRightIcon class="size-4" />
-									</Pagination.NextButton>
-								</Pagination.Item>
-							</Pagination.Content>
-						{/snippet}
-					</Pagination.Root>
+							<div class="flex items-center gap-2">
+								<span class="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
+								<Select.Root type="single" bind:value={sort}>
+									<Select.Trigger class="w-[160px]">
+										{triggerContent}
+									</Select.Trigger>
+									<Select.Content>
+										{#each sortOptions as option (option.value)}
+											<Select.Item value={option.value}>{option.label}</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
+							</div>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
+
+			{#if !nodes || nodes.length === 0}
+				<Card>
+					<CardContent class="flex h-32 items-center justify-center">
+						<div class="text-center space-y-2">
+							<Database class="h-8 w-8 text-muted-foreground mx-auto" />
+							<h3 class="text-lg font-semibold">
+								{nameSearch.trim() || tagSearch.trim() ? 'No Results Found' : 'No Data Available'}
+							</h3>
+							<p class="text-sm text-muted-foreground">
+								{nameSearch.trim() || tagSearch.trim()
+									? 'Try adjusting your search terms.'
+									: "This cluster doesn't contain any data yet."}
+							</p>
+						</div>
+					</CardContent>
+				</Card>
+			{:else}
+				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+					{#each nodes as node, index (node.id)}
+						{@const nodeData = typeof node.data === 'string' ? JSON.parse(node.data) : node.data}
+						<Card class="overflow-hidden">
+							<CardHeader class="pb-3">
+								<CardTitle class="text-lg">
+									{nodeData.name || `Item #${index + 1}`}
+								</CardTitle>
+							</CardHeader>
+
+							{#if nodeData.image}
+								<div class="px-6 pb-3">
+									<img
+										src={nodeData.image}
+										alt={nodeData.name || `Item #${index + 1}`}
+										class="w-full h-48 object-contain rounded-md border"
+									/>
+								</div>
+							{/if}
+
+							<CardContent class="space-y-3">
+								<NodeDetail {nodeData} {schema} />
+							</CardContent>
+						</Card>
+					{/each}
 				</div>
+
+				{#if meta && meta.totalPages > 1}
+					<div class="flex justify-center mt-8">
+						<Pagination.Root
+							count={meta.total}
+							perPage={meta.perPage}
+							{siblingCount}
+							bind:page={getPage, setPage}
+						>
+							{#snippet children({ pages })}
+								<Pagination.Content>
+									<Pagination.Item>
+										<Pagination.PrevButton>
+											<ChevronLeftIcon class="size-4" />
+											<span class="hidden sm:block">Previous</span>
+										</Pagination.PrevButton>
+									</Pagination.Item>
+									{#each pages as page (page.key)}
+										{#if page.type === 'ellipsis'}
+											<Pagination.Item>
+												<Pagination.Ellipsis />
+											</Pagination.Item>
+										{:else}
+											<Pagination.Item>
+												<Pagination.Link
+													onclick={() => setPage(page.value)}
+													isActive={getPage() === page.value}
+													{page}
+												>
+													{page.value}
+												</Pagination.Link>
+											</Pagination.Item>
+										{/if}
+									{/each}
+									<Pagination.Item>
+										<Pagination.NextButton>
+											<span class="hidden sm:block">Next</span>
+											<ChevronRightIcon class="size-4" />
+										</Pagination.NextButton>
+									</Pagination.Item>
+								</Pagination.Content>
+							{/snippet}
+						</Pagination.Root>
+					</div>
+				{/if}
 			{/if}
-		{/if}
-	</div>
-{/if}
+		</div>
+	{/if}
+</div>

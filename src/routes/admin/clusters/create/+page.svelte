@@ -242,16 +242,16 @@
 	}
 </script>
 
-{#if loadingNodes}
-	<div class="my-6">
-		<p class="mb-2 text-sm text-muted-foreground">
-			Importing nodes, please wait... {loadingProgress}%
-		</p>
-		<Progress value={loadingProgress} max={100} class="w-full" />
-	</div>
-{/if}
+<div class="container mx-auto">
+	{#if loadingNodes}
+		<div class="my-6">
+			<p class="mb-2 text-sm text-muted-foreground">
+				Importing nodes, please wait... {loadingProgress}%
+			</p>
+			<Progress value={loadingProgress} max={100} class="w-full" />
+		</div>
+	{/if}
 
-<div class="mx-auto max-w-none">
 	<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
 		Create a Cluster or Directory
 	</h2>
