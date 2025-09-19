@@ -1,10 +1,12 @@
 <script lang="ts" module>
-	import DatabaseIcon from '@lucide/svelte/icons/database';
-	import GlobeIcon from '@lucide/svelte/icons/globe';
-	import KeyIcon from '@lucide/svelte/icons/key';
-	import SettingsIcon from '@lucide/svelte/icons/settings';
-	import ShieldIcon from '@lucide/svelte/icons/shield';
-	import UsersIcon from '@lucide/svelte/icons/users';
+	import {
+		DatabaseIcon,
+		GlobeIcon,
+		KeyIcon,
+		SettingsIcon,
+		ShieldIcon,
+		UsersIcon
+	} from '@lucide/svelte';
 
 	const data = {
 		navMain: [

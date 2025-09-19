@@ -1,9 +1,5 @@
 <script lang="ts" module>
-	import Boxes from '@lucide/svelte/icons/boxes';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import UserCircleIcon from '@lucide/svelte/icons/user-circle';
-	import UserPlusIcon from '@lucide/svelte/icons/user-plus';
-	import WrenchIcon from '@lucide/svelte/icons/wrench';
+	import { Boxes, SearchIcon, UserCircleIcon, UserPlusIcon, WrenchIcon } from '@lucide/svelte';
 
 	const data = {
 		navMain: [

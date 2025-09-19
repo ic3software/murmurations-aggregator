@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import { ChevronRightIcon } from '@lucide/svelte';
 
 	let {
 		items
@@ -11,7 +11,7 @@
 			url: string;
 			// This should be `Component` after @lucide/svelte updates types
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			icon: any;
+			icon?: any;
 			isActive?: boolean;
 			items?: {
 				title: string;
@@ -23,42 +23,56 @@
 
 <Sidebar.Group>
 	<Sidebar.Menu>
-		{#each items as mainItem (mainItem.title)}
-			<Collapsible.Root open={mainItem.isActive}>
-				{#snippet child({ props })}
-					<Sidebar.MenuItem {...props}>
-						<Sidebar.MenuButton tooltipContent={mainItem.title}>
-							{#snippet child({ props }: { props: Record<string, unknown> })}
-								<a href={mainItem.url} {...props}>
-									<mainItem.icon />
-									<span>{mainItem.title}</span>
-								</a>
-							{/snippet}
-						</Sidebar.MenuButton>
-						{#if mainItem.items?.length}
+		{#each items as item (item.title)}
+			{#if item.items && item.items.length > 0}
+				<Collapsible.Root open={item.isActive} class="group/collapsible">
+					{#snippet child({ props })}
+						<Sidebar.MenuItem {...props}>
 							<Collapsible.Trigger>
 								{#snippet child({ props })}
-									<Sidebar.MenuAction {...props} class="data-[state=open]:rotate-90">
-										<ChevronRightIcon />
-										<span class="sr-only">Toggle</span>
-									</Sidebar.MenuAction>
+									<Sidebar.MenuButton {...props} tooltipContent={item.title}>
+										{#if item.icon}
+											<item.icon />
+										{/if}
+										<span>{item.title}</span>
+										<ChevronRightIcon
+											class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+										/>
+									</Sidebar.MenuButton>
 								{/snippet}
 							</Collapsible.Trigger>
 							<Collapsible.Content>
 								<Sidebar.MenuSub>
-									{#each mainItem.items as subItem (subItem.title)}
+									{#each item.items ?? [] as subItem (subItem.title)}
 										<Sidebar.MenuSubItem>
-											<Sidebar.MenuSubButton href={subItem.url}>
-												<span>{subItem.title}</span>
+											<Sidebar.MenuSubButton>
+												{#snippet child({ props }: { props: Record<string, unknown> })}
+													<a href={subItem.url} {...props}>
+														<span>{subItem.title}</span>
+													</a>
+												{/snippet}
 											</Sidebar.MenuSubButton>
 										</Sidebar.MenuSubItem>
 									{/each}
 								</Sidebar.MenuSub>
 							</Collapsible.Content>
-						{/if}
-					</Sidebar.MenuItem>
-				{/snippet}
-			</Collapsible.Root>
+						</Sidebar.MenuItem>
+					{/snippet}
+				</Collapsible.Root>
+			{:else}
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton tooltipContent={item.title}>
+						{#snippet child({ props }: { props: Record<string, unknown> })}
+							<a href={item.url} {...props}>
+								{#if item.icon}
+									<item.icon />
+								{/if}
+								<span>{item.title}</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			{/if}
 		{/each}
 	</Sidebar.Menu>
 </Sidebar.Group>
