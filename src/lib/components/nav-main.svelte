@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { ChevronRightIcon } from '@lucide/svelte';
@@ -47,7 +48,11 @@
 										<Sidebar.MenuSubItem>
 											<Sidebar.MenuSubButton>
 												{#snippet child({ props }: { props: Record<string, unknown> })}
-													<a href={subItem.url} {...props}>
+													<a
+														href={subItem.url}
+														{...props}
+														data-active={page.url.pathname === subItem.url ? 'true' : 'false'}
+													>
 														<span>{subItem.title}</span>
 													</a>
 												{/snippet}
@@ -63,7 +68,11 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton tooltipContent={item.title}>
 						{#snippet child({ props }: { props: Record<string, unknown> })}
-							<a href={item.url} {...props}>
+							<a
+								href={item.url}
+								{...props}
+								data-active={page.url.pathname === item.url ? 'true' : 'false'}
+							>
 								{#if item.icon}
 									<item.icon />
 								{/if}
