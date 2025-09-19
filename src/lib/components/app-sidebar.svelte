@@ -33,7 +33,7 @@
 				]
 			},
 			{
-				title: 'Account',
+				title: 'My Account',
 				url: '#',
 				icon: UserCircleIcon,
 				requiresToken: true,

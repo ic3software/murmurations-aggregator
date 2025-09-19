@@ -118,7 +118,7 @@
 										>How can I access my account from another device?</Accordion.Trigger
 									>
 									<Accordion.Content>
-										Select <b>Profile</b> from the menu and then click the
+										Select <b>Account > Account Settings</b> from the menu and then click the
 										<b>Generate Login Token</b> button. Copy the link and open it in a browser on another
 										device to access your account.
 									</Accordion.Content>
