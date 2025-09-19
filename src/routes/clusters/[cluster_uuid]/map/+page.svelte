@@ -211,8 +211,8 @@
 					<div class="relative z-0 w-full h-[700px]">
 						<Map
 							options={{
-								center: [46.603354, 1.888334],
-								zoom: 6
+								center: [cluster.centerLat ?? 46.603354, cluster.centerLon ?? 1.888334],
+								zoom: cluster.scale ?? 6
 							}}
 						>
 							<TileLayer url={'https://tile.openstreetmap.org/{z}/{x}/{y}.png'} />
