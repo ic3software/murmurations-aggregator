@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { refreshToken } from '$lib/api/auth-request';
+	import { getUser } from '$lib/api/users';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -17,6 +18,7 @@
 		rootTokenStore,
 		selectedDelegationStore
 	} from '$lib/stores/token-store';
+	import { userStore } from '$lib/stores/user-store';
 	import type { CryptoKeyPair } from '$lib/types/crypto';
 	import type { Delegation } from '$lib/types/delegation';
 	import { checkDbStatus } from '$lib/utils/check-db-status';
@@ -307,6 +309,30 @@
 			}
 		}
 	}
+
+	onMount(() => {
+		const unsubscribe = currentTokenStore.subscribe(async (token) => {
+			currentToken = token;
+
+			if (currentToken) {
+				try {
+					const { data: userData, success } = await getUser();
+					if (success && userData) {
+						userStore.set(userData);
+					} else {
+						userStore.set(null);
+					}
+				} catch (err) {
+					console.error('Failed to fetch user:', err);
+					userStore.set(null);
+				}
+			} else {
+				userStore.set(null);
+			}
+		});
+
+		return unsubscribe;
+	});
 </script>
 
 <svelte:head>

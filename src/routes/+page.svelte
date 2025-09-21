@@ -1,41 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getUser } from '$lib/api/users';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import { currentTokenStore } from '$lib/stores/token-store';
-	import type { User } from '$lib/types/user';
 	import { formatDate } from '$lib/utils/date';
 	import { CircleAlert } from '@lucide/svelte';
 	import type { Page } from '@sveltejs/kit';
-
-	import { onMount } from 'svelte';
 
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let currentToken: string | null = $state(null);
-	let user: User | null = $state(null);
 	let isInitialized = $state(false);
-
-	async function updateUserData(token: string | null) {
-		currentToken = token;
-		if (!token) {
-			user = null;
-			return;
-		}
-
-		try {
-			const { data: userData, success } = await getUser();
-			if (success && userData) {
-				user = userData;
-			}
-		} catch (error) {
-			console.error('Failed to fetch user data:', error);
-			user = null;
-		}
-	}
 
 	interface CustomPageState extends Page {
 		state: {
@@ -46,18 +22,6 @@
 	let typedPage = page as unknown as CustomPageState;
 
 	const { clusters } = data;
-
-	onMount(() => {
-		const unsubscribe = currentTokenStore.subscribe(async (value) => {
-			await updateUserData(value);
-		});
-
-		setTimeout(() => {
-			isInitialized = true;
-		}, 200);
-
-		return unsubscribe;
-	});
 </script>
 
 {#if typedPage?.state?.message}
@@ -77,9 +41,7 @@
 					? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200 mb-4'
 					: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200 mb-4'}
 			>
-				{#if currentToken}
-					<AlertTitle>Welcome{user?.name ? `, ${user.name}` : ''}!</AlertTitle>
-				{:else}
+				{#if !currentToken}
 					<AlertTitle
 						>You have not registered yet. <a href="/register" class="underline hover:no-underline"
 							>Click here to register</a
