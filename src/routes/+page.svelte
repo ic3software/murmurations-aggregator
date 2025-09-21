@@ -74,8 +74,8 @@
 		<div class="mb-6">
 			<Alert
 				class={currentToken
-					? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200'
-					: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200'}
+					? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200 mb-4'
+					: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200 mb-4'}
 			>
 				{#if currentToken}
 					<AlertTitle>Welcome{user?.name ? `, ${user.name}` : ''}!</AlertTitle>
@@ -86,7 +86,11 @@
 						>.</AlertTitle
 					>
 				{/if}
-				<AlertDescription>
+			</Alert>
+			<Alert
+				class="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
+			>
+				<AlertDescription class="mt-4">
 					<Accordion.Root type="single">
 						<Accordion.Item value="item-1" class="border-none">
 							<Accordion.Trigger>What is MurmurMaps?</Accordion.Trigger>
@@ -94,8 +98,8 @@
 								With MurmurMaps you can:
 								<ul class="list-disc list-inside">
 									<li class="mt-2">
-										Curate clusters of open, decentralized data from the Murmurations index as maps
-										or directories
+										Create maps and directories by curating clusters of open, decentralized data
+										from the Murmurations index
 									</li>
 									<li>
 										Create and manage your own open data sets for inclusion in the Murmurations
@@ -105,6 +109,28 @@
 								</ul>
 							</Accordion.Content>
 						</Accordion.Item>
+						<Accordion.Item value="item-2" class="border-none">
+							<Accordion.Trigger>How do I create my own maps and directories?</Accordion.Trigger>
+							<Accordion.Content>
+								MurmurMaps is open source software. You can find the source code on <a
+									href="https://github.com/MurmurationsNetwork/MurmurMaps"
+									target="_blank"
+									class="text-primary hover:text-primary/80 underline">GitHub</a
+								>. Download the code and deploy it to a cloud provider (we use Cloudflare).
+							</Accordion.Content>
+						</Accordion.Item>
+						{#if !currentToken}
+							<Accordion.Item value="item-3" class="border-none">
+								<Accordion.Trigger>Why should I register?</Accordion.Trigger>
+								<Accordion.Content>
+									Registering allows you to save your data (a single data item is called a profile)
+									to MurmurMaps so it can be indexed in the Murmurations index and made available to
+									others to create maps and directories. Go to <b>Tools > Profile Generator</b> to
+									create a single profile or <b>Tools > Batch Importer</b> to import multiple profiles
+									into MurmurMaps from a CSV file.
+								</Accordion.Content>
+							</Accordion.Item>
+						{/if}
 					</Accordion.Root>
 				</AlertDescription>
 			</Alert>
