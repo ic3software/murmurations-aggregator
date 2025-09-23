@@ -3,7 +3,7 @@
 	import { addEmail, deleteEmail, getEmails } from '$lib/api/emails';
 	import { deletePublicKey, getPublicKeys } from '$lib/api/keys';
 	import { createToken, deleteToken, getTokens } from '$lib/api/tokens';
-	import { resetEmail } from '$lib/api/users';
+	import { resetEmail, updateSiteHints } from '$lib/api/users';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -58,10 +58,12 @@
 	let currentUser: User | null = $state(null);
 	let emailResetEnabled = $state(false);
 	let isLoading = $state(true);
+	let siteHintsEnabled = $state(false);
 
 	userStore.subscribe((user) => {
 		currentUser = user;
 		emailResetEnabled = currentUser ? currentUser.emailReset : false;
+		siteHintsEnabled = currentUser ? currentUser.enableSiteHints : true;
 	});
 
 	async function handleAddEmail() {
@@ -212,6 +214,26 @@
 				toast.error(
 					'An unexpected error occurred while updating email reset setting: ' + parsed.message
 				);
+			}
+		}
+	}
+
+	async function toggleSiteHints(checked: boolean) {
+		try {
+			const { success, error } = await updateSiteHints(checked);
+			if (success) {
+				siteHintsEnabled = checked;
+				userStore.set({ ...currentUser, enableSiteHints: checked } as User);
+				toast.success(checked ? 'Site hints enabled' : 'Site hints disabled');
+			} else {
+				toast.error(error || 'Failed to update site hints setting.');
+			}
+		} catch (error) {
+			const parsed = parseError(error);
+			if (parsed.type === 'UNSUPPORTED_ALGORITHM') {
+				errorMessage = parsed.message;
+			} else {
+				toast.error('An unexpected error occurred while updating site hints setting: ' + parsed.message);
 			}
 		}
 	}
@@ -512,6 +534,28 @@
 							<a class="text-primary hover:underline" href="{window.location.origin}/admin/email">
 								{window.location.origin}/admin/email
 							</a>
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+
+			<!-- Site Hints Settings -->
+			<Card>
+				<CardHeader>
+					<CardTitle>Site Hints Settings</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						<div class="flex items-center space-x-2">
+							<Switch
+								id="site-hints"
+								checked={siteHintsEnabled}
+								onCheckedChange={toggleSiteHints}
+							/>
+							<Label for="site-hints">Enable Site Hints</Label>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							When enabled, the site will provide helpful hints and tips to improve your experience.
 						</p>
 					</div>
 				</CardContent>

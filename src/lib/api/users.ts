@@ -28,3 +28,6 @@ export const resetEmail = (emailReset: boolean, customFetch?: typeof fetch) =>
 		{ emailReset },
 		customFetch
 	);
+
+export const updateSiteHints = (enableSiteHints: boolean, customFetch?: typeof fetch) =>
+	request<{ enableSiteHints: boolean }, undefined>('/api/users/site-hints', 'PATCH', { enableSiteHints }, customFetch);
