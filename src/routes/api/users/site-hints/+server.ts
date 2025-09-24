@@ -1,5 +1,4 @@
 import { getDB } from '$lib/server/db';
-import { doesUserIdHaveEmail } from '$lib/server/models/email';
 import { getUserIdByPublicKey } from '$lib/server/models/public-key';
 import { updateUserSiteHints } from '$lib/server/models/user';
 import { authenticateUcanRequest } from '$lib/utils/ucan-utils.server';
@@ -35,14 +34,6 @@ export const PATCH: RequestHandler = async ({
 
 		if (typeof enableSiteHints !== 'boolean') {
 			return json({ error: 'Invalid enableSiteHints value', success: false }, { status: 400 });
-		}
-
-		const hasEmail = await doesUserIdHaveEmail(db, userByPublicKey.userId);
-		if (!hasEmail) {
-			return json(
-				{ error: 'You need to add an email to your account', success: false },
-				{ status: 400 }
-			);
 		}
 
 		await updateUserSiteHints(db, userByPublicKey.userId, enableSiteHints);

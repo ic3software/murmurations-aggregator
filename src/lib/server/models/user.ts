@@ -25,7 +25,11 @@ export async function doesNameExist(db: DrizzleD1Database, name: string): Promis
 
 export async function getByUserId(db: DrizzleD1Database, id: number) {
 	return await db
-		.select({ name: users.name, emailReset: users.emailReset, enableSiteHints: users.enableSiteHints })
+		.select({
+			name: users.name,
+			emailReset: users.emailReset,
+			enableSiteHints: users.enableSiteHints
+		})
 		.from(users)
 		.where(eq(users.id, id))
 		.get();

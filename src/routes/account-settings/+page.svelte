@@ -233,7 +233,9 @@
 			if (parsed.type === 'UNSUPPORTED_ALGORITHM') {
 				errorMessage = parsed.message;
 			} else {
-				toast.error('An unexpected error occurred while updating site hints setting: ' + parsed.message);
+				toast.error(
+					'An unexpected error occurred while updating site hints setting: ' + parsed.message
+				);
 			}
 		}
 	}
