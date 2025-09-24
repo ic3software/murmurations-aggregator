@@ -3,7 +3,7 @@
 	import { addEmail, deleteEmail, getEmails } from '$lib/api/emails';
 	import { deletePublicKey, getPublicKeys } from '$lib/api/keys';
 	import { createToken, deleteToken, getTokens } from '$lib/api/tokens';
-	import { getUser, resetEmail } from '$lib/api/users';
+	import { resetEmail, updateSiteHints } from '$lib/api/users';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -17,7 +17,9 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
+	import { userStore } from '$lib/stores/user-store';
 	import type { PageLoginToken } from '$lib/types/token';
+	import type { User } from '$lib/types/user';
 	import { isValidEmail } from '$lib/utils/validators';
 	import type { Page } from '@sveltejs/kit';
 
@@ -51,10 +53,18 @@
 	let currentPublicKey = $state<string>('');
 	let publicKeyList = $state<string[]>([]);
 	let errorMessage = $state('');
-	let userName = $state('');
 	let tokens = $state<PageLoginToken[]>([]);
 	let isGeneratingLink = $state(false);
+	let currentUser: User | null = $state(null);
 	let emailResetEnabled = $state(false);
+	let isLoading = $state(true);
+	let siteHintsEnabled = $state(false);
+
+	userStore.subscribe((user) => {
+		currentUser = user;
+		emailResetEnabled = currentUser ? currentUser.emailReset : false;
+		siteHintsEnabled = currentUser ? currentUser.enableSiteHints : true;
+	});
 
 	async function handleAddEmail() {
 		if (!email) return;
@@ -208,50 +218,61 @@
 		}
 	}
 
+	async function toggleSiteHints(checked: boolean) {
+		try {
+			const { success, error } = await updateSiteHints(checked);
+			if (success) {
+				siteHintsEnabled = checked;
+				userStore.set({ ...currentUser, enableSiteHints: checked } as User);
+				toast.success(checked ? 'Site hints enabled' : 'Site hints disabled');
+			} else {
+				toast.error(error || 'Failed to update site hints setting.');
+			}
+		} catch (error) {
+			const parsed = parseError(error);
+			if (parsed.type === 'UNSUPPORTED_ALGORITHM') {
+				errorMessage = parsed.message;
+			} else {
+				toast.error(
+					'An unexpected error occurred while updating site hints setting: ' + parsed.message
+				);
+			}
+		}
+	}
+
 	onMount(async () => {
 		try {
-			const userResult = await getUser();
+			const [emailsResult, keysResult, tokensResult] = await Promise.all([
+				getEmails(),
+				getPublicKeys(),
+				getTokens()
+			]);
 
-			if (userResult.success) {
-				userName = userResult.data?.name || '';
-				emailResetEnabled = userResult.data?.emailReset || false;
-
-				const [emailsResult, keysResult, tokensResult] = await Promise.all([
-					getEmails(),
-					getPublicKeys(),
-					getTokens()
-				]);
-
-				if (emailsResult.success) {
-					emailList = emailsResult.data?.map((item: { email: string }) => item.email) || [];
-				} else {
-					toast.error('Failed to fetch email: ' + emailsResult.error);
-				}
-
-				if (keysResult.success) {
-					publicKeyList =
-						keysResult.data?.publicKeys?.map((item: { publicKey: string }) => item.publicKey) || [];
-					currentPublicKey = keysResult.data?.currentPublicKey || '';
-				} else {
-					toast.error('Failed to fetch keys: ' + keysResult.error);
-				}
-
-				if (tokensResult.success) {
-					tokens = tokensResult?.data?.map((item: { token: string; expiresAt: number }) => {
-						return {
-							token: item.token,
-							expiresAt: item.expiresAt,
-							expiresIn: Math.max(0, Math.floor((item.expiresAt * 1000 - Date.now()) / 1000))
-						};
-					});
-					startTokenCountdown();
-				} else {
-					toast.error('Failed to fetch tokens: ' + tokensResult.error);
-				}
-			} else if (userResult.error === 'User not found') {
-				toast.error('User not found');
+			if (emailsResult.success) {
+				emailList = emailsResult.data?.map((item: { email: string }) => item.email) || [];
 			} else {
-				toast.error('Failed to fetch user name: ' + userResult.error);
+				toast.error('Failed to fetch email: ' + emailsResult.error);
+			}
+
+			if (keysResult.success) {
+				publicKeyList =
+					keysResult.data?.publicKeys?.map((item: { publicKey: string }) => item.publicKey) || [];
+				currentPublicKey = keysResult.data?.currentPublicKey || '';
+			} else {
+				toast.error('Failed to fetch keys: ' + keysResult.error);
+			}
+
+			if (tokensResult.success) {
+				tokens = tokensResult?.data?.map((item: { token: string; expiresAt: number }) => {
+					return {
+						token: item.token,
+						expiresAt: item.expiresAt,
+						expiresIn: Math.max(0, Math.floor((item.expiresAt * 1000 - Date.now()) / 1000))
+					};
+				});
+				startTokenCountdown();
+			} else {
+				toast.error('Failed to fetch tokens: ' + tokensResult.error);
 			}
 		} catch (error) {
 			const parsed = parseError(error);
@@ -260,6 +281,8 @@
 			} else {
 				toast.error('An unexpected error occurred: ' + parsed.message);
 			}
+		} finally {
+			isLoading = false;
 		}
 	});
 
@@ -321,7 +344,11 @@
 		</Alert>
 	{/if}
 
-	{#if !userName}
+	{#if isLoading}
+		<div class="flex justify-center items-center py-8">
+			<div class="text-muted-foreground">Loading...</div>
+		</div>
+	{:else if !currentUser}
 		{#if !errorMessage.includes('Algorithm: Unrecognized name')}
 			<Card>
 				<CardHeader>
@@ -341,8 +368,6 @@
 		{/if}
 	{:else}
 		<div class="space-y-8">
-			<h1 class="text-3xl font-bold">Welcome, {userName}!</h1>
-
 			<!-- Public Keys Section -->
 			<Card>
 				<CardHeader>
@@ -511,6 +536,28 @@
 							<a class="text-primary hover:underline" href="{window.location.origin}/admin/email">
 								{window.location.origin}/admin/email
 							</a>
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+
+			<!-- Site Hints Settings -->
+			<Card>
+				<CardHeader>
+					<CardTitle>Site Hints Settings</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-4">
+						<div class="flex items-center space-x-2">
+							<Switch
+								id="site-hints"
+								checked={siteHintsEnabled}
+								onCheckedChange={toggleSiteHints}
+							/>
+							<Label for="site-hints">Enable Site Hints</Label>
+						</div>
+						<p class="text-sm text-muted-foreground">
+							When enabled, the site will provide helpful hints and tips to improve your experience.
 						</p>
 					</div>
 				</CardContent>

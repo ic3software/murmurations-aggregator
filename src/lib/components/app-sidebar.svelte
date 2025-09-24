@@ -64,6 +64,8 @@
 
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { userStore } from '$lib/stores/user-store';
+	import type { User } from '$lib/types/user';
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 
 	import type { ComponentProps } from 'svelte';
@@ -75,6 +77,12 @@
 		currentToken = null,
 		...restProps
 	}: ComponentProps<typeof Sidebar.Root> & { currentToken?: string | null } = $props();
+
+	let currentUser: User | null = $state(null);
+
+	userStore.subscribe((user) => {
+		currentUser = user;
+	});
 
 	const filteredNavMain = $derived(
 		data.navMain.filter((item) => {
@@ -107,6 +115,13 @@
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
+		{#if currentUser}
+			<div class="px-3 py-3 mb-4 bg-sidebar-accent/70 border border-sidebar-border/50">
+				<span class="text-base font-semibold text-sidebar-foreground">
+					Welcome, {currentUser.name ?? ''}
+				</span>
+			</div>
+		{/if}
 		<NavMain items={filteredNavMain} />
 	</Sidebar.Content>
 	<Sidebar.Rail />

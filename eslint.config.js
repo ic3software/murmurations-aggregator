@@ -29,7 +29,8 @@ export default ts.config(
 	{
 		files: ['**/*.svelte'],
 		rules: {
-			'svelte/valid-compile': 'off'
+			'svelte/valid-compile': 'off',
+			'svelte/no-navigation-without-resolve': 'off'
 		},
 		languageOptions: {
 			parserOptions: {

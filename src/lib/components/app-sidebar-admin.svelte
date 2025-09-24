@@ -46,6 +46,8 @@
 
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { userStore } from '$lib/stores/user-store';
+	import type { User } from '$lib/types/user';
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 
 	import type { ComponentProps } from 'svelte';
@@ -53,6 +55,12 @@
 	import NavMain from './nav-main.svelte';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
+
+	let currentUser: User | null = $state(null);
+
+	userStore.subscribe((user) => {
+		currentUser = user;
+	});
 </script>
 
 <Sidebar.Root {...restProps} bind:ref>
@@ -77,6 +85,13 @@
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
+		{#if currentUser}
+			<div class="px-3 py-3 mb-4 bg-sidebar-accent/70 border border-sidebar-border/50">
+				<span class="text-base font-semibold text-sidebar-foreground">
+					Welcome, {currentUser.name ?? ''}
+				</span>
+			</div>
+		{/if}
 		<NavMain items={data.navMain} />
 	</Sidebar.Content>
 	<Sidebar.Rail />

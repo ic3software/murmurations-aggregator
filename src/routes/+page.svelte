@@ -1,41 +1,19 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { getUser } from '$lib/api/users';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { currentTokenStore } from '$lib/stores/token-store';
-	import type { User } from '$lib/types/user';
+	import { userStore } from '$lib/stores/user-store';
 	import { formatDate } from '$lib/utils/date';
 	import { CircleAlert } from '@lucide/svelte';
 	import type { Page } from '@sveltejs/kit';
-
-	import { onMount } from 'svelte';
 
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let currentToken: string | null = $state(null);
-	let user: User | null = $state(null);
-	let isInitialized = $state(false);
-
-	async function updateUserData(token: string | null) {
-		currentToken = token;
-		if (!token) {
-			user = null;
-			return;
-		}
-
-		try {
-			const { data: userData, success } = await getUser();
-			if (success && userData) {
-				user = userData;
-			}
-		} catch (error) {
-			console.error('Failed to fetch user data:', error);
-			user = null;
-		}
-	}
+	let enableSiteHints: boolean = $state(true);
 
 	interface CustomPageState extends Page {
 		state: {
@@ -47,16 +25,12 @@
 
 	const { clusters } = data;
 
-	onMount(() => {
-		const unsubscribe = currentTokenStore.subscribe(async (value) => {
-			await updateUserData(value);
-		});
+	currentTokenStore.subscribe((value) => {
+		currentToken = value;
+	});
 
-		setTimeout(() => {
-			isInitialized = true;
-		}, 200);
-
-		return unsubscribe;
+	userStore.subscribe((value) => {
+		enableSiteHints = value?.enableSiteHints ?? true;
 	});
 </script>
 
@@ -70,23 +44,19 @@
 {/if}
 
 <div class="container mx-auto">
-	{#if isInitialized}
-		<div class="mb-6">
+	<div class="mb-6">
+		{#if !currentToken}
 			<Alert
-				class={currentToken
-					? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200 mb-4'
-					: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200 mb-4'}
+				class="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200 mb-4"
 			>
-				{#if currentToken}
-					<AlertTitle>Welcome{user?.name ? `, ${user.name}` : ''}!</AlertTitle>
-				{:else}
-					<AlertTitle
-						>You have not registered yet. <a href="/register" class="underline hover:no-underline"
-							>Click here to register</a
-						>.</AlertTitle
-					>
-				{/if}
+				<AlertTitle
+					>You have not registered yet. <a href="/register" class="underline hover:no-underline"
+						>Click here to register</a
+					>.</AlertTitle
+				>
 			</Alert>
+		{/if}
+		{#if enableSiteHints}
 			<Alert
 				class="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
 			>
@@ -134,8 +104,8 @@
 					</Accordion.Root>
 				</AlertDescription>
 			</Alert>
-		</div>
-	{/if}
+		{/if}
+	</div>
 
 	{#if clusters.length === 0}
 		<div class="flex h-32 items-center justify-center">

@@ -25,7 +25,11 @@ export async function doesNameExist(db: DrizzleD1Database, name: string): Promis
 
 export async function getByUserId(db: DrizzleD1Database, id: number) {
 	return await db
-		.select({ name: users.name, emailReset: users.emailReset })
+		.select({
+			name: users.name,
+			emailReset: users.emailReset,
+			enableSiteHints: users.enableSiteHints
+		})
 		.from(users)
 		.where(eq(users.id, id))
 		.get();
@@ -37,6 +41,14 @@ export async function updateUserEmailReset(
 	emailReset: boolean
 ) {
 	return await db.update(users).set({ emailReset }).where(eq(users.id, userId)).run();
+}
+
+export async function updateUserSiteHints(
+	db: DrizzleD1Database,
+	userId: number,
+	enableSiteHints: boolean
+) {
+	return await db.update(users).set({ enableSiteHints }).where(eq(users.id, userId)).run();
 }
 
 export async function getUsersWithRoleNames(db: DrizzleD1Database) {
