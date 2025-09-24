@@ -87,7 +87,16 @@
 		if (publicRoutes.includes(path)) return true;
 
 		// Support /clusters/*/map and /clusters/*/list
-		return path.startsWith('/clusters/') && (path.endsWith('/map') || path.endsWith('/list'));
+		if (path.startsWith('/clusters/') && (path.endsWith('/map') || path.endsWith('/list'))) {
+			return true;
+		}
+
+		// Support /clusters/*/nodes/*
+		if (/^\/clusters\/[^/]+\/nodes\/[^/]+/.test(path)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	async function updateCurrentToken(
