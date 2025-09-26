@@ -16,7 +16,6 @@ export async function request<TBody, TResponse>(
 ): Promise<{
 	data: TResponse;
 	success: boolean;
-	status?: number;
 	message?: string;
 	error?: string;
 	meta?: Meta | IndexNodeMeta;
@@ -56,7 +55,6 @@ export async function request<TBody, TResponse>(
 			return {
 				data: null as unknown as TResponse,
 				success: false,
-				status: response.status,
 				message: json?.message,
 				error: json?.error,
 				meta: json?.meta,
