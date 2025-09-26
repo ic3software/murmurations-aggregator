@@ -112,14 +112,13 @@ SELECT
 FROM capabilities;
 --> statement-breakpoint
 INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
-SELECT 
-  (SELECT id FROM roles WHERE name = 'User'),
-  id
-FROM capabilities
-WHERE namespace = 'profiles' OR namespace = 'users' OR namespace = 'emails';
+SELECT r.id, c.id
+FROM roles r
+JOIN capabilities c
+WHERE r.name = 'User'
+  AND c.namespace IN ('profiles', 'users', 'emails', 'batches', 'keys', 'tokens');
 --> statement-breakpoint
 INSERT INTO `user_roles` (`user_id`, `role_id`)
-SELECT 
-  id,
-  1
-FROM users;
+SELECT u.id, r.id
+FROM users u
+JOIN roles r ON r.name = 'Root';
