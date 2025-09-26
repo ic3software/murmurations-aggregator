@@ -16,7 +16,11 @@ export async function toDidableKey(keypair: CryptoKeyPair): Promise<DidableKey> 
 	return {
 		jwtAlg: 'EdDSA',
 		sign: async (data: Uint8Array) => {
-			const sig = await crypto.subtle.sign({ name: 'Ed25519' }, privateKey, data);
+			const buffer: ArrayBuffer =
+				data.byteOffset === 0 && data.byteLength === data.buffer.byteLength
+					? (data.buffer as ArrayBuffer)
+					: data.slice().buffer;
+			const sig = await crypto.subtle.sign({ name: 'Ed25519' }, privateKey, buffer);
 			return new Uint8Array(sig);
 		},
 		did: () => did
