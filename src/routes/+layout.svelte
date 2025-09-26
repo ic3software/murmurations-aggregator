@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { refreshToken } from '$lib/api/auth-request';
 	import { getUser } from '$lib/api/users';
@@ -80,7 +80,9 @@
 		'/profile-generator',
 		'/batch-importer',
 		'/index-explorer',
-		'/index-updater'
+		'/index-updater',
+		'/no-access',
+		'/admin/no-access'
 	];
 
 	function isPublicRoute(path: string): boolean {
@@ -221,10 +223,18 @@
 			selectedDelegationStore.set(selectedDelegation);
 
 			await refreshTokenIfNeeded(keypair);
-			await verifyAccessIfNeeded(keypair);
+			await verifyAccessIfNeeded(keypair, page.url.pathname);
 		};
 
 		init();
+	});
+
+	beforeNavigate(async (nav) => {
+		if (!nav.to) return;
+		if (nav.to.url.pathname === page.url.pathname) return;
+
+		const keypair = await getOrCreateKeyPair();
+		await verifyAccessIfNeeded(keypair, nav.to?.url.pathname ?? '');
 	});
 
 	async function refreshTokenIfNeeded(keypair: CryptoKeyPair) {
@@ -253,9 +263,7 @@
 		}
 	}
 
-	async function verifyAccessIfNeeded(keypair: CryptoKeyPair) {
-		const currentPath = page.url.pathname as string;
-
+	async function verifyAccessIfNeeded(keypair: CryptoKeyPair, currentPath: string) {
 		if (rootToken && (currentPath === '/register' || currentPath === '/login')) {
 			goto('/');
 			return;
@@ -283,9 +291,11 @@
 			const scheme = 'page';
 			let hierPart = currentPath;
 			let namespace = 'client';
+			let isAdminRoute = false;
 
 			let pathToCheck = currentPath;
 			if (currentPath.includes('/admin')) {
+				isAdminRoute = true;
 				namespace = 'admin';
 				hierPart = currentPath.replace('/admin', '') || '/';
 				pathToCheck = currentPath.replace(/^\/admin/, '') || '/';
@@ -304,7 +314,7 @@
 			);
 
 			if (!isVerified) {
-				goto('/register');
+				goto(isAdminRoute ? '/admin/no-access' : '/no-access');
 				return;
 			}
 		}
@@ -467,7 +477,7 @@
 						</Breadcrumb.Root>
 					</div>
 				</header>
-				<div class="flex flex-1 flex-col gap-4 p-4">
+				<div class="flex flex-1 flex-col gap-4">
 					{@render children()}
 				</div>
 			</Sidebar.Inset>
