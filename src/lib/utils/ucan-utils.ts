@@ -79,6 +79,7 @@ export async function verifyUcanWithCapabilities(
 	if (result.ok) {
 		return result.value;
 	} else {
+		console.log('verifyUcanWithCapabilities - Verification failed:', result?.error);
 		return false;
 	}
 }

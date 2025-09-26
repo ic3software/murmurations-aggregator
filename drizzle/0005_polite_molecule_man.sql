@@ -116,9 +116,4 @@ SELECT r.id, c.id
 FROM roles r
 JOIN capabilities c
 WHERE r.name = 'User'
-  AND c.namespace IN ('profiles', 'users', 'emails', 'batches', 'keys', 'tokens');
---> statement-breakpoint
-INSERT INTO `user_roles` (`user_id`, `role_id`)
-SELECT u.id, r.id
-FROM users u
-JOIN roles r ON r.name = 'Root';
+  AND c.namespace IN ('client', 'profiles', 'users', 'emails', 'batches', 'keys', 'tokens');
