@@ -11,7 +11,7 @@
 	import { AlertTriangle, ArrowLeft, Home } from '@lucide/svelte';
 
 	function goHome() {
-		goto('/admin');
+		goto('/');
 	}
 
 	function goBack() {
