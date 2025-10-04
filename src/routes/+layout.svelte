@@ -54,7 +54,9 @@
 	}
 
 	const hiddenRoutes = ['/login', '/register'];
-	const showMenubar = $derived(!hiddenRoutes.includes(page.url.pathname));
+	const showMenubar = $derived(
+		!hiddenRoutes.includes(page.url.pathname) && !page.url.pathname.endsWith('/embed')
+	);
 
 	// Subscribe to stores
 	let rootToken: string | null = $state(null);
@@ -90,8 +92,11 @@
 	function isPublicRoute(path: string): boolean {
 		if (publicRoutes.includes(path)) return true;
 
-		// Support /clusters/*/map and /clusters/*/list
-		if (path.startsWith('/clusters/') && (path.endsWith('/map') || path.endsWith('/list'))) {
+		// Support /clusters/*/map, /clusters/*/list, and /clusters/*/embed
+		if (
+			path.startsWith('/clusters/') &&
+			(path.endsWith('/map') || path.endsWith('/list') || path.endsWith('/embed'))
+		) {
 			return true;
 		}
 
