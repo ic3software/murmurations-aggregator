@@ -7,6 +7,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Popover from '$lib/components/ui/popover';
 	import * as Select from '$lib/components/ui/select';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { Map, MarkerCluster, TileLayer } from '$lib/svelte-leaflet';
 	import type { ClusterPublic } from '$lib/types/cluster';
 	import type { DropdownField } from '$lib/types/enum-dropdown';
@@ -34,6 +35,7 @@
 	let iframeWidth: string = $state('100%');
 	let iframeHeight: string = $state('600');
 	let iframeBorder: string = $state('0');
+	let showSearchBar: boolean = $state(true);
 
 	function getDropdownTriggerContent(dropdown: DropdownField, fieldName: string) {
 		const selectedValue = enumFilters[fieldName];
@@ -128,7 +130,11 @@
 
 	function getIframeCode() {
 		const embedUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/clusters/${cluster.clusterUuid}/embed`;
-		return `<iframe src="${embedUrl}" width="${iframeWidth}" height="${iframeHeight}" frameborder="${iframeBorder}" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+		const urlParams = new SvelteURLSearchParams();
+		urlParams.set('showSearch', showSearchBar.toString());
+
+		const fullUrl = `${embedUrl}?${urlParams.toString()}`;
+		return `<iframe src="${fullUrl}" width="${iframeWidth}" height="${iframeHeight}" frameborder="${iframeBorder}" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
 	}
 
 	async function copyIframeCode() {
@@ -187,6 +193,10 @@
 								<div class="grid grid-cols-3 items-center gap-4">
 									<Label for="border">Border</Label>
 									<Input id="border" bind:value={iframeBorder} class="col-span-2 h-8" />
+								</div>
+								<div class="flex items-center justify-between">
+									<Label for="show-search">Show Search Bar</Label>
+									<Switch id="show-search" bind:checked={showSearchBar} />
 								</div>
 							</div>
 							<div class="space-y-2">

@@ -7,11 +7,16 @@ export const ssr = false;
 
 export const load: PageLoad = async ({ fetch, params, url }) => {
 	const clusterUuid = params.cluster_uuid;
+
+	const showSearchParam = url.searchParams.get('showSearch');
+	const showSearch = showSearchParam !== 'false';
+
 	const nameSearch = url.searchParams.get('name') || '';
 	const tagSearch = url.searchParams.get('tags') || '';
 	const enumFilters = Object.fromEntries(
 		Array.from(url.searchParams.entries()).filter(
-			([key]) => key !== 'page' && key !== 'name' && key !== 'tags' && key !== 'sort'
+			([key]) =>
+				key !== 'page' && key !== 'name' && key !== 'tags' && key !== 'sort' && key !== 'showSearch'
 		)
 	);
 
@@ -32,6 +37,7 @@ export const load: PageLoad = async ({ fetch, params, url }) => {
 		enumsDropdown,
 		nameSearch,
 		tagSearch,
-		enumFilters
+		enumFilters,
+		showSearch
 	};
 };
