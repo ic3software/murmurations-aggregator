@@ -258,7 +258,7 @@
 	async function refreshTokenIfNeeded(keypair: CryptoKeyPair) {
 		let isExpired = false;
 		if (rootToken) {
-			isExpired = await isUcanExpired(rootToken);
+			isExpired = isUcanExpired(rootToken);
 		}
 
 		if (!rootToken || isExpired) {
@@ -290,7 +290,7 @@
 		if (rootToken) {
 			let isExpired = false;
 			if (currentToken) {
-				isExpired = await isUcanExpired(currentToken);
+				isExpired = isUcanExpired(currentToken);
 			}
 
 			if (!currentToken || isExpired) {
