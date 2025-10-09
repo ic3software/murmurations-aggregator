@@ -267,6 +267,7 @@
 			return;
 		}
 
+		// Check if the current token is expired and refresh it if needed
 		if (rootToken) {
 			let isExpired = false;
 			if (currentToken) {
@@ -280,41 +281,52 @@
 			}
 		}
 
-		if (!isPublicRoute(currentPath)) {
-			if (!rootToken || !currentToken) {
-				goto('/register');
-				return;
-			}
+		// Public routes don't need to be verified
+		if (isPublicRoute(currentPath)) {
+			return;
+		}
 
-			const scheme = 'page';
-			let hierPart = currentPath;
-			let namespace = 'client';
-			let isAdminRoute = false;
+		if (!rootToken || !currentToken) {
+			goto('/register');
+			return;
+		}
 
-			let pathToCheck = currentPath;
-			if (currentPath.includes('/admin')) {
-				isAdminRoute = true;
-				namespace = 'admin';
-				hierPart = currentPath.replace('/admin', '') || '/';
-				pathToCheck = currentPath.replace(/^\/admin/, '') || '/';
-			}
+		const scheme = 'page';
+		let hierPart = currentPath;
+		let namespace = 'client';
+		let isAdminRoute = false;
 
-			// Only check the first segment of the path. As long as the user has permission for the first segment, they should be able to access the rest of the path
-			const segments = pathToCheck.split('/').filter(Boolean);
-			hierPart = '/' + (segments[0] ?? '');
+		let pathToCheck = currentPath;
+		if (currentPath.includes('/admin')) {
+			isAdminRoute = true;
+			namespace = 'admin';
+			hierPart = currentPath.replace('/admin', '') || '/';
+			pathToCheck = currentPath.replace(/^\/admin/, '') || '/';
+		}
 
-			const isVerified = await verifyUcanWithCapabilities(
-				currentToken,
-				scheme,
-				hierPart,
-				namespace,
-				['GET']
-			);
+		// Only check the first segment of the path. As long as the user has permission for the first segment, they should be able to access the rest of the path
+		const segments = pathToCheck.split('/').filter(Boolean);
+		hierPart = '/' + (segments[0] ?? '');
 
-			if (!isVerified) {
-				goto(isAdminRoute ? '/admin/no-access' : '/no-access');
-				return;
-			}
+		let isVerified = await verifyUcanWithCapabilities(currentToken, scheme, hierPart, namespace, [
+			'GET'
+		]);
+
+		if (!isVerified) {
+			await refreshRootToken(keypair);
+			const accessUcan = await issueAccessUcan(rootToken, keypair, 60 * 60);
+			currentTokenStore.set(accessUcan);
+			await storeToken('currentToken', accessUcan);
+
+			// Verify the new token
+			isVerified = await verifyUcanWithCapabilities(currentToken, scheme, hierPart, namespace, [
+				'GET'
+			]);
+		}
+
+		if (!isVerified) {
+			goto(isAdminRoute ? '/admin/no-access' : '/no-access');
+			return;
 		}
 	}
 
