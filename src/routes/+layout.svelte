@@ -105,6 +105,11 @@
 			return true;
 		}
 
+		// Support /profiles/*
+		if (path.startsWith('/profiles/')) {
+			return true;
+		}
+
 		return false;
 	}
 
