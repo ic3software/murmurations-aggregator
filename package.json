@@ -72,7 +72,7 @@
 		"wrangler": "^4.41.0"
 	},
 	"dependencies": {
-		"@tanstack/svelte-query": "^5.90.2",
+		"@tanstack/svelte-query": "^6.0.0",
 		"@ucans/ucans": "^0.12.0",
 		"drizzle-orm": "^0.44.6",
 		"formsnap": "^2.0.1",
