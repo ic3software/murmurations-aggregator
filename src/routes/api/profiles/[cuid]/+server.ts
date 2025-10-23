@@ -45,7 +45,14 @@ export const GET: RequestHandler = async ({
 
 		return json(
 			{ data: profile, success: true },
-			{ status: 200, headers: { 'Access-Control-Allow-Origin': '*' } }
+			{
+				status: 200,
+				headers: {
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+					'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+				}
+			}
 		);
 	} catch (err) {
 		console.error(`Failed to get profile: ${err}`);
