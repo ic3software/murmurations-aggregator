@@ -36,13 +36,13 @@
 	);
 
 	const showUnavailableColumn = $derived(nodes.some((n) => !n.isAvailable && n.unavailableMessage));
+	const selectableNodes = $derived(nodes.filter((n) => n.isAvailable && n.hasAuthority));
 
 	function toggleSelectAll() {
-		const selectable = nodes.filter((n) => n.isAvailable && n.hasAuthority);
-		if (selectedIds.length === selectable.length) {
+		if (selectedIds.length === selectableNodes.length) {
 			selectedIds = [];
 		} else {
-			selectedIds = selectable.map((n) => n.id);
+			selectedIds = selectableNodes.map((n) => n.id);
 		}
 	}
 
@@ -129,9 +129,9 @@
 						<Table.Head class="w-[40px]">
 							<Checkbox
 								checked={nodes.length > 0 &&
-									nodes.some((r) => r.isAvailable && r.hasAuthority) &&
-									selectedIds.length ===
-										nodes.filter((r) => r.isAvailable && r.hasAuthority).length}
+									selectableNodes.length > 0 &&
+									selectedIds.length === selectableNodes.length}
+								disabled={selectableNodes.length === 0}
 								onCheckedChange={toggleSelectAll}
 							/>
 						</Table.Head>

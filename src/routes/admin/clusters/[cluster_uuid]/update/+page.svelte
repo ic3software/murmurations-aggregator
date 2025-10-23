@@ -32,6 +32,7 @@
 	let deletedProfiles = $state<Node[]>([]);
 	let unauthoritativeProfiles = $state<Node[]>([]);
 	let profileList = $state<Node[]>([]);
+	const selectableNodes = $derived(profileList.filter((n) => n.isAvailable && n.hasAuthority));
 
 	let selectedAction = $state('');
 
@@ -447,9 +448,9 @@
 								<Table.Head class="w-[40px]">
 									<Checkbox
 										checked={profileList.length > 0 &&
-											profileList.some((r) => r.isAvailable && r.hasAuthority) &&
-											selectedIds.length ===
-												profileList.filter((r) => r.isAvailable && r.hasAuthority).length}
+											selectableNodes.length > 0 &&
+											selectedIds.length === selectableNodes.length}
+										disabled={selectableNodes.length === 0}
 										onCheckedChange={toggleSelectAll}
 									/>
 								</Table.Head>
