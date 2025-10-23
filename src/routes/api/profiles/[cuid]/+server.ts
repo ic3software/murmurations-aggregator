@@ -47,7 +47,9 @@ export const GET: RequestHandler = async ({
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json',
-				'Access-Control-Allow-Origin': '*'
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'GET, OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type, Authorization'
 			}
 		});
 	} catch (err) {
@@ -185,15 +187,4 @@ export const DELETE: RequestHandler = async ({
 			{ status: 500 }
 		);
 	}
-};
-
-export const OPTIONS: RequestHandler = async () => {
-	return new Response(null, {
-		status: 204,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-		}
-	});
 };
