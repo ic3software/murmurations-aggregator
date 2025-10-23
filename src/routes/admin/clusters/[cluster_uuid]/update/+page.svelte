@@ -32,6 +32,7 @@
 	let deletedProfiles = $state<Node[]>([]);
 	let unauthoritativeProfiles = $state<Node[]>([]);
 	let profileList = $state<Node[]>([]);
+	const selectableNodes = $derived(profileList.filter((n) => n.isAvailable && n.hasAuthority));
 
 	let selectedAction = $state('');
 
@@ -270,9 +271,10 @@
 			loadingProgress = Math.min(100, Math.round(currentProgress));
 			const originalAuthority = profile.hasAuthority ? 1 : 0;
 
+			const latestData = JSON.parse(profile.updatedData ?? profile.data);
 			const hasAuthority = checkProfileAuthority(
 				authorityMap ?? [],
-				JSON.parse(profile.data)?.primary_url,
+				latestData.primary_url,
 				profile.profileUrl
 			);
 
@@ -446,8 +448,9 @@
 								<Table.Head class="w-[40px]">
 									<Checkbox
 										checked={profileList.length > 0 &&
-											selectedIds.length ===
-												profileList.filter((r) => r.isAvailable && r.hasAuthority).length}
+											selectableNodes.length > 0 &&
+											selectedIds.length === selectableNodes.length}
+										disabled={selectableNodes.length === 0}
 										onCheckedChange={toggleSelectAll}
 									/>
 								</Table.Head>
