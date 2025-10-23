@@ -187,8 +187,8 @@ export const DELETE: RequestHandler = async ({
 	}
 };
 
-export const OPTIONS = async () =>
-	new Response(null, {
+export const OPTIONS: RequestHandler = async () => {
+	return new Response(null, {
 		status: 204,
 		headers: {
 			'Access-Control-Allow-Origin': '*',
@@ -196,3 +196,4 @@ export const OPTIONS = async () =>
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
 		}
 	});
+};
