@@ -43,15 +43,7 @@ export const GET: RequestHandler = async ({
 			return json({ error: 'Profile not found', success: false }, { status: 404 });
 		}
 
-		return new Response(JSON.stringify({ data: profile, success: true }), {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/json',
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Methods': 'GET, OPTIONS',
-				'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-			}
-		});
+		return json({ data: profile, success: true }, { status: 200 });
 	} catch (err) {
 		console.error(`Failed to get profile: ${err}`);
 		return json(
@@ -187,15 +179,4 @@ export const DELETE: RequestHandler = async ({
 			{ status: 500 }
 		);
 	}
-};
-
-export const OPTIONS: RequestHandler = async () => {
-	return new Response(null, {
-		status: 204,
-		headers: {
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Allow-Methods': 'GET, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-		}
-	});
 };
