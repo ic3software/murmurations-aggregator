@@ -447,6 +447,7 @@
 								<Table.Head class="w-[40px]">
 									<Checkbox
 										checked={profileList.length > 0 &&
+											profileList.some((r) => r.isAvailable && r.hasAuthority) &&
 											selectedIds.length ===
 												profileList.filter((r) => r.isAvailable && r.hasAuthority).length}
 										onCheckedChange={toggleSelectAll}
