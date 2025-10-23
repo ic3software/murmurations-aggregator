@@ -74,6 +74,7 @@
 	"dependencies": {
 		"@tanstack/svelte-query": "^6.0.1",
 		"@ucans/ucans": "^0.12.0",
+		"diff": "^8.0.2",
 		"drizzle-orm": "^0.44.6",
 		"leaflet": "^1.9.4",
 		"leaflet.markercluster": "^1.5.3",
