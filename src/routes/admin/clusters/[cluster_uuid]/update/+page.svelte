@@ -240,7 +240,8 @@
 						status: existingNode.status,
 						isAvailable: is_available ? 1 : 0,
 						unavailableMessage: unavailable_message,
-						hasUpdated: true
+						hasUpdated: true,
+						hasAuthority: existingNode.hasAuthority
 					} as NodeUpdateInput);
 
 					profileList.push({ ...toCamelCase<Node>(updatedNode) });
@@ -288,12 +289,19 @@
 	async function checkAuthorityProfiles() {
 		const { data: authorityMap } = await getAuthorityMap(clusterUuid);
 
+		const updatedNodesIds = new Set(profileList.map((n) => n.id));
+
 		const progressStep = 33 / (existingNodes.length + profileList.length);
 		let currentProgress = 66;
 
 		for (const profile of existingNodes) {
 			currentProgress += progressStep;
 			loadingProgress = Math.min(100, Math.round(currentProgress));
+
+			if (updatedNodesIds.has(profile.id)) {
+				continue;
+			}
+
 			const originalAuthority = profile.hasAuthority ? 1 : 0;
 
 			const latestData = JSON.parse(profile.updatedData ?? profile.data);
@@ -307,7 +315,7 @@
 				continue;
 			}
 
-			const profileUpdatedData: NodeUpdateInput = {
+			let profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
 				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
@@ -320,6 +328,9 @@
 			if (originalAuthority === 1 && hasAuthority === 0) {
 				// If a profile has no domain authority, mark it as ignored
 				profileUpdatedData.status = 'ignore';
+
+				profileUpdatedData.data = JSON.parse(profile.updatedData ?? profile.data);
+				profileUpdatedData.updatedData = JSON.parse('null');
 
 				// If a profile is not in ignore state, and isAvailable is true, add it to the unauthoritativeProfiles
 				if (profile.status !== 'ignore' && profile.isAvailable === 1) {
@@ -336,9 +347,10 @@
 
 			const originalAuthority = profile.hasAuthority ? 1 : 0;
 
+			const latestData = JSON.parse(profile.updatedData ?? profile.data);
 			const hasAuthority = checkProfileAuthority(
 				authorityMap ?? [],
-				JSON.parse(profile.data)?.primary_url,
+				latestData.primary_url,
 				profile.profileUrl
 			);
 
@@ -346,7 +358,7 @@
 				continue;
 			}
 
-			const profileUpdatedData: NodeUpdateInput = {
+			let profileUpdatedData: NodeUpdateInput = {
 				data: JSON.parse(profile.data),
 				updatedData: JSON.parse(profile.updatedData ?? 'null'),
 				status: profile.status,
@@ -354,6 +366,22 @@
 				unavailableMessage: profile.unavailableMessage,
 				hasAuthority
 			};
+
+			// From AP to UAP
+			if (originalAuthority === 1 && hasAuthority === 0) {
+				// If a profile has no domain authority, mark it as ignored
+				profileUpdatedData.status = 'ignore';
+
+				profileUpdatedData.data = JSON.parse(profile.updatedData ?? profile.data);
+				profileUpdatedData.updatedData = JSON.parse('null');
+				profileUpdatedData.hasUpdated = false;
+
+				// If a profile is not in ignore state, and isAvailable is true, add it to the unauthoritativeProfiles
+				if (profile.status !== 'ignore' && profile.isAvailable === 1) {
+					unauthoritativeProfiles.push({ ...profile });
+					profileList = profileList.filter((n) => n.id !== profile.id);
+				}
+			}
 
 			await updateNode(clusterUuid, profile.id, profileUpdatedData);
 
