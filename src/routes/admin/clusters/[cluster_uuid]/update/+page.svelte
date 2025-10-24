@@ -4,6 +4,7 @@
 	import { createNode, deleteNode, updateNode, updateNodeStatus } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Label } from '$lib/components/ui/label';
 	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select';
@@ -13,6 +14,8 @@
 	import { checkProfileAuthority, processProfile } from '$lib/utils/profile';
 	import { toCamelCase } from '$lib/utils/string-case';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { diffJson } from 'diff';
+	import type { Change } from 'diff';
 
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -50,6 +53,28 @@
 	const showUnavailableColumn = $derived(
 		profileList.some((n) => !n.isAvailable && n.unavailableMessage)
 	);
+
+	let dialogOpen = $state(false);
+	let selectedNodeForDiff: Node | null = $state(null);
+	let diffs: Change[] = $state([]);
+
+	function openDiffDialog(node: Node) {
+		selectedNodeForDiff = node;
+		updateDiff(node);
+		dialogOpen = true;
+	}
+
+	function updateDiff(node: Node) {
+		try {
+			const before = JSON.parse(node.data);
+			const after = JSON.parse(node.updatedData ?? node.data);
+			diffs = diffJson(before, after);
+		} catch (error) {
+			console.error('Error updating diff:', error);
+			toast.error('Error updating diff. Please try again.');
+			diffs = [];
+		}
+	}
 
 	function toggleSelectAll() {
 		const selectable = profileList.filter((n) => n.isAvailable && n.hasAuthority);
@@ -463,6 +488,7 @@
 								{#if showUnavailableColumn}
 									<Table.Head>Unavailable Message</Table.Head>
 								{/if}
+								<Table.Head>Actions</Table.Head>
 							</Table.Row>
 						</Table.Header>
 
@@ -498,6 +524,13 @@
 											{/if}
 										</Table.Cell>
 									{/if}
+									<Table.Cell>
+										{#if node.updatedData}
+											<Button variant="outline" size="sm" onclick={() => openDiffDialog(node)}>
+												View Update
+											</Button>
+										{/if}
+									</Table.Cell>
 								</Table.Row>
 							{/each}
 						</Table.Body>
@@ -543,3 +576,68 @@
 		{/if}
 	</div>
 </div>
+
+<Dialog.Root bind:open={dialogOpen}>
+	<Dialog.Content class="max-w-6xl max-h-[80vh] overflow-hidden">
+		<Dialog.Header>
+			<Dialog.Title>Profile Update Diff</Dialog.Title>
+			<Dialog.Description>
+				{#if selectedNodeForDiff}
+					Showing changes for: {JSON.parse(selectedNodeForDiff.data)?.name || 'N/A'}
+				{/if}
+			</Dialog.Description>
+		</Dialog.Header>
+
+		<div class="overflow-auto max-h-[60vh]">
+			<div class="grid grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<h3 class="font-semibold">Before</h3>
+					<div class="border p-2 font-mono text-sm bg-gray-50 min-h-[200px] overflow-auto">
+						{#each diffs as part, index (index)}
+							{#if part.removed}
+								<div class="bg-red-50 text-red-700 whitespace-pre-wrap">
+									<span class="text-red-600 font-bold">- </span>{part.value}
+								</div>
+							{:else if part.added}
+								<div class="text-gray-400 whitespace-pre-wrap">
+									{part.value
+										.split('\n')
+										.map(() => '')
+										.join('\n')}
+								</div>
+							{:else}
+								<div class="whitespace-pre-wrap">
+									{part.value}
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+
+				<div class="space-y-2">
+					<h3 class="font-semibold">After</h3>
+					<div class="border p-2 font-mono text-sm bg-gray-50 min-h-[200px] overflow-auto">
+						{#each diffs as part, index (index)}
+							{#if part.added}
+								<div class="bg-green-50 text-green-700 whitespace-pre-wrap">
+									<span class="text-green-600 font-bold">+ </span>{part.value}
+								</div>
+							{:else if part.removed}
+								<div class="text-gray-400 whitespace-pre-wrap">
+									{part.value
+										.split('\n')
+										.map(() => '')
+										.join('\n')}
+								</div>
+							{:else}
+								<div class="whitespace-pre-wrap">
+									{part.value}
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+			</div>
+		</div>
+	</Dialog.Content>
+</Dialog.Root>
