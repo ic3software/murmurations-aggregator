@@ -14,6 +14,9 @@ importers:
       '@ucans/ucans':
         specifier: ^0.12.0
         version: 0.12.0
+      diff:
+        specifier: ^8.0.2
+        version: 8.0.2
       drizzle-orm:
         specifier: ^0.44.6
         version: 0.44.6(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.14.0)(gel@2.1.1)
@@ -1685,6 +1688,10 @@ packages:
 
   devalue@5.4.1:
     resolution: {integrity: sha512-YtoaOfsqjbZQKGIMRYDWKjUmSB4VJ/RElB+bXZawQAQYAo4xu08GKTMVlsZDTF6R2MbAgjcAQRPI5eIyRAT2OQ==}
+
+  diff@8.0.2:
+    resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
+    engines: {node: '>=0.3.1'}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -4338,6 +4345,8 @@ snapshots:
   detect-libc@2.1.2: {}
 
   devalue@5.4.1: {}
+
+  diff@8.0.2: {}
 
   dom-serializer@2.0.0:
     dependencies:
