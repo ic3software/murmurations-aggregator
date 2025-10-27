@@ -27,7 +27,7 @@
 		"@eslint/js": "^9.37.0",
 		"@internationalized/date": "^3.10.0",
 		"@lucide/svelte": "^0.515.0",
-		"@paralleldrive/cuid2": "^2.2.2",
+		"@paralleldrive/cuid2": "^3.1.0",
 		"@playwright/test": "^1.56.0",
 		"@react-email/render": "^1.4.0",
 		"@sveltejs/adapter-cloudflare": "^7.2.4",
