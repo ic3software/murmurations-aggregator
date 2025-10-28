@@ -1,7 +1,9 @@
 {
 	"name": "murmurations-aggregator",
 	"compatibility_date": "2025-09-15",
-	"compatibility_flags": ["nodejs_compat_v2"],
+	"compatibility_flags": [
+		"nodejs_compat_v2"
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -10,6 +12,14 @@
 			"migrations_dir": "drizzle"
 		}
 	],
+	"queus": {
+		"producers": [
+			{
+				"queue_name": "murmurations-aggregator-queue-preview",
+				"queue_id": "fc91ee6670474b44a0de927cf0f8edb5"
+			}
+		]
+	},
 	"env": {
 		"production": {
 			"d1_databases": [
@@ -19,7 +29,15 @@
 					"database_id": "2453fcf5-60d9-4563-8eb4-adc04c9b9826",
 					"migrations_dir": "drizzle"
 				}
-			]
+			],
+			"queus": {
+				"producers": [
+					{
+						"queue_name": "murmurations-aggregator-queue",
+						"queue_id": "b84d03ae4a834a6d9efa593461cf7f14"
+					}
+				]
+			}
 		}
 	}
 }
