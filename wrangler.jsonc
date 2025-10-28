@@ -1,9 +1,7 @@
 {
 	"name": "murmurations-aggregator",
 	"compatibility_date": "2025-09-15",
-	"compatibility_flags": [
-		"nodejs_compat_v2"
-	],
+	"compatibility_flags": ["nodejs_compat_v2"],
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -12,7 +10,7 @@
 			"migrations_dir": "drizzle"
 		}
 	],
-	"queus": {
+	"queues": {
 		"producers": [
 			{
 				"queue_name": "murmurations-aggregator-queue-preview",
@@ -30,7 +28,7 @@
 					"migrations_dir": "drizzle"
 				}
 			],
-			"queus": {
+			"queues": {
 				"producers": [
 					{
 						"queue_name": "murmurations-aggregator-queue",

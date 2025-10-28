@@ -57,6 +57,13 @@
       "when": 1759826942308,
       "tag": "0007_youthful_angel",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1761631963475,
+      "tag": "0008_workable_lady_ursula",
+      "breakpoints": true
     }
   ]
 }
