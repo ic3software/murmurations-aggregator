@@ -2,6 +2,7 @@
 	"name": "murmurations-aggregator",
 	"compatibility_date": "2025-09-15",
 	"compatibility_flags": ["nodejs_compat_v2"],
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -13,8 +14,8 @@
 	"queues": {
 		"producers": [
 			{
-				"queue_name": "murmurations-aggregator-queue-preview",
-				"queue_id": "fc91ee6670474b44a0de927cf0f8edb5"
+				"queue": "murmurations-aggregator-queue-preview",
+				"binding": "JOB_QUEUE"
 			}
 		]
 	},
@@ -31,8 +32,8 @@
 			"queues": {
 				"producers": [
 					{
-						"queue_name": "murmurations-aggregator-queue",
-						"queue_id": "b84d03ae4a834a6d9efa593461cf7f14"
+						"queue": "murmurations-aggregator-queue",
+						"binding": "JOB_QUEUE"
 					}
 				]
 			}
