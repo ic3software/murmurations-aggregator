@@ -69,10 +69,14 @@
 
 				if (!success || !jobData) throw new Error('Job not found');
 
-				importProgress = Math.min(
-					100,
-					Math.round((jobData.processedNodes / jobData.totalNodes) * 100)
-				);
+				if (jobData.totalNodes === 0) {
+					importProgress = 0;
+				} else {
+					importProgress = Math.min(
+						100,
+						Math.round((jobData.processedNodes / jobData.totalNodes) * 100)
+					);
+				}
 
 				importStatus = jobData.status as 'pending' | 'processing' | 'completed' | 'failed';
 
@@ -212,13 +216,6 @@
 			isSubmitting = false;
 		}
 	}
-
-	onMount(() => {
-		if (data?.nodes === null) {
-			toast.error('Cluster not found. Please try again.');
-			goto('/admin');
-		}
-	});
 </script>
 
 <div class="container mx-auto py-4">
