@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3a972135-897b-4059-a6ad-46425ae20b70",
+  "id": "7d0e965d-0188-48bc-800f-0d469cf5ba1f",
   "prevId": "963ea337-7635-4e42-8da2-e72390fb37ca",
   "tables": {
     "capabilities": {
@@ -341,6 +341,22 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'pending'"
+        },
+        "total_nodes": {
+          "name": "total_nodes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "processed_nodes": {
+          "name": "processed_nodes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         },
         "result": {
           "name": "result",

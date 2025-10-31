@@ -2,7 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { createCluster } from '$lib/api/clusters';
 	import { getCountries } from '$lib/api/countries';
-	import { createNode } from '$lib/api/nodes';
 	import { getSchemas } from '$lib/api/schemas';
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { Button } from '$lib/components/ui/button';
@@ -11,12 +10,10 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Popover from '$lib/components/ui/popover';
-	import { Progress } from '$lib/components/ui/progress';
 	import * as Select from '$lib/components/ui/select';
 	import type { ClusterCreateInput } from '$lib/types/cluster';
-	import type { NodeCreateInput } from '$lib/types/node';
 	import { cn } from '$lib/utils';
-	import { fetchProfiles, processProfile } from '$lib/utils/profile';
+	import { fetchProfiles } from '$lib/utils/profile';
 	import { Check, ChevronsUpDown } from '@lucide/svelte';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
@@ -56,9 +53,6 @@
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
 	let isCreatingCluster = $state(false);
-
-	let loadingNodes = $state(false);
-	let loadingProgress = $state(0);
 	let loadingSchemas = $state(false);
 	let loadingCountries = $state(false);
 
@@ -178,39 +172,14 @@
 
 			if (!response?.success) throw new Error('Create cluster failed');
 			const clusterUuid = response?.data?.clusterUuid;
+			const jobUuid = response?.data?.jobUuid;
 			toast.success('Cluster created successfully');
-
-			loadingNodes = true;
-
-			const step = 100 / rawNodes.length;
-			for (let i = 0; i < rawNodes.length; i++) {
-				const { profile_data, status, is_available, unavailable_message } = await processProfile(
-					rawNodes[i],
-					sourceIndex
-				);
-
-				const nodeData: NodeCreateInput = {
-					profileUrl: rawNodes[i].profileUrl as string,
-					data: profile_data,
-					status: status,
-					lastUpdated: rawNodes[i].lastUpdated,
-					isAvailable: is_available ? 1 : 0,
-					unavailableMessage: unavailable_message,
-					hasAuthority: 1
-				};
-				await createNode(clusterUuid, nodeData);
-				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
-			}
-
-			toast.success(`Nodes created successfully. Processed ${rawNodes.length} nodes.`);
-
-			await goto(`/admin/clusters/${clusterUuid}/select`);
+			await goto(`/admin/clusters/${clusterUuid}/select?jobUuid=${jobUuid}`);
 		} catch (error) {
 			console.error('Error creating cluster:', error);
 			toast.error('An error occurred while creating the cluster. Please try again.');
 		} finally {
 			isCreatingCluster = false;
-			loadingNodes = false;
 		}
 	}
 
@@ -243,15 +212,6 @@
 </script>
 
 <div class="container mx-auto py-4">
-	{#if loadingNodes}
-		<div class="my-6">
-			<p class="mb-2 text-sm text-muted-foreground">
-				Importing nodes, please wait... {loadingProgress}%
-			</p>
-			<Progress value={loadingProgress} max={100} class="w-full" />
-		</div>
-	{/if}
-
 	<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
 		Create a Cluster or Directory
 	</h2>

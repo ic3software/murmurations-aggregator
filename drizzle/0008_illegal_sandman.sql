@@ -5,6 +5,8 @@ CREATE TABLE `jobs` (
 	`target_id` text NOT NULL,
 	`target_type` text NOT NULL,
 	`status` text DEFAULT 'pending' NOT NULL,
+	`total_nodes` integer DEFAULT 0 NOT NULL,
+	`processed_nodes` integer DEFAULT 0 NOT NULL,
 	`result` text,
 	`error_message` text,
 	`finished_at` integer,

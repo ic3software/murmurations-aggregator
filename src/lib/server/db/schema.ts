@@ -209,6 +209,8 @@ export const jobs = sqliteTable('jobs', {
 	targetId: text('target_id').notNull(),
 	targetType: text('target_type').notNull(),
 	status: text('status').notNull().default('pending'),
+	totalNodes: integer('total_nodes').notNull().default(0),
+	processedNodes: integer('processed_nodes').notNull().default(0),
 	result: text('result'),
 	errorMessage: text('error_message'),
 	finishedAt: integer('finished_at', { mode: 'number' }),

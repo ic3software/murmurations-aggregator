@@ -14,17 +14,17 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Job queue not found', success: false }, { status: 500 });
 		}
 
-		const { clusterUuid } = await request.json();
+		const { cluster_uuid, type } = await request.json();
 
-		if (!clusterUuid) {
-			return json({ error: 'Missing cluster_uuid', success: false }, { status: 400 });
+		if (!cluster_uuid || !type) {
+			return json({ error: 'Missing cluster_uuid or type', success: false }, { status: 400 });
 		}
 
-		const jobUUID = crypto.randomUUID();
+		const job_uuid = crypto.randomUUID();
 		const job: JobCreateInput = {
-			jobUuid: jobUUID,
-			type: 'update-nodes',
-			targetId: clusterUuid,
+			jobUuid: job_uuid,
+			type: type,
+			targetId: cluster_uuid,
 			targetType: 'clusters'
 		};
 
