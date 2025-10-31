@@ -2,7 +2,6 @@
 	"name": "murmurations-aggregator",
 	"compatibility_date": "2025-09-15",
 	"compatibility_flags": ["nodejs_compat_v2"],
-	"pages_build_output_dir": ".svelte-kit/cloudflare",
 	"d1_databases": [
 		{
 			"binding": "DB",
