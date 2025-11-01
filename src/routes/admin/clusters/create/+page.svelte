@@ -163,7 +163,7 @@
 				return;
 			}
 
-			if (meta?.totalPages > 1) {
+			if (meta?.total_pages > 1) {
 				toast.error('Too many nodes. Please narrow your search.');
 				return;
 			}
