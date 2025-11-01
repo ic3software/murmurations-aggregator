@@ -70,7 +70,10 @@ export const POST: RequestHandler = async ({
 		await createJob(db, job);
 
 		await platform.env.JOB_QUEUE.send({
-			payload: job
+			job_uuid: job.jobUuid,
+			type: job.type,
+			target_id: job.targetId,
+			target_type: job.targetType
 		});
 
 		const clusterWithJobUuid: ClusterWithJobUuid = {
