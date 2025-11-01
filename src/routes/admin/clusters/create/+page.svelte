@@ -157,13 +157,13 @@
 				scale: clusterScale
 			};
 
-			const rawNodes = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
+			const { rawNodes, meta } = await fetchProfiles(clusterData.indexUrl, clusterData.queryUrl);
 			if (rawNodes.length === 0) {
 				toast.error('No nodes found. Please update your cluster settings.');
 				return;
 			}
 
-			if (rawNodes?.meta?.total_pages > 1) {
+			if (meta?.totalPages > 1) {
 				toast.error('Too many nodes. Please narrow your search.');
 				return;
 			}
