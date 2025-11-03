@@ -37,8 +37,8 @@
 	let sourceIndex = $state(sourceIndexOptions[0].url);
 	let schema = $state(schemaOptions[0]?.value || '');
 	let name = $state('');
-	let lat = $state(0);
-	let lon = $state(0);
+	let lat = $state<number | null>(null);
+	let lon = $state<number | null>(null);
 	let range = $state('');
 	let locality = $state('');
 	let region = $state('');
@@ -188,8 +188,8 @@
 
 		if (schema) queryParams.push(`schema=${encodeURIComponent(schema)}`);
 		if (name) queryParams.push(`name=${encodeURIComponent(name)}`);
-		if (lat) queryParams.push(`lat=${encodeURIComponent(lat)}`);
-		if (lon) queryParams.push(`lon=${encodeURIComponent(lon)}`);
+		if (lat !== null) queryParams.push(`lat=${encodeURIComponent(lat)}`);
+		if (lon !== null) queryParams.push(`lon=${encodeURIComponent(lon)}`);
 		if (range) queryParams.push(`range=${encodeURIComponent(range)}`);
 		if (locality) queryParams.push(`locality=${encodeURIComponent(locality)}`);
 		if (region) queryParams.push(`region=${encodeURIComponent(region)}`);
