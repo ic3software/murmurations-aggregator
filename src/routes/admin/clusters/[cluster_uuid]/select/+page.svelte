@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
-	import { updateNodeStatus } from '$lib/api/nodes';
+	import { updateMultipleNodeStatus } from '$lib/api/nodes';
 	import { getNodes } from '$lib/api/nodes';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -26,7 +26,6 @@
 	let nodes: Node[] = $state(data?.nodes ?? []);
 	let selectedIds: number[] = $state([]);
 	let isSubmitting = $state(false);
-	let loadingProgress = $state(0);
 
 	// Importing nodes
 	let isImporting = $state<boolean>(false);
@@ -188,30 +187,22 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		isSubmitting = true;
-		loadingProgress = 0;
 
 		try {
-			const step = 100 / selectedIds.length;
-			for (let i = 0; i < selectedIds.length; i++) {
-				const { success, error } = await updateNodeStatus(
-					data?.clusterUuid,
-					selectedIds[i],
-					selectedAction
-				);
-
-				if (!success) {
-					toast.error(error ?? 'Failed to update node status');
-					return;
-				}
-
-				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
+			const { success, error } = await updateMultipleNodeStatus(
+				clusterUuid ?? '',
+				selectedIds,
+				selectedAction
+			);
+			if (!success) {
+				toast.error(error ?? 'Failed to update multiple node statuses');
+				return;
 			}
 			toast.success('Node statuses updated successfully.');
-
 			await goto('/admin');
 		} catch (error) {
-			console.error('Error updating node statuses:', error);
-			toast.error('Failed to update node statuses. Please try again.');
+			console.error('Error updating multiple node statuses:', error);
+			toast.error('Failed to update multiple node statuses. Please try again.');
 		} finally {
 			isSubmitting = false;
 		}
@@ -219,15 +210,6 @@
 </script>
 
 <div class="container mx-auto py-4">
-	{#if isSubmitting}
-		<div class="my-6">
-			<p class="mb-2 text-sm text-muted-foreground">
-				Updating nodes, please wait... {loadingProgress}%
-			</p>
-			<Progress value={loadingProgress} max={100} class="w-full" />
-		</div>
-	{/if}
-
 	{#if isImporting}
 		<div class="my-6">
 			<p class="mb-2 text-sm text-muted-foreground">

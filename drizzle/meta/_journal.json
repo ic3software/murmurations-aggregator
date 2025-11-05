@@ -64,6 +64,13 @@
       "when": 1761885555996,
       "tag": "0008_illegal_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1762330837484,
+      "tag": "0009_hesitant_maddog",
+      "breakpoints": true
     }
   ]
 }
