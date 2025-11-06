@@ -2,8 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { replaceState } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
-	import { updateNodeStatus } from '$lib/api/nodes';
-	import { updateNodes } from '$lib/api/nodes';
+	import { updateNodes, updateNodeStatus } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -185,7 +184,10 @@
 					stopUpdatePolling();
 					isLoading = false;
 					toast.success('Cluster update completed.');
-					await loadUpdatedNodes();
+					const jobResult = JSON.parse(jobData.result ?? '{}');
+					profileList = jobResult.profileList;
+					deletedProfiles = jobResult.deletedProfiles;
+					unauthoritativeProfiles = jobResult.unauthoritativeProfiles;
 				} else if (updateStatus === 'failed') {
 					stopUpdatePolling();
 					isLoading = false;
@@ -204,23 +206,6 @@
 		if (updateInterval) {
 			clearInterval(updateInterval);
 			updateInterval = null;
-		}
-	}
-
-	async function loadUpdatedNodes() {
-		try {
-			const res = await fetch(`/api/clusters/${clusterUuid}/update-result`);
-			const { data, success } = await res.json();
-
-			if (!success) throw new Error('Failed to load updated nodes.');
-			profileList = data.profileList ?? [];
-			deletedProfiles = data.deletedProfiles ?? [];
-			unauthoritativeProfiles = data.unauthoritativeProfiles ?? [];
-
-			toast.success('Updated nodes loaded.');
-		} catch (err) {
-			console.error('Error loading updated nodes:', err);
-			toast.error('Failed to load updated nodes.');
 		}
 	}
 
