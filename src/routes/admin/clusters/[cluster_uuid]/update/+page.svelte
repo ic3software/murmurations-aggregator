@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { replaceState } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
 	import { updateNodeStatus } from '$lib/api/nodes';
 	import { updateNodes } from '$lib/api/nodes';
@@ -147,14 +148,12 @@
 			// Update the URL with the jobUuid
 			const url = new URL(window.location.href);
 			url.searchParams.set('jobUuid', jobUuid);
-			history.replaceState(null, '', url.toString());
+			replaceState(url.pathname + url.search, '');
 
 			startUpdatePolling();
 		} catch (error) {
 			console.error('Error updating nodes:', error);
 			toast.error('Failed to update nodes. Please try again.');
-		} finally {
-			isLoading = false;
 		}
 	}
 
