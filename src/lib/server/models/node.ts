@@ -118,29 +118,6 @@ export async function createNode(db: DrizzleD1Database, node: NodeInsert): Promi
 	return result.results[0] as Node;
 }
 
-export async function updateNodeStatus(
-	db: DrizzleD1Database,
-	clusterUuid: string,
-	nodeId: number,
-	status: string,
-	updatedData: string | null,
-	moveUpdatedData: boolean = false
-): Promise<D1Result> {
-	if (moveUpdatedData) {
-		return await db
-			.update(nodes)
-			.set({ status, data: updatedData ?? '', updatedData: null, hasUpdated: 0 })
-			.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
-			.run();
-	}
-
-	return await db
-		.update(nodes)
-		.set({ status })
-		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
-		.run();
-}
-
 export async function updateMultipleNodeStatus(
 	db: DrizzleD1Database,
 	clusterUuid: string,

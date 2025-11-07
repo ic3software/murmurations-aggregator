@@ -63,19 +63,6 @@ export const getPublishedNode = (clusterUuid: string, nodeId: string, customFetc
 		customFetch
 	);
 
-export const updateNodeStatus = (
-	clusterUuid: string,
-	nodeId: number,
-	status: string,
-	customFetch?: typeof fetch
-) =>
-	request<{ status: string }, Node>(
-		`/api/clusters/${clusterUuid}/nodes/${nodeId}/status`,
-		'PUT',
-		{ status },
-		customFetch
-	);
-
 export const updateMultipleNodeStatus = (
 	clusterUuid: string,
 	nodeIds: number[],
