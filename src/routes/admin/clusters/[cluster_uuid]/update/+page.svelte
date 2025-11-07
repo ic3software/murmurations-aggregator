@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { replaceState } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
-	import { getUpdateNodes, updateNodes, updateNodeStatus } from '$lib/api/nodes';
+	import { getUpdateNodes, updateMultipleNodeStatus, updateNodes } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -102,20 +102,22 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		isLoading = true;
-		loadingProgress = 0;
 
 		try {
-			const step = 100 / selectedIds.length;
-			for (let i = 0; i < selectedIds.length; i++) {
-				await updateNodeStatus(clusterUuid ?? '', selectedIds[i], selectedAction);
-				loadingProgress = Math.min(100, Math.round(step * (i + 1)));
+			const { success, error } = await updateMultipleNodeStatus(
+				clusterUuid ?? '',
+				selectedIds,
+				selectedAction
+			);
+			if (!success) {
+				toast.error(error ?? 'Failed to update multiple node statuses');
+				return;
 			}
 			toast.success('Node statuses updated successfully.');
-
 			await goto('/admin');
 		} catch (error) {
-			console.error('Error updating node statuses:', error);
-			toast.error('Failed to update node statuses. Please try again.');
+			console.error('Error updating multiple node statuses:', error);
+			toast.error('Failed to update multiple node statuses. Please try again.');
 		} finally {
 			isLoading = false;
 		}
