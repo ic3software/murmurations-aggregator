@@ -89,6 +89,17 @@ export const updateMultipleNodeStatus = (
 		customFetch
 	);
 
+export const getUpdateNodes = (clusterUuid: string, jobUuid: string, customFetch?: typeof fetch) =>
+	request<
+		undefined,
+		{ profileList: Node[]; deletedProfiles: Node[]; unauthoritativeProfiles: Node[] }
+	>(
+		`/api/clusters/${clusterUuid}/update-nodes?${new URLSearchParams({ job_uuid: jobUuid }).toString()}`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
 export const updateNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
 	request<undefined, ClusterWithJobUuid>(
 		`/api/clusters/${clusterUuid}/update-nodes`,

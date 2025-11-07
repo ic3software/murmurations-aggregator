@@ -129,7 +129,7 @@ export async function updateNodeStatus(
 	if (moveUpdatedData) {
 		return await db
 			.update(nodes)
-			.set({ status, data: updatedData ?? '', updatedData: null, hasUpdated: false })
+			.set({ status, data: updatedData ?? '', updatedData: null, hasUpdated: 0 })
 			.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.id, nodeId)))
 			.run();
 	}
@@ -246,4 +246,59 @@ function buildSearchCondition(
 	}
 
 	return and(...conditions);
+}
+
+// Get Job Result
+export async function getProfileListFromJobResult(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	jobUuid: string
+) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(
+				eq(nodes.clusterUuid, clusterUuid),
+				eq(nodes.lastUpdateJobUuid, jobUuid),
+				eq(nodes.isDeleted, 0)
+			)
+		)
+		.all();
+}
+
+export async function getDeletedProfilesFromJobResult(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	jobUuid: string
+) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(
+				eq(nodes.clusterUuid, clusterUuid),
+				eq(nodes.lastUpdateJobUuid, jobUuid),
+				eq(nodes.isDeleted, 1)
+			)
+		)
+		.all();
+}
+
+export async function getUnauthoritativeProfilesFromJobResult(
+	db: DrizzleD1Database,
+	clusterUuid: string,
+	jobUuid: string
+) {
+	return await db
+		.select()
+		.from(nodes)
+		.where(
+			and(
+				eq(nodes.clusterUuid, clusterUuid),
+				eq(nodes.lastAuthorityChangeJobUuid, jobUuid),
+				eq(nodes.hasAuthority, 0)
+			)
+		)
+		.all();
 }

@@ -2,6 +2,7 @@ INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`)
 VALUES
   ('api', '/clusters/*/nodes/status', 'clusters', 'PUT'),
   ('api', '/clusters/*/update-nodes', 'clusters', 'POST');
+  ('api', '/clusters/*/update-nodes', 'clusters', 'GET');
 --> statement-breakpoint
 INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
 SELECT 
@@ -13,6 +14,7 @@ JOIN capabilities c
   AND c.namespace = 'clusters'
   AND (c.hier_part, c.segments) IN (
     ('/clusters/*/nodes/status', 'PUT'),
-    ('/clusters/*/update-nodes', 'POST')
+    ('/clusters/*/update-nodes', 'POST'),
+    ('/clusters/*/update-nodes', 'GET')
   )
 WHERE r.name = 'Root';

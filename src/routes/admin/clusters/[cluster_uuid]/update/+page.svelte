@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { replaceState } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
-	import { updateNodes, updateNodeStatus } from '$lib/api/nodes';
+	import { getUpdateNodes, updateNodes, updateNodeStatus } from '$lib/api/nodes';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -184,10 +184,25 @@
 					stopUpdatePolling();
 					isLoading = false;
 					toast.success('Cluster update completed.');
-					const jobResult = JSON.parse(jobData.result ?? '{}');
-					profileList = jobResult.profileList;
-					deletedProfiles = jobResult.deletedProfiles;
-					unauthoritativeProfiles = jobResult.unauthoritativeProfiles;
+					const {
+						data: jobResult,
+						success,
+						error
+					} = await getUpdateNodes(clusterUuid ?? '', jobUuid ?? '', fetch);
+					if (!success) {
+						toast.error(error ?? 'Failed to get update nodes');
+						return;
+					}
+					profileList = jobResult?.profileList ?? [];
+					deletedProfiles = jobResult?.deletedProfiles ?? [];
+					unauthoritativeProfiles = jobResult?.unauthoritativeProfiles ?? [];
+
+					if (profileList.length === 0) {
+						toast.success('No updated profiles found.');
+						if (deletedProfiles.length === 0 && unauthoritativeProfiles.length === 0) {
+							await goto('/admin');
+						}
+					}
 				} else if (updateStatus === 'failed') {
 					stopUpdatePolling();
 					isLoading = false;
