@@ -1,7 +1,7 @@
 INSERT INTO `capabilities` (`scheme`, `hier_part`, `namespace`, `segments`)
 VALUES
   ('api', '/clusters/*/nodes/status', 'clusters', 'PUT'),
-  ('api', '/clusters/*/update-nodes', 'clusters', 'POST');
+  ('api', '/clusters/*/update-nodes', 'clusters', 'POST'),
   ('api', '/clusters/*/update-nodes', 'clusters', 'GET');
 --> statement-breakpoint
 INSERT INTO `role_capabilities` (`role_id`, `capability_id`)
@@ -18,3 +18,8 @@ JOIN capabilities c
     ('/clusters/*/update-nodes', 'GET')
   )
 WHERE r.name = 'Root';
+--> statement-breakpoint
+ALTER TABLE `nodes` ADD `last_update_job_uuid` text;--> statement-breakpoint
+ALTER TABLE `nodes` ADD `last_unavailable_check_job_uuid` text;--> statement-breakpoint
+ALTER TABLE `nodes` ADD `last_authority_change_job_uuid` text;--> statement-breakpoint
+ALTER TABLE `nodes` ADD `is_deleted` integer DEFAULT 0 NOT NULL;
