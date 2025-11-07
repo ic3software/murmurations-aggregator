@@ -310,3 +310,13 @@ export async function getUnauthoritativeProfilesFromJobResult(
 		)
 		.all();
 }
+
+export async function cleanDeletedNodes(
+	db: DrizzleD1Database,
+	clusterUuid: string
+): Promise<D1Result> {
+	return await db
+		.delete(nodes)
+		.where(and(eq(nodes.clusterUuid, clusterUuid), eq(nodes.isDeleted, 1)))
+		.run();
+}

@@ -2,6 +2,7 @@ import { getDB } from '$lib/server/db';
 import { getCluster } from '$lib/server/models/cluster';
 import { createJob } from '$lib/server/models/job';
 import {
+	cleanDeletedNodes,
 	getDeletedProfilesFromJobResult,
 	getProfileListFromJobResult,
 	getUnauthoritativeProfilesFromJobResult
@@ -53,6 +54,8 @@ export const GET: RequestHandler = async ({
 			deletedProfiles,
 			unauthoritativeProfiles
 		};
+
+		await cleanDeletedNodes(db, clusterUuid);
 
 		return json({ data: jobResult, success: true }, { status: 200 });
 	} catch (error) {
