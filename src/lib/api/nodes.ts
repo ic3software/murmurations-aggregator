@@ -1,4 +1,5 @@
 import { request } from '$lib/api/request';
+import type { ClusterWithJobUuid } from '$lib/types/cluster';
 import type { MapNode, Node, NodeCreateInput, NodeUpdateInput } from '$lib/types/node';
 
 export const createNode = (
@@ -62,16 +63,35 @@ export const getPublishedNode = (clusterUuid: string, nodeId: string, customFetc
 		customFetch
 	);
 
-export const updateNodeStatus = (
+export const updateMultipleNodeStatus = (
 	clusterUuid: string,
-	nodeId: number,
+	nodeIds: number[],
 	status: string,
 	customFetch?: typeof fetch
 ) =>
-	request<{ status: string }, Node>(
-		`/api/clusters/${clusterUuid}/nodes/${nodeId}/status`,
+	request<{ status: string; node_ids: number[] }, undefined>(
+		`/api/clusters/${clusterUuid}/nodes/status`,
 		'PUT',
-		{ status },
+		{ status, node_ids: nodeIds },
+		customFetch
+	);
+
+export const getUpdateNodes = (clusterUuid: string, jobUuid: string, customFetch?: typeof fetch) =>
+	request<
+		undefined,
+		{ profileList: Node[]; deletedProfiles: Node[]; unauthoritativeProfiles: Node[] }
+	>(
+		`/api/clusters/${clusterUuid}/update-nodes?${new URLSearchParams({ job_uuid: jobUuid }).toString()}`,
+		'GET',
+		undefined,
+		customFetch
+	);
+
+export const updateNodes = (clusterUuid: string, customFetch?: typeof fetch) =>
+	request<undefined, ClusterWithJobUuid>(
+		`/api/clusters/${clusterUuid}/update-nodes`,
+		'POST',
+		undefined,
 		customFetch
 	);
 
