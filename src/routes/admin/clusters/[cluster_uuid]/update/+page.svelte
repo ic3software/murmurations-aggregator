@@ -228,6 +228,7 @@
 	function stopUpdatePolling() {
 		loadingProgress = 0;
 		isLoading = false;
+		jobType = null;
 		if (updateInterval) {
 			clearInterval(updateInterval);
 			updateInterval = null;
