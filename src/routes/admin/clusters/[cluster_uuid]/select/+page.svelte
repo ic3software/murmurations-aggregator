@@ -83,7 +83,6 @@
 
 				if (importStatus === 'completed') {
 					stopPolling();
-
 					if (jobData.type === 'create-nodes') {
 						await loadNodes();
 						toast.success('Cluster import completed.');

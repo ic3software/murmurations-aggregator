@@ -188,7 +188,7 @@
 
 				if (updateStatus === 'completed') {
 					stopUpdatePolling();
-					if (jobType === 'update-nodes') {
+					if (jobData.type === 'update-nodes') {
 						toast.success('Cluster update completed.');
 						const {
 							data: jobResult,
@@ -209,7 +209,7 @@
 								await goto('/admin');
 							}
 						}
-					} else if (jobType === 'update-node-statuses') {
+					} else if (jobData.type === 'update-node-statuses') {
 						toast.success('Node statuses updated successfully.');
 						await goto('/admin');
 					}
