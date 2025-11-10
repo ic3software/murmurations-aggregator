@@ -113,6 +113,8 @@
 				return;
 			}
 
+			jobUuid = newJobUuid;
+
 			// Update the URL with the jobUuid
 			const url = new URL(window.location.href);
 			url.searchParams.set('jobUuid', newJobUuid);
