@@ -110,6 +110,7 @@
 	function stopPolling() {
 		importProgress = 0;
 		isLoading = false;
+		jobType = null;
 		if (importInterval) {
 			clearInterval(importInterval);
 			importInterval = null;
