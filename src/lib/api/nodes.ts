@@ -69,7 +69,7 @@ export const updateMultipleNodeStatus = (
 	status: string,
 	customFetch?: typeof fetch
 ) =>
-	request<{ status: string; node_ids: number[] }, undefined>(
+	request<{ status: string; node_ids: number[] }, { jobUuid: string }>(
 		`/api/clusters/${clusterUuid}/nodes/status`,
 		'PUT',
 		{ status, node_ids: nodeIds },

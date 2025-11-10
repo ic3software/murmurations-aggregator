@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
 	import { updateMultipleNodeStatus } from '$lib/api/nodes';
 	import { getNodes } from '$lib/api/nodes';
@@ -16,7 +17,6 @@
 	import { diffJson } from 'diff';
 	import type { Change } from 'diff';
 
-	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import type { PageProps } from './$types';
@@ -29,30 +29,32 @@
 
 	// Importing nodes
 	let isImporting = $state<boolean>(false);
+	let jobType: 'create-nodes' | 'update-node-statuses' | null = $state(null);
 	let importProgress = $state<number>(0);
 	let importStatus = $state<'pending' | 'processing' | 'completed' | 'failed'>('pending');
 	let clusterUuid = $state<string | null>(data?.clusterUuid ?? null);
 	let jobUuid = $state<string | null>(null);
 	let importInterval: ReturnType<typeof setInterval> | null = null;
 
-	onMount(() => {
+	$effect(() => {
+		clusterUuid = page.params.cluster_uuid ?? null;
+		jobUuid = page.url.searchParams.get('jobUuid');
+
 		if (!clusterUuid) {
 			toast.error('Cluster not found.');
 			goto('/admin');
 			return;
 		}
 
-		const url = new URL(window.location.href);
-		jobUuid = url.searchParams.get('jobUuid');
-
 		if (jobUuid) {
 			isImporting = true;
 			startPolling();
 		}
-	});
 
-	onDestroy(() => {
-		if (importInterval) clearTimeout(importInterval);
+		return () => {
+			stopPolling();
+			isImporting = false;
+		};
 	});
 
 	function startPolling() {
@@ -78,21 +80,34 @@
 				}
 
 				importStatus = jobData.status as 'pending' | 'processing' | 'completed' | 'failed';
+				jobType = jobData.type as 'create-nodes' | 'update-node-statuses' | null;
 
 				if (importStatus === 'completed') {
 					stopPolling();
-					await loadNodes();
+					if (jobData.type === 'create-nodes') {
+						await loadNodes();
+						toast.success('Cluster import completed.');
+					} else if (jobData.type === 'update-node-statuses') {
+						toast.success('Node statuses updated successfully.');
+					}
 					isImporting = false;
-					toast.success('Cluster import completed.');
+					isLoading = false;
+					await goto('/admin');
 				} else if (importStatus === 'failed') {
 					stopPolling();
 					isImporting = false;
-					toast.error(jobData.errorMessage ?? 'Import failed.');
+					isLoading = false;
+					if (jobData.type === 'create-nodes') {
+						toast.error('Cluster import failed.');
+					} else if (jobData.type === 'update-node-statuses') {
+						toast.error('Node statuses update failed.');
+					}
 				}
 			} catch (err) {
 				console.error('Polling error:', err);
 				stopPolling();
 				isImporting = false;
+				isLoading = false;
 				toast.error('Failed to poll job status. Please try again.');
 			}
 		}, 2000);
@@ -189,22 +204,20 @@
 		isLoading = true;
 
 		try {
-			const { success, error } = await updateMultipleNodeStatus(
-				clusterUuid ?? '',
-				selectedIds,
-				selectedAction
-			);
+			const {
+				success,
+				error,
+				data: { jobUuid: newJobUuid }
+			} = await updateMultipleNodeStatus(clusterUuid ?? '', selectedIds, selectedAction);
 			if (!success) {
 				toast.error(error ?? 'Failed to update multiple node statuses');
 				return;
 			}
-			toast.success('Node statuses updated successfully.');
-			await goto('/admin');
+
+			await goto(`/admin/clusters/${clusterUuid}/select?jobUuid=${newJobUuid}`);
 		} catch (error) {
 			console.error('Error updating multiple node statuses:', error);
 			toast.error('Failed to update multiple node statuses. Please try again.');
-		} finally {
-			isLoading = false;
 		}
 	}
 </script>
@@ -213,7 +226,12 @@
 	{#if isImporting}
 		<div class="my-6">
 			<p class="mb-2 text-sm text-muted-foreground">
-				Importing nodes... {importProgress}%
+				{jobType === null
+					? 'Loading job...'
+					: jobType === 'update-node-statuses'
+						? 'Updating node statuses...'
+						: 'Importing nodes...'}
+				{importProgress}%
 			</p>
 			<Progress value={importProgress} max={100} class="w-full" />
 		</div>
