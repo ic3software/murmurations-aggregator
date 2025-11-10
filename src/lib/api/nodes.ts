@@ -63,7 +63,7 @@ export const getPublishedNode = (clusterUuid: string, nodeId: string, customFetc
 		customFetch
 	);
 
-export const updateMultipleNodeStatus = (
+export const updateNodeStatuses = (
 	clusterUuid: string,
 	nodeIds: number[],
 	status: string,

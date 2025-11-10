@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
+	import { replaceState } from '$app/navigation';
 	import { getJobByUuidAndTarget } from '$lib/api/job';
-	import { updateMultipleNodeStatus } from '$lib/api/nodes';
+	import { updateNodeStatuses } from '$lib/api/nodes';
 	import { getNodes } from '$lib/api/nodes';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -17,6 +17,7 @@
 	import { diffJson } from 'diff';
 	import type { Change } from 'diff';
 
+	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import type { PageProps } from './$types';
@@ -25,10 +26,9 @@
 
 	let nodes: Node[] = $state(data?.nodes ?? []);
 	let selectedIds: number[] = $state([]);
-	let isLoading = $state(false);
 
 	// Importing nodes
-	let isImporting = $state<boolean>(false);
+	let isLoading = $state<boolean>(false);
 	let jobType: 'create-nodes' | 'update-node-statuses' | null = $state(null);
 	let importProgress = $state<number>(0);
 	let importStatus = $state<'pending' | 'processing' | 'completed' | 'failed'>('pending');
@@ -36,28 +36,28 @@
 	let jobUuid = $state<string | null>(null);
 	let importInterval: ReturnType<typeof setInterval> | null = null;
 
-	$effect(() => {
-		clusterUuid = page.params.cluster_uuid ?? null;
-		jobUuid = page.url.searchParams.get('jobUuid');
-
+	onMount(() => {
 		if (!clusterUuid) {
 			toast.error('Cluster not found.');
 			goto('/admin');
 			return;
 		}
 
+		const url = new URL(window.location.href);
+		jobUuid = url.searchParams.get('jobUuid');
+
 		if (jobUuid) {
-			isImporting = true;
 			startPolling();
 		}
+	});
 
-		return () => {
-			stopPolling();
-		};
+	onDestroy(() => {
+		if (importInterval) clearInterval(importInterval);
 	});
 
 	function startPolling() {
 		if (importInterval) clearInterval(importInterval);
+		isLoading = true;
 
 		importInterval = setInterval(async () => {
 			try {
@@ -109,7 +109,6 @@
 
 	function stopPolling() {
 		importProgress = 0;
-		isImporting = false;
 		isLoading = false;
 		if (importInterval) {
 			clearInterval(importInterval);
@@ -205,22 +204,29 @@
 				success,
 				error,
 				data: { jobUuid: newJobUuid }
-			} = await updateMultipleNodeStatus(clusterUuid ?? '', selectedIds, selectedAction);
+			} = await updateNodeStatuses(clusterUuid ?? '', selectedIds, selectedAction);
 			if (!success) {
-				toast.error(error ?? 'Failed to update multiple node statuses');
+				toast.error(error ?? 'Failed to update node statuses');
 				return;
 			}
 
-			await goto(`/admin/clusters/${clusterUuid}/select?jobUuid=${newJobUuid}`);
+			jobUuid = newJobUuid;
+
+			// Update the URL with the jobUuid
+			const url = new URL(window.location.href);
+			url.searchParams.set('jobUuid', newJobUuid);
+			replaceState(url.pathname + url.search, '');
+
+			startPolling();
 		} catch (error) {
-			console.error('Error updating multiple node statuses:', error);
-			toast.error('Failed to update multiple node statuses. Please try again.');
+			console.error('Error updating node statuses:', error);
+			toast.error('Failed to update node statuses. Please try again.');
 		}
 	}
 </script>
 
 <div class="container mx-auto py-4">
-	{#if isImporting}
+	{#if isLoading}
 		<div class="my-6">
 			<p class="mb-2 text-sm text-muted-foreground">
 				{jobType === null
