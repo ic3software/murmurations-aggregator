@@ -53,7 +53,6 @@
 
 		return () => {
 			stopPolling();
-			isImporting = false;
 		};
 	});
 
@@ -84,19 +83,16 @@
 
 				if (importStatus === 'completed') {
 					stopPolling();
+
 					if (jobData.type === 'create-nodes') {
 						await loadNodes();
 						toast.success('Cluster import completed.');
 					} else if (jobData.type === 'update-node-statuses') {
 						toast.success('Node statuses updated successfully.');
+						await goto('/admin');
 					}
-					isImporting = false;
-					isLoading = false;
-					await goto('/admin');
 				} else if (importStatus === 'failed') {
 					stopPolling();
-					isImporting = false;
-					isLoading = false;
 					if (jobData.type === 'create-nodes') {
 						toast.error('Cluster import failed.');
 					} else if (jobData.type === 'update-node-statuses') {
@@ -106,14 +102,15 @@
 			} catch (err) {
 				console.error('Polling error:', err);
 				stopPolling();
-				isImporting = false;
-				isLoading = false;
 				toast.error('Failed to poll job status. Please try again.');
 			}
 		}, 2000);
 	}
 
 	function stopPolling() {
+		importProgress = 0;
+		isImporting = false;
+		isLoading = false;
 		if (importInterval) {
 			clearInterval(importInterval);
 			importInterval = null;
