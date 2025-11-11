@@ -103,13 +103,21 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		try {
-			const {
-				success,
-				error,
-				data: { jobUuid: newJobUuid }
-			} = await updateNodeStatuses(clusterUuid ?? '', selectedIds, selectedAction);
+			const { data, success, error } = await updateNodeStatuses(
+				clusterUuid ?? '',
+				selectedIds,
+				selectedAction
+			);
 			if (!success) {
 				toast.error(error ?? 'Failed to update node statuses');
+				isLoading = false;
+				return;
+			}
+
+			const newJobUuid = data?.jobUuid;
+			if (!newJobUuid) {
+				toast.error('Job UUID missing in response.');
+				isLoading = false;
 				return;
 			}
 
@@ -124,6 +132,7 @@
 		} catch (error) {
 			console.error('Error updating node statuses:', error);
 			toast.error('Failed to update node statuses. Please try again.');
+			isLoading = false;
 		}
 	}
 
