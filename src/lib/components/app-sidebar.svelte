@@ -1,5 +1,16 @@
 <script lang="ts" module>
-	import { Boxes, SearchIcon, UserCircleIcon, UserPlusIcon, WrenchIcon } from '@lucide/svelte';
+	import {
+		Boxes,
+		CircleUserRound,
+		DatabaseIcon,
+		KeyIcon,
+		SearchIcon,
+		SettingsIcon,
+		ShieldIcon,
+		UserPlusIcon,
+		UsersIcon,
+		WrenchIcon
+	} from '@lucide/svelte';
 
 	const data = {
 		navMain: [
@@ -35,7 +46,7 @@
 			{
 				title: 'My Account',
 				url: '#',
-				icon: UserCircleIcon,
+				icon: CircleUserRound,
 				requiresToken: true,
 				items: [
 					{
@@ -60,6 +71,34 @@
 			}
 		]
 	};
+
+	const adminNav = [
+		{
+			title: 'Cluster Management',
+			url: '/admin',
+			icon: DatabaseIcon
+		},
+		{
+			title: 'Source Config',
+			url: '/admin/source-indexes',
+			icon: SettingsIcon
+		},
+		{
+			title: 'Users',
+			url: '/admin/users',
+			icon: UsersIcon
+		},
+		{
+			title: 'Roles',
+			url: '/admin/roles',
+			icon: ShieldIcon
+		},
+		{
+			title: 'Capabilities',
+			url: '/admin/capabilities',
+			icon: KeyIcon
+		}
+	];
 </script>
 
 <script lang="ts">
@@ -75,8 +114,12 @@
 	let {
 		ref = $bindable(null),
 		currentToken = null,
+		showAdmin = false,
 		...restProps
-	}: ComponentProps<typeof Sidebar.Root> & { currentToken?: string | null } = $props();
+	}: ComponentProps<typeof Sidebar.Root> & {
+		currentToken?: string | null;
+		showAdmin?: boolean;
+	} = $props();
 
 	let currentUser: User | null = $state(null);
 
@@ -123,6 +166,9 @@
 			</div>
 		{/if}
 		<NavMain items={filteredNavMain} />
+		{#if showAdmin}
+			<NavMain items={adminNav} groupLabel="Admin Menu" />
+		{/if}
 	</Sidebar.Content>
 	<Sidebar.Rail />
 </Sidebar.Root>

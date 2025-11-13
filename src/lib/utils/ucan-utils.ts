@@ -65,7 +65,7 @@ export async function verifyUcanWithCapabilities(
 	hierPart: string,
 	namespace: string,
 	segments: string[]
-) {
+): Promise<boolean> {
 	const rootIssuerDidKey = PUBLIC_SERVER_DID_KEY;
 
 	const result = await ucans.verify(encodedUcan, {
@@ -82,7 +82,7 @@ export async function verifyUcanWithCapabilities(
 	});
 
 	if (result.ok) {
-		return result.value;
+		return true;
 	} else {
 		console.log('verifyUcanWithCapabilities - Verification failed:', result?.error);
 		return false;

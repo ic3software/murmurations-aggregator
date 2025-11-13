@@ -28,7 +28,7 @@
 		isUcanExpired,
 		verifyUcanWithCapabilities
 	} from '$lib/utils/ucan-utils';
-	import { AlertCircle, Clock, User, WifiOff } from '@lucide/svelte';
+	import { CircleAlert, Clock, User, WifiOff } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 
@@ -41,7 +41,6 @@
 	let isReady: boolean = $state(false);
 
 	const siteName = 'MurmurMaps';
-	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
 	// Define routes that do not require DB status check
 	const routesWithDbCheck = ['/profile-generator', '/batch-importer'];
@@ -197,6 +196,19 @@
 		delegationOptions().find((opt) => opt.value === selectValue)?.label ?? 'Original Account'
 	);
 
+	let hasAdminCapability = $state(false);
+
+	async function checkAdminCapability() {
+		if (!currentToken) {
+			hasAdminCapability = false;
+			return;
+		}
+
+		hasAdminCapability = await verifyUcanWithCapabilities(currentToken, 'page', '/', 'admin', [
+			'GET'
+		]);
+	}
+
 	onMount(() => {
 		// Check system preference
 		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -245,6 +257,7 @@
 
 			await refreshTokenIfNeeded(keypair);
 			await verifyAccessIfNeeded(keypair, page.url.pathname);
+			await checkAdminCapability();
 
 			isReady = true;
 		};
@@ -503,7 +516,7 @@
 			</div>
 		{/if}
 
-		{#if !isAdminRoute && showMenubar}
+		{#if showMenubar}
 			<!-- Status Alerts - Position below delegation bar -->
 			{#if !isOnline}
 				<div class="bg-red-500 border-b border-red-600 text-white shadow-lg">
@@ -523,7 +536,7 @@
 				>
 					<div class="container mx-auto px-4 py-3">
 						<div class="flex items-center justify-center space-x-2">
-							<AlertCircle class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+							<CircleAlert class="w-5 h-5 text-amber-600 dark:text-amber-400" />
 							<span class="font-medium">Database Connection Issue</span>
 							<span class="text-amber-700 dark:text-amber-300"
 								>Unable to connect to the database, please try again in a few minutes</span
@@ -534,7 +547,7 @@
 			{/if}
 
 			<Sidebar.Provider>
-				<AppSidebar {currentToken} />
+				<AppSidebar {currentToken} showAdmin={hasAdminCapability} />
 				<Sidebar.Inset>
 					<header class="flex h-16 shrink-0 items-center gap-2 border-b">
 						<div class="flex items-center gap-2 px-3">
