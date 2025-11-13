@@ -196,19 +196,6 @@
 		delegationOptions().find((opt) => opt.value === selectValue)?.label ?? 'Original Account'
 	);
 
-	let hasAdminCapability = $state(false);
-
-	async function checkAdminCapability() {
-		if (!currentToken) {
-			hasAdminCapability = false;
-			return;
-		}
-
-		hasAdminCapability = await verifyUcanWithCapabilities(currentToken, 'page', '/', 'admin', [
-			'GET'
-		]);
-	}
-
 	onMount(() => {
 		// Check system preference
 		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -257,7 +244,6 @@
 
 			await refreshTokenIfNeeded(keypair);
 			await verifyAccessIfNeeded(keypair, page.url.pathname);
-			await checkAdminCapability();
 
 			isReady = true;
 		};
@@ -547,7 +533,7 @@
 			{/if}
 
 			<Sidebar.Provider>
-				<AppSidebar {currentToken} showAdmin={hasAdminCapability} />
+				<AppSidebar {currentToken} />
 				<Sidebar.Inset>
 					<header class="flex h-16 shrink-0 items-center gap-2 border-b">
 						<div class="flex items-center gap-2 px-3">

@@ -124,3 +124,18 @@ export async function decodeUcanToDelegation(encodedUcan: string): Promise<Deleg
 		expiresAt: ucan.payload.exp
 	};
 }
+
+export function checkAdminCapability(currentToken: string | null): boolean {
+	if (!currentToken) {
+		return false;
+	}
+
+	const payload = ucans.parse(currentToken);
+	const caps = payload.payload.att || [];
+
+	return caps.some((cap) => {
+		return (
+			cap.with?.scheme === 'page' && typeof cap.can === 'object' && cap.can.namespace === 'admin'
+		);
+	});
+}

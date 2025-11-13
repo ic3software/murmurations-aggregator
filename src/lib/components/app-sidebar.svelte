@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { checkAdminCapability } from '$lib/utils/ucan-utils';
 	import {
 		Boxes,
 		CircleUserRound,
@@ -114,11 +115,9 @@
 	let {
 		ref = $bindable(null),
 		currentToken = null,
-		showAdmin = false,
 		...restProps
 	}: ComponentProps<typeof Sidebar.Root> & {
 		currentToken?: string | null;
-		showAdmin?: boolean;
 	} = $props();
 
 	let currentUser: User | null = $state(null);
@@ -134,6 +133,8 @@
 			return true;
 		})
 	);
+
+	const showAdmin = $derived(checkAdminCapability(currentToken));
 </script>
 
 <Sidebar.Root {...restProps} bind:ref>
