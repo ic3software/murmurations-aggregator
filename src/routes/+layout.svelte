@@ -255,8 +255,10 @@
 		if (!nav.to) return;
 		if (nav.to.url.pathname === page.url.pathname) return;
 
+		isReady = false;
 		const keypair = await getOrCreateKeyPair();
 		await verifyAccessIfNeeded(keypair, nav.to?.url.pathname ?? '');
+		isReady = true;
 	});
 
 	async function refreshTokenIfNeeded(keypair: CryptoKeyPair) {
