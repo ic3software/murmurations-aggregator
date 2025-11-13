@@ -298,11 +298,9 @@
 		const scheme = 'page';
 		let hierPart = currentPath;
 		let namespace = 'client';
-		let isAdminRoute = false;
 
 		let pathToCheck = currentPath;
 		if (currentPath.includes('/admin')) {
-			isAdminRoute = true;
 			namespace = 'admin';
 			hierPart = currentPath.replace('/admin', '') || '/';
 			pathToCheck = currentPath.replace(/^\/admin/, '') || '/';
@@ -329,7 +327,7 @@
 		}
 
 		if (!isVerified) {
-			goto(isAdminRoute ? '/admin/no-access' : '/no-access');
+			goto('/no-access');
 			return;
 		}
 	}
