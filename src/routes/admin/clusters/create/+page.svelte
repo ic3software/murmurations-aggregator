@@ -211,7 +211,7 @@
 	}
 </script>
 
-<div class="container mx-auto py-4">
+<div class="container mx-auto p-4">
 	<h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-50">
 		Create a Cluster or Directory
 	</h2>

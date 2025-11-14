@@ -234,7 +234,7 @@
 	}
 </script>
 
-<div class="container mx-auto py-4">
+<div class="container mx-auto p-4">
 	{#if isLoading}
 		<div class="my-6">
 			<p class="mb-2 text-sm text-muted-foreground">
