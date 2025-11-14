@@ -11,7 +11,7 @@
 	import type { IndexNode, IndexNodeMeta } from '$lib/types/index-node';
 	import type { IndexSearchParams } from '$lib/types/index-search-params';
 	import { formatDate } from '$lib/utils/date';
-	import { AlertCircle, ChevronLeftIcon, ChevronRightIcon } from '@lucide/svelte';
+	import { ChevronLeftIcon, ChevronRightIcon, CircleAlert } from '@lucide/svelte';
 
 	import { onMount, tick } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
@@ -253,7 +253,7 @@
 	{#if data.errorMessage || error}
 		<div class="mb-4">
 			<Alert.Root variant="destructive">
-				<AlertCircle class="h-4 w-4" />
+				<CircleAlert class="h-4 w-4" />
 				<Alert.Title>Error: {data.errorMessage || error}</Alert.Title>
 			</Alert.Root>
 		</div>
