@@ -378,7 +378,7 @@
 									/>
 								</Table.Head>
 								<Table.Head class="w-[40px]">ID</Table.Head>
-								<Table.Head class="w-[40px]">📍</Table.Head>
+								<Table.Head class="w-[40px]">Geo Data</Table.Head>
 								<Table.Head>Name / Title</Table.Head>
 								<Table.Head>Profile URL</Table.Head>
 								<Table.Head>Status</Table.Head>
