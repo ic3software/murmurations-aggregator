@@ -83,10 +83,13 @@
 			const { data: schemas } = await getSchemas(`${libraryURL}/schemas`);
 			schemaOptions.length = 0;
 			schemaOptions.push(
-				...schemas.map((schema: { name: string }) => ({
-					value: schema.name,
-					label: schema.name
-				}))
+				...schemas
+					.filter((schema: { name: string }) => !schema.name.startsWith('test_'))
+					.map((schema: { name: string }) => ({
+						value: schema.name,
+						label: schema.name
+					}))
+					.sort((a, b) => a.label.localeCompare(b.label))
 			);
 			schema = schemaOptions[0]?.value ?? '';
 		} catch (error) {
