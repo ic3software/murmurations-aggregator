@@ -31,6 +31,7 @@
 	const countryOptions = $state(data?.countries ?? []);
 
 	let clusterName = $state('');
+	let clusterDescription = $state('');
 	let clusterCenterLatitude = $state(0);
 	let clusterCenterLongitude = $state(0);
 	let clusterScale = $state(5);
@@ -153,6 +154,7 @@
 
 			const clusterData: ClusterCreateInput = {
 				name: clusterName,
+				description: clusterDescription,
 				indexUrl: sourceIndex,
 				queryUrl: `?${queryString}`,
 				centerLat: clusterCenterLatitude,
@@ -242,6 +244,19 @@
 						/>
 						<p class="text-sm text-muted-foreground">
 							A familiar name to make it easy for you to identify
+						</p>
+					</div>
+					<div class="grid gap-2">
+						<Label for="cluster-description">Cluster Description</Label>
+						<Input
+							type="text"
+							id="cluster-description"
+							bind:value={clusterDescription}
+							class="w-full"
+							placeholder="Enter cluster name"
+						/>
+						<p class="text-sm text-muted-foreground">
+							A description to help others understand the purpose of the cluster
 						</p>
 					</div>
 				</div>

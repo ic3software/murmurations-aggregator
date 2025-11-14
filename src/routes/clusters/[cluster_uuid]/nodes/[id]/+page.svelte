@@ -25,15 +25,20 @@
 		</div>
 	</div>
 {:else}
-	<div class="space-y-6">
+	<div class="container mx-auto p-4 space-y-6">
 		<Button variant="outline" size="sm" href="/">
 			<ArrowLeft class="h-4 w-4" />
 			Back to Home
 		</Button>
 
 		<div class="flex items-center justify-between">
-			<div class="flex items-center gap-4">
+			<div class="mb-4 space-y-2">
 				<h1 class="text-3xl font-bold tracking-tight">{cluster.name}</h1>
+				{#if cluster.description}
+					<div class="text-slate-700 dark:text-slate-300">
+						{cluster.description}
+					</div>
+				{/if}
 			</div>
 		</div>
 
