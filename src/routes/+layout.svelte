@@ -104,6 +104,13 @@
 		'/admin/no-access'
 	];
 
+	const hasSourceIndexRoute = [
+		'/profile-generator',
+		'/batch-importer',
+		'/index-explorer',
+		'/index-updater'
+	];
+
 	function isPublicRoute(path: string): boolean {
 		if (publicRoutes.includes(path)) return true;
 
@@ -573,27 +580,30 @@
 						</div>
 
 						<!-- Source Index Selector -->
-						<div class="flex items-center gap-2 self-end md:self-auto">
-							<Select.Root
-								type="single"
-								bind:value={selectedSourceIndexId}
-								onValueChange={handleSourceIndexChange}
-							>
-								<Select.Trigger class="w-[200px] md:w-[220px]">
-									{sourceIndexTriggerContent}
-								</Select.Trigger>
-								<Select.Content>
-									<Select.Group>
-										<Select.Label class="px-2 py-1 text-sm font-medium">Data Sources</Select.Label>
-										{#each data.sourceIndexes as src (src.id)}
-											<Select.Item value={String(src.id)} label={src.label}>
-												{src.label}
-											</Select.Item>
-										{/each}
-									</Select.Group>
-								</Select.Content>
-							</Select.Root>
-						</div>
+						{#if hasSourceIndexRoute.includes(page.url.pathname)}
+							<div class="flex items-center gap-2 self-end md:self-auto">
+								<Select.Root
+									type="single"
+									bind:value={selectedSourceIndexId}
+									onValueChange={handleSourceIndexChange}
+								>
+									<Select.Trigger class="w-[200px] md:w-[220px]">
+										{sourceIndexTriggerContent}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Group>
+											<Select.Label class="px-2 py-1 text-sm font-medium">Data Sources</Select.Label
+											>
+											{#each data.sourceIndexes as src (src.id)}
+												<Select.Item value={String(src.id)} label={src.label}>
+													{src.label}
+												</Select.Item>
+											{/each}
+										</Select.Group>
+									</Select.Content>
+								</Select.Root>
+							</div>
+						{/if}
 					</header>
 					<div class="flex flex-1 flex-col gap-4">
 						{@render children()}
