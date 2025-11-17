@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createBatch, deleteBatch, getBatches, updateBatch } from '$lib/api/batches';
+	import { getLibrarySchemas } from '$lib/api/schemas';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Badge } from '$lib/components/ui/badge';
@@ -10,6 +11,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Separator } from '$lib/components/ui/separator';
 	import { dbStatus } from '$lib/stores/db-status';
+	import { sourceIndexStore } from '$lib/stores/source-index';
 	import type { Batch } from '$lib/types/batch';
 	import type { ValidationError } from '$lib/types/profile';
 	import type { BasicSchema } from '$lib/types/schema';
@@ -35,17 +37,81 @@
 	let currentBatchId: string | null = null;
 	let isDbOnline = $state(true);
 	let dialogOpen: boolean = $state(false);
+	let schemasList: BasicSchema[] = $state([]);
+	let sourceIndexId: number | null = $state(null);
+	let sourceDataProxyUrl: string = $state('');
 
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
 
 	onMount(async () => {
-		if (data.errorMessage) {
-			toast.error(data.errorMessage);
+		if ($sourceIndexStore) {
+			await loadInitialData();
+		} else {
+			toast.error('Please select a Source Index in the top right first.');
+			return;
 		}
 
 		if (user) {
 			await fetchBatches();
+		}
+	});
+
+	async function loadInitialData() {
+		sourceIndexId = $sourceIndexStore;
+
+		if (!sourceIndexId) {
+			toast.error('Please select a Source Index in the top right first.');
+			return;
+		}
+
+		const src = data.sourceIndexes.find((s) => s.id === sourceIndexId);
+
+		if (!src) {
+			toast.error('Invalid Source Index.');
+			return;
+		}
+
+		const libraryUrl = src.libraryUrl;
+		sourceDataProxyUrl = src.dataProxyUrl;
+
+		try {
+			const { data: schemas, error: schemasError } = await getLibrarySchemas(libraryUrl, fetch);
+			schemasList = schemas
+				.filter((s: BasicSchema) => !s.name.startsWith('default-v'))
+				.filter((s: BasicSchema) => !s.name.startsWith('test_schema-v'));
+
+			if (schemasError) {
+				toast.error('Failed to load schemas from the selected Source Index: ' + schemasError);
+				return;
+			}
+		} catch (err) {
+			console.error(err);
+			toast.error('Failed to load schemas from the selected Source Index.');
+		}
+	}
+
+	// When the source index changes, load the initial data
+	$effect(() => {
+		const id = $sourceIndexStore;
+		if (!id) return;
+
+		queueMicrotask(async () => {
+			await loadInitialData();
+
+			schemasSelected = [];
+			title = '';
+			file = undefined;
+			errorsMessage = null;
+			isModifyMode = false;
+			currentBatchId = null;
+		});
+	});
+
+	// Fetch batches when dbStatus is online and user is logged in
+	$effect(() => {
+		if (isDbOnline && user && sourceIndexId) {
+			fetchBatches();
 		}
 	});
 
@@ -58,6 +124,11 @@
 				return;
 			}
 
+			if (!sourceIndexId) {
+				toast.error('Please select a Source Index first.');
+				return;
+			}
+
 			if (file[0].type !== 'text/csv') {
 				toast.error('Only CSV files are allowed');
 				return;
@@ -67,6 +138,7 @@
 			formData.append('file', file[0]);
 			formData.append('schemas', JSON.stringify(schemasSelected));
 			formData.append('title', title);
+			formData.append('source_data_proxy_url', sourceDataProxyUrl);
 
 			let success: boolean;
 			let errors: ValidationError[] | null;
@@ -131,6 +203,7 @@
 
 			const formData = new FormData();
 			formData.append('batch_id', batch.batch_id);
+			formData.append('source_data_proxy_url', sourceDataProxyUrl);
 
 			const { success, errors } = await deleteBatch(formData);
 
@@ -170,8 +243,13 @@
 	}
 
 	async function fetchBatches(): Promise<void> {
+		if (!sourceIndexId) {
+			toast.error('Please select a Source Index first.');
+			return;
+		}
+
 		try {
-			const { data: batches, success } = await getBatches();
+			const { data: batches, success } = await getBatches(sourceDataProxyUrl);
 			if (success) {
 				batchCards = batches.map((batch: Batch) => ({
 					title: batch.title,
@@ -319,7 +397,7 @@
 			{/if}
 			{#if schemasSelected.length === 0}
 				<SchemaSelector
-					schemasList={data.schemasList.map((schema: BasicSchema) => schema.name)}
+					schemasList={schemasList.map((schema: BasicSchema) => schema.name)}
 					schemaSelected={handleSchemasSelected}
 				/>
 			{:else}

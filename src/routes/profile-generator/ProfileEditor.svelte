@@ -71,8 +71,13 @@
 
 	// Use parseRef to retrieve the schema based on schemasSelected
 	onMount(async () => {
+		if (!sourceIndexUrl) {
+			toast.error('Please select a Source Index first.');
+			return;
+		}
+
 		try {
-			schemas = await parseRef(schemasSelected);
+			schemas = await parseRef(schemasSelected, sourceIndexUrl);
 		} catch (err) {
 			toast.error(err as string);
 			resetSchemas();
