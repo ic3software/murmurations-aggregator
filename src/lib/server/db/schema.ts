@@ -122,7 +122,7 @@ export const sourceIndexes = sqliteTable('source_indexes', {
 	url: text('url').unique().notNull(),
 	label: text('label').notNull(),
 	libraryUrl: text('library_url').notNull(),
-	dataProxyUrl: text('data_proxy_url').notNull().default(''),
+	dataProxyUrl: text('data_proxy_url').notNull(),
 	createdAt: integer('created_at', { mode: 'number' })
 		.notNull()
 		.default(sql`(unixepoch())`),

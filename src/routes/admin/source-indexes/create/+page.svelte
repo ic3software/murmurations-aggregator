@@ -12,7 +12,8 @@
 	let formData = $state<SourceIndexCreateInput>({
 		url: '',
 		label: '',
-		libraryUrl: ''
+		libraryUrl: '',
+		dataProxyUrl: ''
 	});
 
 	let isSubmitting = $state(false);
@@ -30,6 +31,11 @@
 
 		if (!formData.libraryUrl.trim()) {
 			toast.error('Library URL is required');
+			return;
+		}
+
+		if (!formData.dataProxyUrl.trim()) {
+			toast.error('Data Proxy URL is required');
 			return;
 		}
 
@@ -114,6 +120,19 @@
 						disabled={isSubmitting}
 					/>
 					<p class="text-sm text-muted-foreground">The URL endpoint for the library API</p>
+				</div>
+
+				<div class="space-y-2">
+					<Label for="dataProxyUrl">Data Proxy URL</Label>
+					<Input
+						id="dataProxyUrl"
+						type="url"
+						bind:value={formData.dataProxyUrl}
+						placeholder="https://data-proxy.example.com/v1"
+						required
+						disabled={isSubmitting}
+					/>
+					<p class="text-sm text-muted-foreground">The URL endpoint for the data proxy API</p>
 				</div>
 
 				<div class="flex gap-3 pt-4">

@@ -31,9 +31,9 @@ export const POST: RequestHandler = async ({
 	try {
 		const db = getDB(platform.env);
 
-		const { url, label, libraryUrl } = await request.json();
+		const { url, label, libraryUrl, dataProxyUrl } = await request.json();
 
-		if (!url || !label || !libraryUrl) {
+		if (!url || !label || !libraryUrl || !dataProxyUrl) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
 		}
 
@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({
 			return json({ error: 'Source index already exists', success: false }, { status: 400 });
 		}
 
-		const newSourceIndex = await createSourceIndex(db, { url, label, libraryUrl });
+		const newSourceIndex = await createSourceIndex(db, { url, label, libraryUrl, dataProxyUrl });
 
 		return json({ data: newSourceIndex, success: true }, { status: 201 });
 	} catch (error) {

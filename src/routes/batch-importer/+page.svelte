@@ -13,7 +13,7 @@
 	import type { Batch } from '$lib/types/batch';
 	import type { ValidationError } from '$lib/types/profile';
 	import type { BasicSchema } from '$lib/types/schema';
-	import { Database, Edit, Hash, Trash2 } from '@lucide/svelte';
+	import { Database, Hash, SquarePen, Trash2 } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -264,7 +264,7 @@
 								class="flex items-center gap-2"
 								disabled={!isDbOnline || isLoading}
 							>
-								<Edit class="h-4 w-4" />
+								<SquarePen class="h-4 w-4" />
 								Modify
 							</Button>
 							<AlertDialog.Root bind:open={dialogOpen}>

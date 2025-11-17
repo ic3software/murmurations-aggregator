@@ -8,7 +8,7 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Separator } from '$lib/components/ui/separator';
 	import { dbStatus } from '$lib/stores/db-status';
-	import { Clock, Database, Edit, Trash2 } from '@lucide/svelte';
+	import { Clock, Database, SquarePen, Trash2 } from '@lucide/svelte';
 	import { createQuery, QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 
 	import { toast } from 'svelte-sonner';
@@ -158,7 +158,7 @@
 					class="flex items-center gap-2"
 					disabled={!isDbOnline}
 				>
-					<Edit class="h-4 w-4" />
+					<SquarePen class="h-4 w-4" />
 					Modify
 				</Button>
 				<AlertDialog.Root bind:open={dialogOpen}>
