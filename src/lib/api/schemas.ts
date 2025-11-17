@@ -14,4 +14,10 @@ export const getSchema = (clusterUuid: string, customFetch?: typeof fetch) =>
 	);
 
 export const getLibrarySchemas = (libraryUrl: string, customFetch?: typeof fetch) =>
-	request<undefined, BasicSchema[]>(`${libraryUrl}/schemas`, 'GET', undefined, customFetch, false);
+	request<undefined, BasicSchema[]>(
+		`${libraryUrl}/v2/schemas`,
+		'GET',
+		undefined,
+		customFetch,
+		false
+	);

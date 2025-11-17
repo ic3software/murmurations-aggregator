@@ -152,7 +152,7 @@
 			}
 
 			// countries
-			const rawCountries = await getCountries(`${libraryUrl}/countries`, fetch);
+			const rawCountries = await getCountries(`${libraryUrl}/v2/countries`, fetch);
 			countries = Object.keys(rawCountries);
 		} catch (err) {
 			console.error(err);

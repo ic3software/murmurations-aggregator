@@ -16,9 +16,13 @@ export const validateProfile = (profile: ProfileObject, customFetch?: typeof fet
 		false
 	);
 
-export const getIndexStatus = (nodeId: string, customFetch?: typeof fetch) =>
+export const getIndexStatus = (
+	nodeId: string,
+	sourceIndexUrl: string,
+	customFetch?: typeof fetch
+) =>
 	request<undefined, { status: string }>(
-		`/api/index/nodes/${nodeId}`,
+		`/api/index/nodes/${nodeId}?source_index_url=${encodeURIComponent(sourceIndexUrl)}`,
 		'GET',
 		undefined,
 		customFetch,
@@ -34,20 +38,20 @@ export const postProfileToIndex = (cuid: string, customFetch?: typeof fetch) =>
 		false
 	);
 
-export const postIndex = (profileUrl: string, customFetch?: typeof fetch) =>
-	request<{ profile_url: string }, { node_id: string }>(
+export const postIndex = (profileUrl: string, sourceIndexUrl: string, customFetch?: typeof fetch) =>
+	request<{ profile_url: string; source_index_url: string }, { node_id: string }>(
 		`/api/index/nodes`,
 		'POST',
-		{ profile_url: profileUrl },
+		{ profile_url: profileUrl, source_index_url: sourceIndexUrl },
 		customFetch,
 		false
 	);
 
-export const deleteIndex = (nodeId: string, customFetch?: typeof fetch) =>
-	request<undefined, undefined>(
+export const deleteIndex = (nodeId: string, sourceIndexUrl: string, customFetch?: typeof fetch) =>
+	request<{ source_index_url: string }, undefined>(
 		`/api/index/nodes/${nodeId}`,
 		'DELETE',
-		undefined,
+		{ source_index_url: sourceIndexUrl },
 		customFetch,
 		false
 	);
