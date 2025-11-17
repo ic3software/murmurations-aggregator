@@ -207,7 +207,7 @@
 	{/if}
 
 	{#if !nodes?.length}
-		<div class="absolute inset-0 flex items-center justify-center z-[999] pointer-events-none">
+		<div class="absolute inset-0 flex items-center justify-center z-999 pointer-events-none">
 			<Card class="shadow-lg">
 				<CardContent class="p-6">
 					<div class="text-center space-y-2">
