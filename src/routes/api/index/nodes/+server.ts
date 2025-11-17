@@ -5,6 +5,12 @@ export const GET: RequestHandler = async ({ url }) => {
 	const params = Object.fromEntries(url.searchParams.entries());
 	let searchParams = '';
 
+	const indexUrl = params?.index_url;
+
+	if (!indexUrl) {
+		return json({ error: 'Missing index_url', success: false }, { status: 400 });
+	}
+
 	if (params?.schema && params.schema !== 'all') {
 		searchParams += 'schema=' + params.schema;
 	}
@@ -28,7 +34,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (params?.page) searchParams += '&page=' + params.page;
 
 	try {
-		const response = await fetch(`${PUBLIC_INDEX_URL}/v2/nodes?${searchParams}`);
+		const response = await fetch(`${indexUrl}?${searchParams}`);
 		const data = await response.json();
 
 		if (response.status === 400) {
