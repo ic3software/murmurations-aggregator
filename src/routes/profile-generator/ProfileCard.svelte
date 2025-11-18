@@ -68,6 +68,11 @@
 			return status;
 		}
 
+		if (!sourceIndexUrl) {
+			toast.error('Please select a Source Index first.');
+			return 'unknown';
+		}
+
 		try {
 			const { data, error } = await getIndexStatus(node_id, sourceIndexUrl);
 			if (data?.status) {
