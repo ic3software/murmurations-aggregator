@@ -23,6 +23,7 @@
 		status: string;
 		last_updated: string;
 		schemas: string[];
+		sourceIndexUrl: string;
 		profileUpdated: () => void;
 		profileModify: (cuid: string) => Promise<void>;
 	}
@@ -34,6 +35,7 @@
 		status,
 		last_updated,
 		schemas,
+		sourceIndexUrl,
 		profileUpdated,
 		profileModify
 	}: Props = $props();
@@ -67,7 +69,7 @@
 		}
 
 		try {
-			const { data, error } = await getIndexStatus(node_id);
+			const { data, error } = await getIndexStatus(node_id, sourceIndexUrl);
 			if (data?.status) {
 				return data.status ?? 'unknown';
 			} else {

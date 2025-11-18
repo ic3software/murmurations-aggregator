@@ -203,6 +203,7 @@
 				{#each profileCards as profileCard (profileCard.cuid)}
 					<ProfileCard
 						{...profileCard}
+						{sourceIndexUrl}
 						profileUpdated={handleProfileUpdated}
 						profileModify={handleProfileModify}
 					/>
