@@ -103,7 +103,7 @@
 		try {
 			await deleteProfile(cuid);
 			if (node_id) {
-				await deleteIndex(node_id);
+				await deleteIndex(node_id, sourceIndexUrl);
 			}
 			profileUpdated();
 			dialogOpen = false;
