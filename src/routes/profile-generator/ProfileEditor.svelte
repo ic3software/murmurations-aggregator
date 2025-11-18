@@ -40,6 +40,7 @@
 		profileUpdated: () => void;
 		user: string | null;
 		sourceIndexUrl: string;
+		sourceLibraryUrl: string;
 		sourceIndexId: number | null;
 	}
 
@@ -52,6 +53,7 @@
 		profileUpdated,
 		user,
 		sourceIndexUrl,
+		sourceLibraryUrl,
 		sourceIndexId
 	}: Props = $props();
 
@@ -71,13 +73,13 @@
 
 	// Use parseRef to retrieve the schema based on schemasSelected
 	onMount(async () => {
-		if (!sourceIndexUrl) {
+		if (!sourceLibraryUrl) {
 			toast.error('Please select a Source Index first.');
 			return;
 		}
 
 		try {
-			schemas = await parseRef(schemasSelected, sourceIndexUrl);
+			schemas = await parseRef(schemasSelected, sourceLibraryUrl);
 		} catch (err) {
 			toast.error(err as string);
 			resetSchemas();

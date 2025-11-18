@@ -2,9 +2,9 @@ import type { RetrievedSchema, Schema } from '$lib/types/schema';
 
 export const parseRef = async (
 	schemaName: string | string[],
-	sourceIndexUrl: string
+	sourceLibraryUrl: string
 ): Promise<Schema | null> => {
-	const url = `${sourceIndexUrl}/v2/schemas`;
+	const url = `${sourceLibraryUrl}/v2/schemas`;
 
 	const schemaNames = Array.isArray(schemaName)
 		? schemaName

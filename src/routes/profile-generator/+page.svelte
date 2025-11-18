@@ -29,6 +29,7 @@
 	let isDbOnline: boolean = $state(true);
 	let schemasList: BasicSchema[] = $state([]);
 	let sourceIndexUrl: string = $state('');
+	let sourceLibraryUrl: string = $state('');
 	let sourceIndexId: number | null = $state(null);
 
 	const user = data?.user ?? null;
@@ -64,11 +65,14 @@
 			return;
 		}
 
-		const libraryUrl = src.libraryUrl;
+		sourceLibraryUrl = src.libraryUrl;
 		sourceIndexUrl = src.url;
 
 		try {
-			const { data: schemas, error: schemasError } = await getLibrarySchemas(libraryUrl, fetch);
+			const { data: schemas, error: schemasError } = await getLibrarySchemas(
+				sourceLibraryUrl,
+				fetch
+			);
 			schemasList = schemas
 				.filter((s: BasicSchema) => !s.name.startsWith('default-v'))
 				.filter((s: BasicSchema) => !s.name.startsWith('test_schema-v'));
@@ -222,6 +226,7 @@
 						profileUpdated={handleProfileUpdated}
 						{user}
 						{sourceIndexUrl}
+						{sourceLibraryUrl}
 						{sourceIndexId}
 					/>
 				{/if}
