@@ -123,6 +123,7 @@
 	];
 
 	const hasSourceIndexRoute = [
+		'/',
 		'/profile-generator',
 		'/batch-importer',
 		'/index-explorer',
