@@ -23,6 +23,10 @@ export async function getSourceIndexByUrl(db: DrizzleD1Database, url: string) {
 		.get();
 }
 
+export async function getSourceIndexByUrlIncludingDeleted(db: DrizzleD1Database, url: string) {
+	return await db.select().from(sourceIndexes).where(eq(sourceIndexes.url, url)).get();
+}
+
 export async function createSourceIndex(db: DrizzleD1Database, data: SourceIndexInsert) {
 	return await db.insert(sourceIndexes).values(data).run();
 }
@@ -36,6 +40,18 @@ export async function updateSourceIndex(
 		.update(sourceIndexes)
 		.set(data)
 		.where(and(eq(sourceIndexes.id, id), isNull(sourceIndexes.deletedAt)))
+		.run();
+}
+
+export async function restoreSourceIndex(
+	db: DrizzleD1Database,
+	id: number,
+	data: SourceIndexDbUpdateInput
+) {
+	return await db
+		.update(sourceIndexes)
+		.set({ ...data, deletedAt: null })
+		.where(eq(sourceIndexes.id, id))
 		.run();
 }
 
