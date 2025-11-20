@@ -8,10 +8,15 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ platform = { env: { DB: {} as D1Database } } }) => {
+export const GET: RequestHandler = async ({
+	platform = { env: { DB: {} as D1Database } },
+	url
+}) => {
 	try {
 		const db = getDB(platform.env);
-		const clusterData = await getClusters(db);
+		const sourceIndexId = url.searchParams.get('source_index_id');
+
+		const clusterData = await getClusters(db, sourceIndexId ? parseInt(sourceIndexId) : undefined);
 
 		const clusters: ClusterPublic[] = clusterData as ClusterPublic[];
 
