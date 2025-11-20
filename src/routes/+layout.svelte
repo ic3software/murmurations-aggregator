@@ -48,6 +48,24 @@
 
 	sourceIndexStore.subscribe((v) => (selectedSourceIndexId = v?.toString() ?? ''));
 
+	// Auto-select first source index if none is selected or if selected one is invalid
+	$effect(() => {
+		if (data.sourceIndexes.length > 0) {
+			if (!selectedSourceIndexId) {
+				const firstSourceIndex = data.sourceIndexes[0];
+				sourceIndexStore.set(firstSourceIndex.id);
+			} else {
+				const isValidSelection = data.sourceIndexes.some(
+					(s) => s.id.toString() === selectedSourceIndexId
+				);
+				if (!isValidSelection) {
+					const firstSourceIndex = data.sourceIndexes[0];
+					sourceIndexStore.set(firstSourceIndex.id);
+				}
+			}
+		}
+	});
+
 	function handleSourceIndexChange(value: string | null) {
 		if (!value) return;
 		sourceIndexStore.set(value ? Number(value) : null);
@@ -105,6 +123,7 @@
 	];
 
 	const hasSourceIndexRoute = [
+		'/',
 		'/profile-generator',
 		'/batch-importer',
 		'/index-explorer',
