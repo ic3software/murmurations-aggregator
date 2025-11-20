@@ -35,8 +35,8 @@
 	let clusterCenterLatitude = $state(0);
 	let clusterCenterLongitude = $state(0);
 	let clusterScale = $state(5);
-	let sourceIndex = $state(sourceIndexOptions[0].url);
-	let schema = $state(schemaOptions[0]?.value || '');
+	let sourceIndex = $state(sourceIndexOptions[0]?.url ?? '');
+	let schema = $state(schemaOptions[0]?.value ?? '');
 	let name = $state('');
 	let lat = $state<number | null>(null);
 	let lon = $state<number | null>(null);
@@ -81,7 +81,7 @@
 	async function loadSchemasForIndex(libraryURL: string) {
 		loadingSchemas = true;
 		try {
-			const { data: schemas } = await getSchemas(`${libraryURL}/schemas`);
+			const { data: schemas } = await getSchemas(`${libraryURL}/v2/schemas`);
 			schemaOptions.length = 0;
 			schemaOptions.push(
 				...schemas
@@ -104,7 +104,7 @@
 	async function loadCountriesForIndex(libraryURL: string) {
 		loadingCountries = true;
 		try {
-			const { data: rawCountries } = await getCountries(`${libraryURL}/countries`);
+			const { data: rawCountries } = await getCountries(`${libraryURL}/v2/countries`);
 			countryOptions.length = 0;
 			countryOptions.push(
 				...Object.entries(rawCountries).map(([key, names]) => ({
