@@ -11,7 +11,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	const defaultSourceIndex = sourceIndexes[0];
 
 	const { data: rawCountries } = await getCountries(
-		`${defaultSourceIndex?.libraryUrl}/countries`,
+		`${defaultSourceIndex?.libraryUrl}/v2/countries`,
 		fetch
 	);
 
@@ -27,7 +27,10 @@ export const load: PageLoad = async ({ fetch }) => {
 	}));
 
 	// Get the schema for the source index
-	const { data: allSchemas } = await getSchemas(`${defaultSourceIndex?.libraryUrl}/schemas`, fetch);
+	const { data: allSchemas } = await getSchemas(
+		`${defaultSourceIndex?.libraryUrl}/v2/schemas`,
+		fetch
+	);
 
 	const schemas = allSchemas
 		.filter((schema: { name: string }) => !schema.name.startsWith('test_'))
