@@ -41,7 +41,8 @@ export const POST: RequestHandler = async ({
 		}
 
 		const body = await request.json();
-		const { name, description, indexUrl, queryUrl, centerLat, centerLon, scale } = body;
+		const { name, description, indexUrl, queryUrl, centerLat, centerLon, scale, sourceIndexId } =
+			body;
 
 		if (!name || !indexUrl || !queryUrl) {
 			return json({ error: 'Missing required fields', success: false }, { status: 400 });
@@ -55,7 +56,8 @@ export const POST: RequestHandler = async ({
 			queryUrl,
 			centerLat,
 			centerLon,
-			scale
+			scale,
+			sourceIndexId
 		};
 
 		await createCluster(db, cluster);
