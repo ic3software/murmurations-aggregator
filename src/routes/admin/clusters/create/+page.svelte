@@ -87,10 +87,11 @@
 			schemaOptions.length = 0;
 			schemaOptions.push(
 				...schemas
-					.filter((schema: { name: string }) => !schema.name.startsWith('test_'))
-					.map((schema: { name: string }) => ({
-						value: schema.name,
-						label: schema.name
+					.filter(({ name }) => !name.startsWith('default-v'))
+					.filter(({ name }) => !name.startsWith('test_schema-v'))
+					.map(({ name }) => ({
+						value: name,
+						label: name
 					}))
 					.sort((a, b) => a.label.localeCompare(b.label))
 			);

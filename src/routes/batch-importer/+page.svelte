@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createBatch, deleteBatch, getBatches, updateBatch } from '$lib/api/batches';
-	import { getLibrarySchemas } from '$lib/api/schemas';
+	import { getSchemas } from '$lib/api/schemas';
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Badge } from '$lib/components/ui/badge';
@@ -14,7 +14,6 @@
 	import { sourceIndexStore } from '$lib/stores/source-index';
 	import type { Batch } from '$lib/types/batch';
 	import type { ValidationError } from '$lib/types/profile';
-	import type { BasicSchema } from '$lib/types/schema';
 	import { Database, Hash, SquarePen, Trash2 } from '@lucide/svelte';
 
 	import { onMount } from 'svelte';
@@ -37,7 +36,7 @@
 	let currentBatchId: string | null = null;
 	let isDbOnline = $state(true);
 	let dialogOpen: boolean = $state(false);
-	let schemasList: BasicSchema[] = $state([]);
+	let schemasList: { value: string; label: string }[] = $state([]);
 	let sourceIndexId: number | null = $state(null);
 	let sourceDataProxyUrl: string = $state('');
 
@@ -76,15 +75,15 @@
 		sourceDataProxyUrl = src.dataProxyUrl;
 
 		try {
-			const { data: schemas, error: schemasError } = await getLibrarySchemas(libraryUrl, fetch);
+			const { data: schemas } = await getSchemas(`${libraryUrl}/v2/schemas`);
 			schemasList = schemas
-				.filter((s: BasicSchema) => !s.name.startsWith('default-v'))
-				.filter((s: BasicSchema) => !s.name.startsWith('test_schema-v'));
-
-			if (schemasError) {
-				toast.error('Failed to load schemas from the selected Source Index: ' + schemasError);
-				return;
-			}
+				.filter(({ name }) => !name.startsWith('default-v'))
+				.filter(({ name }) => !name.startsWith('test_schema-v'))
+				.map(({ name }) => ({
+					value: name,
+					label: name
+				}))
+				.sort((a, b) => a.label.localeCompare(b.label));
 		} catch (err) {
 			console.error(err);
 			toast.error('Failed to load schemas from the selected Source Index.');
@@ -397,7 +396,7 @@
 			{/if}
 			{#if schemasSelected.length === 0}
 				<SchemaSelector
-					schemasList={schemasList.map((schema: BasicSchema) => schema.name)}
+					schemasList={schemasList.map(({ value }) => value)}
 					schemaSelected={handleSchemasSelected}
 				/>
 			{:else}

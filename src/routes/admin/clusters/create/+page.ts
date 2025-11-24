@@ -43,7 +43,8 @@ export const load: PageLoad = async ({ fetch }) => {
 		);
 
 		const schemas = allSchemas
-			.filter((schema: { name: string }) => !schema.name.startsWith('test_'))
+			.filter(({ name }) => !name.startsWith('default-v'))
+			.filter(({ name }) => !name.startsWith('test_schema-v'))
 			.map(({ name }) => ({
 				value: name,
 				label: name
