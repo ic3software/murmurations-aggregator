@@ -2,7 +2,7 @@
 	import { pushState } from '$app/navigation';
 	import { getCountries } from '$lib/api/countries';
 	import { getIndexNodes } from '$lib/api/index-node';
-	import { getLibrarySchemas } from '$lib/api/schemas';
+	import { getSchemas } from '$lib/api/schemas';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -12,7 +12,6 @@
 	import { sourceIndexStore } from '$lib/stores/source-index';
 	import type { IndexNode, IndexNodeMeta } from '$lib/types/index-node';
 	import type { IndexSearchParams } from '$lib/types/index-search-params';
-	import type { BasicSchema } from '$lib/types/schema';
 	import { formatDate } from '$lib/utils/date';
 	import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/svelte';
 
@@ -58,7 +57,7 @@
 	let tagsExactChecked: boolean = $state(false);
 	let sortProp: string = $state('');
 	let sortOrder: 'asc' | 'desc' | null = $state(null);
-	let schemasList: BasicSchema[] = $state([]);
+	let schemasList: { value: string; label: string }[] = $state([]);
 	let countries: string[] = $state([]);
 	let sourceIndexUrl: string = $state('');
 
@@ -68,7 +67,7 @@
 	const schemaOptions = $derived([
 		{ value: '', label: 'Select a schema' },
 		{ value: 'all', label: 'All schemas' },
-		...schemasList.map((schema) => ({ value: schema.name, label: schema.name }))
+		...schemasList
 	]);
 
 	const countryOptions = $derived([
@@ -141,18 +140,18 @@
 
 		try {
 			// schemas
-			const { data: schemas, error: schemasError } = await getLibrarySchemas(libraryUrl, fetch);
+			const { data: schemas } = await getSchemas(`${libraryUrl}/v2/schemas`);
 			schemasList = schemas
-				.filter((s: BasicSchema) => !s.name.startsWith('default-v'))
-				.filter((s: BasicSchema) => !s.name.startsWith('test_schema-v'));
-
-			if (schemasError) {
-				toast.error('Failed to load schemas from the selected Source Index: ' + schemasError);
-				return;
-			}
+				.filter(({ name }) => !name.startsWith('default-v'))
+				.filter(({ name }) => !name.startsWith('test_schema-v'))
+				.map(({ name }) => ({
+					value: name,
+					label: name
+				}))
+				.sort((a, b) => a.label.localeCompare(b.label));
 
 			// countries
-			const rawCountries = await getCountries(`${libraryUrl}/v2/countries`, fetch);
+			const { data: rawCountries } = await getCountries(`${libraryUrl}/v2/countries`, fetch);
 			countries = Object.keys(rawCountries);
 		} catch (err) {
 			console.error(err);

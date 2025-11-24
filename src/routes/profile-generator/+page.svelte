@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { getProfile, getProfiles } from '$lib/api/profiles';
-	import { getLibrarySchemas } from '$lib/api/schemas';
+	import { getSchemas } from '$lib/api/schemas';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { dbStatus } from '$lib/stores/db-status';
 	import { sourceIndexStore } from '$lib/stores/source-index';
 	import type { Profile, ProfileCardType, ProfileObject } from '$lib/types/profile';
-	import type { BasicSchema } from '$lib/types/schema';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 
 	import { onMount } from 'svelte';
@@ -27,7 +26,7 @@
 	let currentTitle: string = $state('');
 	let currentCuid: string = $state('');
 	let isDbOnline: boolean = $state(true);
-	let schemasList: BasicSchema[] = $state([]);
+	let schemasList: { value: string; label: string }[] = $state([]);
 	let sourceIndexUrl: string = $state('');
 	let sourceLibraryUrl: string = $state('');
 	let sourceIndexId: number | null = $state(null);
@@ -69,18 +68,15 @@
 		sourceIndexUrl = src.url;
 
 		try {
-			const { data: schemas, error: schemasError } = await getLibrarySchemas(
-				sourceLibraryUrl,
-				fetch
-			);
+			const { data: schemas } = await getSchemas(`${sourceLibraryUrl}/v2/schemas`);
 			schemasList = schemas
-				.filter((s: BasicSchema) => !s.name.startsWith('default-v'))
-				.filter((s: BasicSchema) => !s.name.startsWith('test_schema-v'));
-
-			if (schemasError) {
-				toast.error('Failed to load schemas from the selected Source Index: ' + schemasError);
-				return;
-			}
+				.filter(({ name }) => !name.startsWith('default-v'))
+				.filter(({ name }) => !name.startsWith('test_schema-v'))
+				.map(({ name }) => ({
+					value: name,
+					label: name
+				}))
+				.sort((a, b) => a.label.localeCompare(b.label));
 		} catch (err) {
 			console.error(err);
 			toast.error('Failed to load schemas from the selected Source Index.');
@@ -214,7 +210,7 @@
 			<div class="md:col-span-2 space-y-4">
 				{#if schemasSelected.length === 0}
 					<SchemaSelector
-						schemasList={schemasList.map((schema: BasicSchema) => schema.name)}
+						schemasList={schemasList.map(({ value }) => value)}
 						schemaSelected={handleSchemasSelected}
 					/>
 				{:else}
