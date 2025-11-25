@@ -9,6 +9,7 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { Progress } from '$lib/components/ui/progress';
 	import { Separator } from '$lib/components/ui/separator';
 	import { dbStatus } from '$lib/stores/db-status';
 	import { sourceIndexStore } from '$lib/stores/source-index';
@@ -16,7 +17,7 @@
 	import type { ValidationError } from '$lib/types/profile';
 	import { Database, Hash, SquarePen, Trash2 } from '@lucide/svelte';
 
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import SchemaSelector from '../profile-generator/SchemaSelector.svelte';
@@ -39,6 +40,9 @@
 	let schemasList: { value: string; label: string }[] = $state([]);
 	let sourceIndexId: number | null = $state(null);
 	let sourceDataProxyUrl: string = $state('');
+	let hasIncomplete = $derived(batchCards.some((b) => b.status !== 'completed'));
+	let pollingInterval: ReturnType<typeof setInterval> | null = null;
+	let batchToDelete: Batch | null = $state(null);
 
 	// Subscribe to dbStatus changes
 	dbStatus.subscribe((value) => (isDbOnline = value));
@@ -55,6 +59,38 @@
 			await fetchBatches();
 		}
 	});
+
+	onDestroy(() => {
+		if (pollingInterval) clearInterval(pollingInterval);
+	});
+
+	function startPolling() {
+		if (pollingInterval) clearInterval(pollingInterval);
+		isLoading = true;
+
+		pollingInterval = setInterval(async () => {
+			try {
+				await fetchBatches();
+
+				if (!hasIncomplete) {
+					stopPolling();
+					toast.success('All batches completed.');
+				}
+			} catch (err) {
+				console.error('Polling error:', err);
+				stopPolling();
+				toast.error('Failed to poll batch status. Please try again.');
+			}
+		}, 2000);
+	}
+
+	function stopPolling() {
+		if (pollingInterval) {
+			clearInterval(pollingInterval);
+			pollingInterval = null;
+		}
+		isLoading = false;
+	}
 
 	async function loadInitialData() {
 		sourceIndexId = $sourceIndexStore;
@@ -186,22 +222,40 @@
 			const wasModifyMode = isModifyMode;
 			resetForm();
 			toast.success(wasModifyMode ? 'Batch modified successfully' : 'Batch imported successfully');
+
+			// Start polling if there are incomplete batches
+			if (hasIncomplete) {
+				startPolling();
+			}
 		} catch (err) {
 			toast.error(
 				(err as Error).message ||
 					'An error occurred while processing your request, please try again later'
 			);
 		} finally {
-			isLoading = false;
+			if (!hasIncomplete) {
+				isLoading = false;
+			}
 		}
 	}
 
-	async function handleDeleteBatch(batch: Batch): Promise<void> {
+	function confirmDelete(batch: Batch): void {
+		dialogOpen = true;
+		currentBatchId = batch.batch_id;
+		batchToDelete = batch;
+	}
+
+	async function handleDeleteBatch(): Promise<void> {
 		try {
 			isLoading = true;
 
+			if (!currentBatchId) {
+				toast.error('No batch selected for deletion');
+				return;
+			}
+
 			const formData = new FormData();
-			formData.append('batch_id', batch.batch_id);
+			formData.append('batch_id', currentBatchId);
 			formData.append('source_data_proxy_url', sourceDataProxyUrl);
 
 			const { success, errors } = await deleteBatch(formData);
@@ -217,13 +271,20 @@
 			await fetchBatches();
 			dialogOpen = false;
 			toast.success('Batch deleted successfully');
+
+			// Start polling if there are incomplete batches
+			if (hasIncomplete) {
+				startPolling();
+			}
 		} catch (err) {
 			toast.error(
 				(err as Error).message ||
 					'An error occurred while processing your request, please try again later'
 			);
 		} finally {
-			isLoading = false;
+			if (!hasIncomplete) {
+				isLoading = false;
+			}
 			resetForm();
 		}
 	}
@@ -253,7 +314,10 @@
 				batchCards = batches.map((batch: Batch) => ({
 					title: batch.title,
 					batch_id: batch.batch_id,
-					schemas: batch.schemas
+					schemas: batch.schemas,
+					status: batch.status,
+					processed_nodes: batch.processed_nodes,
+					total_nodes: batch.total_nodes
 				}));
 			} else {
 				toast.error('Failed to fetch batches');
@@ -332,6 +396,16 @@
 							</div>
 						</div>
 
+						{#if batch.status !== 'completed'}
+							<div class="mt-4 space-y-2">
+								<div class="text-sm text-muted-foreground">
+									{batch.status} – {batch.processed_nodes}/{batch.total_nodes}
+								</div>
+
+								<Progress value={(batch.processed_nodes / batch.total_nodes) * 100} class="h-2" />
+							</div>
+						{/if}
+
 						<Separator class="my-4" />
 
 						<div class="flex items-center gap-3">
@@ -339,7 +413,7 @@
 								onclick={() => handleModify(batch)}
 								size="sm"
 								class="flex items-center gap-2"
-								disabled={!isDbOnline || isLoading}
+								disabled={!isDbOnline || isLoading || batch.status !== 'completed'}
 							>
 								<SquarePen class="h-4 w-4" />
 								Modify
@@ -351,7 +425,8 @@
 										size: 'sm'
 									}) +
 										' flex items-center gap-2 text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/30 bg-transparent cursor-pointer'}
-									disabled={!isDbOnline}
+									disabled={!isDbOnline || batch.status !== 'completed'}
+									onclick={() => confirmDelete(batch)}
 								>
 									<Trash2 class="h-4 w-4" />
 									Delete
@@ -362,14 +437,13 @@
 									</AlertDialog.Header>
 									<AlertDialog.Description>
 										<p>
-											Are you sure you want to delete the batch: {batch.title}?
+											Are you sure you want to delete the batch: {batchToDelete?.title}?
 										</p>
 									</AlertDialog.Description>
 									<AlertDialog.Footer>
 										<AlertDialog.Cancel class="cursor-pointer">Cancel</AlertDialog.Cancel>
-										<AlertDialog.Action
-											class="cursor-pointer"
-											onclick={() => handleDeleteBatch(batch)}>Continue</AlertDialog.Action
+										<AlertDialog.Action class="cursor-pointer" onclick={handleDeleteBatch}
+											>Continue</AlertDialog.Action
 										>
 									</AlertDialog.Footer>
 								</AlertDialog.Content>
