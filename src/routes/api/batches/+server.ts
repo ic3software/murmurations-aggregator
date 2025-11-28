@@ -241,6 +241,13 @@ const validateBatchImport = async (
 		});
 
 		if (!response.ok) {
+			if (response.status === 413) {
+				return json(
+					{ error: 'File size too large. The maximum file size is 8 MB.', success: false },
+					{ status: 413 }
+				);
+			}
+
 			const res = await response.json();
 			if (res.errors) {
 				return json({ errors: res.errors, success: false }, { status: response.status });
